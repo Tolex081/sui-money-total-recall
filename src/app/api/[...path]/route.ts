@@ -4,8 +4,8 @@ import { randomUUID } from 'node:crypto';
 import { database,transaction } from '@/adapters/postgres/client';
 import { authenticate,issueChallenge,verifyChallenge,revoke,sessionCookie,CONSENT_VERSION } from '@/application/auth';
 import { accountState,summarize } from '@/application/state';
-import { savePlan,saveCommitment,newEvent,queueEvent } from '@/application/commands';
-import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule } from '@/application/activity';
+import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,reverseCommitmentAllocation } from '@/application/commands';
+import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
 import { advanceMemoryJob,refreshRecall } from '@/application/memory-jobs';
 import { syncWallet } from '@/application/sync';
 import { consumeLimits } from '@/lib/rate-limit';
@@ -26,9 +26,9 @@ async function body(request:Request) {
   try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw new AppError('INVALID_JSON',400,'Malformed JSON body.');}
 }
 async function proof() {
-  const base={mode:appMode(),network:'Sui Mainnet only',build:process.env.VERCEL_GIT_COMMIT_SHA??'local-uncommitted',tatum:{state:'not_verified'},walrus:{state:'not_verified',confirmedDemoMemories:0},deployment:{state:'not_verified'},checkedAt:null};
+  const base={mode:appMode(),network:'Sui Mainnet only',build:process.env.BUILD_SOURCE_REVISION||process.env.VERCEL_GIT_COMMIT_SHA||'local-uncommitted',tatum:{state:'not_verified'},walrus:{state:'not_verified',confirmedDemoMemories:0},deployment:{state:'not_verified'},checkedAt:null};
   if(!process.env.DATABASE_URL)return base;
-  try{const rows=(await database().query('SELECT id,payload,checked_at FROM public_proof')).rows;return {...base,evidence:rows.map(r=>({id:r.id,...r.payload,checkedAt:r.checked_at}))};}catch{return {...base,database:{state:'unavailable'}};}
+  try{const rows=(await database().query('SELECT id,payload,checked_at FROM public_proof')).rows;const integration=rows.find(r=>r.id==='integrations')?.payload,seed=rows.find(r=>r.id==='seed')?.payload;return {...base,tatum:integration?.tatum??base.tatum,walrus:{...(integration?.walrus??base.walrus),confirmedDemoMemories:seed?.confirmedActiveStoredCount??0,retentionVerified:seed?.retentionVerified??false},deployment:integration?{state:'runtime_verified',runtime:integration.runtime,checkedAt:integration.checkedAt,commit:integration.commit}:base.deployment,evidence:rows.map(r=>({id:r.id,...r.payload,checkedAt:r.checked_at}))};}catch{return {...base,database:{state:'unavailable'}};}
 }
 async function handle(request:Request) {
   const path=new URL(request.url).pathname.replace(/^\/api\//,'');const method=request.method;
@@ -48,7 +48,8 @@ async function handle(request:Request) {
     }
     return json(demoState());
   }
-  if(process.env.PERSONAL_ACCESS_ENABLED==='false')throw new AppError('RELEASE_GATE',503,'Personal accounts are gated while mandatory live verification is completed. The read-only demo and proof remain available.');
+  const identityOnly=['auth/challenge','auth/verify','auth/logout','account'].includes(path);
+  if(process.env.PERSONAL_ACCESS_ENABLED==='false'&&!identityOnly)throw new AppError('RELEASE_GATE',503,'Personal financial screens are gated while mandatory live verification is completed. Wallet identity verification, the read-only demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
   if(method==='POST'&&path==='auth/challenge'){
     const data=z.object({wallet:z.string().max(80)}).strict().parse(await body(request));
@@ -63,18 +64,21 @@ async function handle(request:Request) {
     response.cookies.set('sm_session',result.sessionToken,{httpOnly:true,secure,sameSite:'lax',path:'/',maxAge:604800});
     response.cookies.set('sm_csrf',result.csrf,{httpOnly:false,secure,sameSite:'strict',path:'/',maxAge:604800});return response;
   }
-  const profile=await authenticate(request,method==='POST');
+  const profile=await authenticate(request,method==='POST',path==='auth/logout');
   if(method==='POST'&&path==='auth/logout'){await revoke(request);const response=json({signedOut:true});response.cookies.delete('sm_session');response.cookies.delete('sm_csrf');return response;}
   if(method==='GET'&&path==='account')return json({wallet:profile.wallet,timezone:profile.timezone,consentVersion:profile.consent_version});
   if(method==='POST'&&path==='plan')return json(await savePlan(profile,await body(request)));
   if(method==='POST'&&profile.consent_version!==CONSENT_VERSION)throw new AppError('CONSENT_REQUIRED',409,'Review the operator-managed memory terms and save your plan to continue.');
   if(method==='POST'&&path==='commitments')return json(await saveCommitment(profile,await body(request)));
+  if(method==='POST'&&path==='preferences/reserve')return json(await rememberReserve(profile,await body(request)));
+  if(method==='POST'&&/^commitment-allocations\/[^/]+\/reverse$/.test(path))return json(await reverseCommitmentAllocation(profile,decodeURIComponent(path.split('/')[1])));
   if(method==='POST'&&path==='sync'){const input=z.object({kind:z.enum(['balances','history'])}).strict().parse(await body(request));return json(await syncWallet(profile,input.kind));}
   if(method==='POST'&&/^activity\/[^/]+\/annotation$/.test(path))return json(await annotate(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&path==='destination-rules')return json(await destinationRule(profile,await body(request)));
   if(method==='POST'&&path==='reimbursements')return json(await reimbursement(profile,await body(request)));
   if(method==='POST'&&/^commitments\/[^/]+\/allocate$/.test(path))return json(await allocateCommitment(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&/^suggestions\/[^/]+\/decision$/.test(path))return json(await decideSuggestion(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
+  if(method==='POST'&&/^memories\/[^/]+\/correct$/.test(path))return json(await correctMemory(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&path==='memory-jobs/advance')return json(await advanceMemoryJob(profile));
   if(method==='POST'&&path==='memories/recall')return json(await refreshRecall(profile));
   if(method==='POST'&&/^memories\/[^/]+\/deactivate$/.test(path)){

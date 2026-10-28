@@ -10,4 +10,4 @@ export type Allocation = { id: string; sourceId: string; targetId: string; amoun
 export type Occurrence = { id: string; ruleId: string; dueDate: string; alias: string; category: string; amount: string; cancelled: boolean; learnedEventId?: string };
 export type Plan = { endDate: string | null; endKind: 'income' | 'planning'; reserve: string; timezone: string; version: number; expectedIncome: string | null };
 export type Balance = { usdc: string; sui: string; observedAt: string; checkpoint: string | null; source: 'tatum' | 'synthetic'; stale: boolean };
-export type CommitmentRule = { id: string; alias: string; amount: string; category: string; startDate: string; frequency: 'once' | 'weekly' | 'monthly'; dayOfMonth?: number; effectiveFrom: string; endDate?: string; cancelled?: boolean; learnedEventId?: string; destination?: string | null };
+export type CommitmentRule = { version?: number; id: string; alias: string; amount: string; category: string; startDate: string; frequency: 'once' | 'weekly' | 'monthly'; dayOfMonth?: number; effectiveFrom: string; endDate?: string; cancelled?: boolean; learnedEventId?: string; destination?: string | null };

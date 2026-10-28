@@ -1,0 +1,45 @@
+{
+  "origin": "https://sui-money.vercel.app",
+  "checkedAt": "2026-10-28T16:58:16.443Z",
+  "environment": "production",
+  "commit": "",
+  "runtime": {
+    "node": "v24.21.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "tatum": {
+    "state": "passed",
+    "service": {
+      "network": "mainnet",
+      "chainId": "4btiuiMPvEENsttpZC7CZ53DruC3MAgfznDbASZ7DR6S",
+      "checkpoint": "339121112",
+      "observedAt": "2026-10-28T16:58:09.488Z",
+      "lowestCheckpoint": "237661232",
+      "lowestTransactionCheckpoint": "237661232"
+    },
+    "referenceAddressHash": "1797138d2c1a6ab3650ef0db3aee731d04acda0dbef0c8b0f44a072da27f7e44",
+    "balance": {
+      "usdc": "0",
+      "sui": "160430524",
+      "checkpoint": null,
+      "observedAt": "2026-10-28T16:58:12.323Z",
+      "source": "tatum",
+      "stale": false
+    }
+  },
+  "walrus": {
+    "state": "authenticated_recall_passed",
+    "syntheticBlobIds": [
+      "J7WMooZiPKy0q9BGM5IPfyeBqOYhgpWH_ECfws3Zs-Q",
+      "z9YHooXQ_ApA-qOrgPEXnC2hKfTGuoJ0KsDMtKBJ4HI",
+      "Xw66bVCjR-RflFexoIcs2Y3pjxRq2WnqU96toVN24HA",
+      "vMeml5buJoFh2XhXWF19Nv2iepLRcXKiOysin1HJtpE",
+      "1Oz6jpaXb1r5jmd_C_6i6Zn011gQx0wn7HXvC2nkcuA"
+    ],
+    "totalReturned": 5
+  },
+  "database": {
+    "state": "write_read_passed"
+  }
+}

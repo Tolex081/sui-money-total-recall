@@ -12,7 +12,7 @@ test('public demo: core screens, learning comparison and honest proof',async({pa
   await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('link',{name:'Plan',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Make room for what’s next.'})).toBeVisible();
   await expect(page.getByRole('button',{name:'Add commitment'})).toBeDisabled();
-  await page.goto('/proof');await expect(page.getByText('VERIFICATION PENDING').first()).toBeVisible();
+  await page.goto('/proof');await expect(page.getByRole('heading',{name:'Recorded public evidence'})).toBeVisible();
 });
 test('390px and 1440px have no horizontal page overflow, keyboard focus and accessible labels',async({page})=>{
   for(const width of [390,1440]){

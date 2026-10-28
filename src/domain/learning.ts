@@ -5,6 +5,7 @@ const base = z.object({ schemaVersion: z.literal(1), eventId: z.string().min(1).
 const annotation = z.object({ movementId: z.string().max(120), category: safeText, note: safeText, ownTransfer: z.boolean() }).strict();
 const recurrence = z.object({ ruleId: z.string().max(100), alias: safeText, amount: z.string().regex(/^\d{1,78}$/), category: safeText, nextDate: z.iso.date(), frequency: z.enum(['once','weekly','monthly']), destination: z.string().max(100).nullable().optional(), associateRuleId: z.string().max(100).optional() }).strict();
 const decision = z.object({ suggestionId: z.string().max(2000), decision: z.enum(['confirmed','rejected']) }).strict();
+const preference=z.union([z.object({preference:z.enum(['reserve','horizon','category']),value:safeText}).strict(),z.object({preference:z.literal('reserve'),value:z.string().regex(/^\d{1,78}$/)}).strict()]);
 const variants = [
   z.object({ kind: z.literal('payment_explanation'), payload: annotation }),
   z.object({ kind: z.literal('category_rule'), payload: z.object({ destinationId: z.string().max(100), category: safeText }).strict() }),
@@ -12,7 +13,7 @@ const variants = [
   z.object({ kind: z.literal('reimbursement_link'), payload: z.object({ allocationIds: z.array(z.string().max(100)).min(1).max(20) }).strict() }),
   z.object({ kind: z.literal('recurrence_confirmation'), payload: recurrence }),
   z.object({ kind: z.literal('suggestion_decision'), payload: decision }),
-  z.object({ kind: z.literal('planning_preference'), payload: z.object({ preference: z.enum(['reserve','horizon','category']), value: safeText }).strict() }),
+  z.object({ kind: z.literal('planning_preference'), payload: preference }),
   z.object({ kind: z.literal('correction'), payload: z.discriminatedUnion('targetKind', [z.object({ targetKind: z.literal('annotation'), value: annotation }).strict(), z.object({ targetKind: z.literal('recurrence'), value: recurrence }).strict(), z.object({ targetKind: z.literal('reimbursement'), value: z.object({ reverseIds: z.array(z.string().max(100)).max(20) }).strict() })]) }),
   z.object({ kind: z.literal('deactivation'), payload: z.object({ reason: safeText }).strict() }),
 ] as const;

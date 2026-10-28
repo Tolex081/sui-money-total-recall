@@ -71,3 +71,17 @@ export async function queueEvent(db:PoolClient,profile:Profile,raw:unknown,expec
 export function newEvent(profile:Profile,input:Pick<LearnedEvent,'kind'|'payload'> & {logicalKey:string;sourceRecordIds:string[];expectedRevision:number;supersedesEventId?:string}):LearnedEvent {
   return learnedEventSchema.parse({schemaVersion:1,eventId:randomUUID(),profileId:profile.id,logicalKey:input.logicalKey,revision:input.expectedRevision+1,kind:input.kind,recordedAt:new Date().toISOString(),effectiveFrom:localToday(new Date().toISOString(),profile.timezone),provenance:'user_confirmed',sourceRecordIds:input.sourceRecordIds,supersedesEventId:input.supersedesEventId,payload:input.payload});
 }
+
+export async function rememberReserve(profile:Profile,raw:unknown){
+  const input=z.object({reserve:amountInput,expectedRevision:z.number().int().nonnegative(),supersedesEventId:z.string().max(100).optional()}).strict().parse(raw);
+  return transaction(db=>queueEvent(db,profile,newEvent(profile,{kind:'planning_preference',logicalKey:'preference:reserve',sourceRecordIds:[],expectedRevision:input.expectedRevision,supersedesEventId:input.supersedesEventId,payload:{preference:'reserve',value:input.reserve}}),input.expectedRevision));
+}
+
+export async function reverseCommitmentAllocation(profile:Profile,id:string){
+  return transaction(async db=>{
+    await db.query('SELECT id FROM profiles WHERE id=$1 FOR UPDATE',[profile.id]);
+    const result=await db.query("UPDATE commitment_allocations SET state='reversed' WHERE profile_id=$1 AND id::text=$2 AND state='active' RETURNING id",[profile.id,id]);
+    if(!result.rowCount)throw new AppError('NOT_FOUND',404,'Active allocation not found.');
+    return {saved:true,reversed:true};
+  });
+}

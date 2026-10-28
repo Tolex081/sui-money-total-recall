@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { verifyPersonalMessageSignature } from '@mysten/sui/verify';
+import { parseSerializedSignature } from '@mysten/sui/cryptography';
 import { database, transaction } from '@/adapters/postgres/client';
 import { canonicalAddress } from '@/adapters/tatum/chain';
 import { AppError, hash, namespaceFor, token, equalSecret } from '@/lib/security';
@@ -22,7 +23,10 @@ export async function verifyChallenge(input: { id: string; wallet: string; signa
     const result = await db.query('SELECT * FROM auth_challenges WHERE id=$1 FOR UPDATE',[input.id]);
     const challenge = result.rows[0];
     if (!challenge || challenge.used_at || new Date(challenge.expires_at).getTime() <= Date.now() || challenge.wallet !== wallet || challenge.origin !== new URL(required('APP_ORIGIN')).origin || hash(challenge.message) !== challenge.message_hash) throw new AppError('CHALLENGE_INVALID',401,'Sign-in challenge is invalid or expired. Start again.');
-    try { const publicKey = await verifyPersonalMessageSignature(new TextEncoder().encode(challenge.message),input.signature); if (canonicalAddress(publicKey.toSuiAddress()) !== wallet) throw new Error('Signer mismatch'); }
+    let scheme:string;
+    try{scheme=parseSerializedSignature(input.signature).signatureScheme;}catch{throw new AppError('SIGNATURE_INVALID',401,'Malformed wallet signature.');}
+    if(!['ED25519','Secp256k1','Secp256r1','Passkey'].includes(scheme))throw new AppError('SIGNATURE_SCHEME_UNSUPPORTED',400,'This signature scheme is not enabled yet. Use a supported personal-message signing account.');
+    try { const publicKey = await verifyPersonalMessageSignature(new TextEncoder().encode(challenge.message),input.signature,{address:wallet}); if (canonicalAddress(publicKey.toSuiAddress()) !== wallet) throw new Error('Signer mismatch'); }
     catch { throw new AppError('SIGNATURE_INVALID',401,'The signature could not be verified for this wallet.'); }
     await db.query('UPDATE auth_challenges SET used_at=now() WHERE id=$1',[input.id]);
     let profile = (await db.query<Profile>('SELECT * FROM profiles WHERE wallet=$1',[wallet])).rows[0];
@@ -37,12 +41,14 @@ function cookie(request: Request, name: string) {
   return request.headers.get('cookie')?.split(';').map(s => s.trim()).find(s=>s.startsWith(name+'='))?.slice(name.length+1);
 }
 export const sessionCookie = (request: Request) => cookie(request,'sm_session');
-export async function authenticate(request: Request, mutating=false) {
+export async function authenticate(request: Request, mutating=false, allowWalletMismatch=false) {
   const raw = sessionCookie(request);
   if (!raw || raw.length>100) throw new AppError('UNAUTHORIZED',401,'Connect your wallet and sign in to open your account.');
   const {rows} = await database().query<Profile & {csrf_hash:string}>(`SELECT p.*,s.csrf_hash FROM sessions s JOIN profiles p ON p.id=s.profile_id WHERE s.token_hash=$1 AND s.expires_at>now() AND s.revoked_at IS NULL`,[hash(raw)]);
   const profile = rows[0];
   if (!profile) throw new AppError('UNAUTHORIZED',401,'Your session has expired. Sign in again.');
+  const connected=request.headers.get('x-wallet-address');
+  if(!allowWalletMismatch&&connected&&canonicalAddress(connected)!==profile.wallet)throw new AppError('WALLET_CHANGED',401,'Your connected wallet changed. Sign in again for the selected wallet.');
   if (mutating && (!request.headers.get('x-csrf-token') || !equalSecret(hash(request.headers.get('x-csrf-token')!),profile.csrf_hash))) throw new AppError('CSRF_REJECTED',403,'Refresh this page and try again.');
   return profile;
 }

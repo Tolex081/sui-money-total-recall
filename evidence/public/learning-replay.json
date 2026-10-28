@@ -1,0 +1,645 @@
+{
+  "capturedAt": "2026-10-28T16:52:15.881Z",
+  "hypothetical": true,
+  "provenance": "synthetic_replay",
+  "fixedDate": "2026-10-28",
+  "observedAt": "2026-10-28T12:00:00.000Z",
+  "withMemory": {
+    "plan": {
+      "state": "ready",
+      "days": 11,
+      "commitments": "462000000",
+      "reserve": "180000000",
+      "remainder": "598500000",
+      "discretionary": "598500000",
+      "shortfall": "0",
+      "daily": "54400000",
+      "leftover": "100000",
+      "rows": [
+        {
+          "id": "synthetic-rent:2026-11-01",
+          "ruleId": "synthetic-rent",
+          "dueDate": "2026-11-01",
+          "alias": "Rent",
+          "category": "Home",
+          "amount": "290000000",
+          "cancelled": false,
+          "outstanding": "290000000",
+          "inconsistent": false
+        },
+        {
+          "id": "synthetic-internet:2026-11-03",
+          "ruleId": "synthetic-internet",
+          "dueDate": "2026-11-03",
+          "alias": "Home internet",
+          "category": "Internet",
+          "amount": "38000000",
+          "cancelled": false,
+          "outstanding": "38000000",
+          "inconsistent": false
+        },
+        {
+          "id": "synthetic-weekly-market:2026-10-30",
+          "ruleId": "synthetic-weekly-market",
+          "dueDate": "2026-10-30",
+          "alias": "Weekly groceries",
+          "category": "Groceries",
+          "amount": "45000000",
+          "cancelled": false,
+          "learnedEventId": "synthetic-learning-groceries",
+          "outstanding": "45000000",
+          "inconsistent": false
+        },
+        {
+          "id": "synthetic-weekly-market:2026-11-06",
+          "ruleId": "synthetic-weekly-market",
+          "dueDate": "2026-11-06",
+          "alias": "Weekly groceries",
+          "category": "Groceries",
+          "amount": "45000000",
+          "cancelled": false,
+          "learnedEventId": "synthetic-learning-groceries",
+          "outstanding": "45000000",
+          "inconsistent": false
+        },
+        {
+          "id": "synthetic-weekly-transport:2026-10-29",
+          "ruleId": "synthetic-weekly-transport",
+          "dueDate": "2026-10-29",
+          "alias": "Weekly transport",
+          "category": "Transport",
+          "amount": "22000000",
+          "cancelled": false,
+          "learnedEventId": "synthetic-learning-transport",
+          "outstanding": "22000000",
+          "inconsistent": false
+        },
+        {
+          "id": "synthetic-weekly-transport:2026-11-05",
+          "ruleId": "synthetic-weekly-transport",
+          "dueDate": "2026-11-05",
+          "alias": "Weekly transport",
+          "category": "Transport",
+          "amount": "22000000",
+          "cancelled": false,
+          "learnedEventId": "synthetic-learning-transport",
+          "outstanding": "22000000",
+          "inconsistent": false
+        }
+      ],
+      "observedAt": "2026-10-28T12:00:00.000Z",
+      "stale": false
+    },
+    "spending": {
+      "gross": "318750000",
+      "reimbursed": "15000000",
+      "net": "303750000",
+      "rows": [
+        {
+          "movement": {
+            "id": "synthetic-lunch",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-18500000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-27T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-cafe",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Food",
+          "gross": "18500000",
+          "reimbursed": "0",
+          "net": "18500000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-40000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-26T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "40000000",
+          "reimbursed": "15000000",
+          "net": "25000000",
+          "receipts": [
+            "2026-10-27T10:00:00.000Z"
+          ]
+        },
+        {
+          "movement": {
+            "id": "synthetic-book",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-12000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-24T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-bookshop",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Learning",
+          "gross": "12000000",
+          "reimbursed": "0",
+          "net": "12000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-transport-3",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-22000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-21T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-transport",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Transport",
+          "gross": "22000000",
+          "reimbursed": "0",
+          "net": "22000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-transport-2",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-22000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-14T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-transport",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Transport",
+          "gross": "22000000",
+          "reimbursed": "0",
+          "net": "22000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-transport-1",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-22000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-07T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-transport",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Transport",
+          "gross": "22000000",
+          "reimbursed": "0",
+          "net": "22000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-internet",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-38000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-03T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-internet",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Internet",
+          "gross": "38000000",
+          "reimbursed": "0",
+          "net": "38000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries-2",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-45000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-19T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "45000000",
+          "reimbursed": "0",
+          "net": "45000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries-3",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-45000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-12T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "45000000",
+          "reimbursed": "0",
+          "net": "45000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries-4",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-45000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-05T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "45000000",
+          "reimbursed": "0",
+          "net": "45000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-unknown",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-9250000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-28T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-unknown",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Unclassified",
+          "gross": "9250000",
+          "reimbursed": "0",
+          "net": "9250000",
+          "receipts": []
+        }
+      ],
+      "complete": true,
+      "exclusions": 0
+    }
+  },
+  "withoutSelectedLearnedRules": {
+    "plan": {
+      "state": "ready",
+      "days": 11,
+      "commitments": "328000000",
+      "reserve": "180000000",
+      "remainder": "732500000",
+      "discretionary": "732500000",
+      "shortfall": "0",
+      "daily": "66590000",
+      "leftover": "10000",
+      "rows": [
+        {
+          "id": "synthetic-rent:2026-11-01",
+          "ruleId": "synthetic-rent",
+          "dueDate": "2026-11-01",
+          "alias": "Rent",
+          "category": "Home",
+          "amount": "290000000",
+          "cancelled": false,
+          "outstanding": "290000000",
+          "inconsistent": false
+        },
+        {
+          "id": "synthetic-internet:2026-11-03",
+          "ruleId": "synthetic-internet",
+          "dueDate": "2026-11-03",
+          "alias": "Home internet",
+          "category": "Internet",
+          "amount": "38000000",
+          "cancelled": false,
+          "outstanding": "38000000",
+          "inconsistent": false
+        }
+      ],
+      "observedAt": "2026-10-28T12:00:00.000Z",
+      "stale": false
+    },
+    "spending": {
+      "gross": "438750000",
+      "reimbursed": "15000000",
+      "net": "423750000",
+      "rows": [
+        {
+          "movement": {
+            "id": "synthetic-lunch",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-18500000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-27T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-cafe",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Food",
+          "gross": "18500000",
+          "reimbursed": "0",
+          "net": "18500000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-40000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-26T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "40000000",
+          "reimbursed": "15000000",
+          "net": "25000000",
+          "receipts": [
+            "2026-10-27T10:00:00.000Z"
+          ]
+        },
+        {
+          "movement": {
+            "id": "synthetic-own",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-120000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-25T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-second-wallet",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Unclassified",
+          "gross": "120000000",
+          "reimbursed": "0",
+          "net": "120000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-book",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-12000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-24T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-bookshop",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Learning",
+          "gross": "12000000",
+          "reimbursed": "0",
+          "net": "12000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-transport-3",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-22000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-21T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-transport",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Transport",
+          "gross": "22000000",
+          "reimbursed": "0",
+          "net": "22000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-transport-2",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-22000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-14T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-transport",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Transport",
+          "gross": "22000000",
+          "reimbursed": "0",
+          "net": "22000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-transport-1",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-22000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-07T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-transport",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Transport",
+          "gross": "22000000",
+          "reimbursed": "0",
+          "net": "22000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-internet",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-38000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-03T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-internet",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Internet",
+          "gross": "38000000",
+          "reimbursed": "0",
+          "net": "38000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries-2",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-45000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-19T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "45000000",
+          "reimbursed": "0",
+          "net": "45000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries-3",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-45000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-12T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "45000000",
+          "reimbursed": "0",
+          "net": "45000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-groceries-4",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-45000000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-05T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-market",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Groceries",
+          "gross": "45000000",
+          "reimbursed": "0",
+          "net": "45000000",
+          "receipts": []
+        },
+        {
+          "movement": {
+            "id": "synthetic-unknown",
+            "digest": null,
+            "owner": "fictional-primary-wallet",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "delta": "-9250000",
+            "checkpoint": "100",
+            "timestamp": "2026-10-28T10:00:00.000Z",
+            "status": "success",
+            "operation": "simple_transfer",
+            "counterparty": "synthetic-unknown",
+            "gasPaid": "1200000",
+            "source": "synthetic"
+          },
+          "category": "Unclassified",
+          "gross": "9250000",
+          "reimbursed": "0",
+          "net": "9250000",
+          "receipts": []
+        }
+      ],
+      "complete": true,
+      "exclusions": 0
+    }
+  },
+  "eventIds": [
+    "synthetic-learning-own",
+    "synthetic-learning-groceries",
+    "synthetic-learning-transport"
+  ],
+  "blobIds": [],
+  "mainnetVerified": false
+}

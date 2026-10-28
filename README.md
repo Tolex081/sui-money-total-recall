@@ -4,7 +4,7 @@ Understand what you spent. Make room for what is coming.
 
 A fresh Sui Mainnet application combining native-USDC spending explanations and forward budgeting. SUI balances and network costs stay separate. Today, Activity and Plan are the core screens. No custody, transfers, bank integration, token pricing or multiple chains.
 
-**Status: implementation and verification in progress; not a completed or submitted hackathon entry.** The local production build, exact-arithmetic tests and real PostgreSQL allocation/authentication tests have passed. Tatum Mainnet identity, coin metadata, a reference balance (including zero USDC), bounded history transport and signed MemWal recall have passed. One synthetic Mainnet memory write completed with matching recall. Incoming/outgoing populated history, real scan resume, production runtime and genuine deployed-wallet sign-in still need evidence. See [verification](docs/VERIFICATION_REPORT.md), [open items](docs/OPEN_ITEMS.md) and the [requirement matrix](docs/EVIDENCE.md).
+**Status: built and deployed for public review; personal release and submission remain gated.** [Open the demo](https://sui-money.vercel.app/demo) or [inspect proof](https://sui-money.vercel.app/proof). Actual Tatum Mainnet native-USDC incoming/outgoing transactions, pagination and balances are verified. All 24 approved synthetic Mainnet memories are stored and recall-confirmed, with expiry covering 30 November 2026. The deployed Node 24 runtime passed Tatum, signed MemWal recall and PostgreSQL write/read. Exact financial, real database and public-demo browser checks have passed; final-source results are in `evidence/public/quality.json`. Genuine installed-wallet/cross-session learning and the [live balance snapshot contract](docs/BALANCE_CONSISTENCY.md) remain open. Article/video are drafts; no submission receipt is claimed. See [verification](docs/VERIFICATION_REPORT.md), [open items](docs/OPEN_ITEMS.md) and the [requirement matrix](docs/EVIDENCE.md).
 
 ## Explore
 
@@ -16,7 +16,7 @@ Demo finances are fictional, fixed at 28 October 2026. Learning interactions are
 
 ## Run locally
 
-Node 22.17+ and npm are required. Use `npm.cmd` on Windows if PowerShell blocks npm.ps1.
+Node 24 and npm are the deployment/CI target. Initial local checks also ran on Node 22.17.1. Use `npm.cmd` on Windows if PowerShell blocks npm.ps1.
 
 ```text
 npm ci
@@ -41,15 +41,15 @@ npm run test:db
 npm run test:e2e
 npm run build
 npm run scan:secrets
+npm run verify:quality
 npm run smoke:live
-npm run smoke:live -- --write
-npm run seed:mainnet -- --write
+npm run audit:seed
 npm run verify:evidence
 npm run snapshot:learning
 npm run audit:submission
 ```
 
-`test:db` uses `TEST_DATABASE_URL` (unpooled) or a local test PostgreSQL URL and a disposable isolated schema, removed afterward. It never drops the application schema. `smoke:live` is read-only by default. Its write flag is a separately authorized single synthetic event. The exact reviewed 24-event Mainnet batch is documented in [seed review](docs/SEED_REVIEW.md); it is resumable, capped at four writes per minute and cannot duplicate a completed deterministic ID. Never repeat writes to inflate counts.
+`test:db` uses `TEST_DATABASE_URL` (unpooled) or a local test PostgreSQL URL and a disposable isolated schema, removed afterward. It never drops the application schema. `smoke:live` is read-only by default; its `--write` flag would create another event and is not a routine verification command. The exact [reviewed 24-event batch](docs/SEED_REVIEW.md) is complete. Refresh it through read-only `audit:seed`; do not change/repeat payloads, create extra records, renew storage or transfer funds without separate explicit authorization.
 
 ## Architecture
 

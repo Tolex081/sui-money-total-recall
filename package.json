@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.17.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
@@ -21,7 +21,9 @@
     "verify:evidence": "tsx scripts/evidence.ts verify",
     "snapshot:learning": "tsx scripts/snapshot-learning.ts",
     "audit:submission": "tsx scripts/evidence.ts submission",
-    "scan:secrets": "tsx scripts/scan-secrets.ts"
+    "scan:secrets": "tsx scripts/scan-secrets.ts",
+    "verify:quality": "node scripts/quality.mjs",
+    "audit:seed": "tsx --env-file-if-exists=.env.local scripts/audit-seed.ts"
   },
   "dependencies": {
     "@grpc/grpc-js": "1.14.6",
@@ -29,6 +31,7 @@
     "@mysten-incubation/memwal": "0.1.11",
     "@mysten/dapp-kit-react": "2.1.43",
     "@mysten/sui": "2.38.0",
+    "@noble/hashes": "2.4.0",
     "@protobuf-ts/grpc-transport": "2.11.1",
     "lucide-react": "1.63.0",
     "next": "16.4.3",
@@ -41,10 +44,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
     "@electric-sql/pglite": "0.5.13",
-    "@esbuild/win32-x64": "0.28.2",
-    "@next/swc-win32-x64-msvc": "16.4.3",
     "@playwright/test": "1.64.1",
-    "@rollup/rollup-win32-x64-msvc": "4.66.0",
     "@types/node": "26.6.5",
     "@types/pg": "8.23.1",
     "@types/react": "19.3.0",

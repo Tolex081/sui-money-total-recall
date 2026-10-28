@@ -2,6 +2,8 @@ import { Temporal } from '@js-temporal/polyfill';
 import { integer, USDC_TYPE } from './money';
 import { localToday } from './planning';
 import { eligibleExpense } from './spending';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import type { Annotation, CommitmentRule, Movement, Occurrence } from './types';
 export function occurrences(rules: CommitmentRule[], through: string): Occurrence[] {
   const rows: Occurrence[] = [];
@@ -34,6 +36,7 @@ export function weeklySuggestions(movements: Movement[], annotations: Annotation
     const mid = Math.floor(amounts.length / 2);
     const median = amounts.length % 2 ? amounts[mid] : (amounts[mid - 1] + amounts[mid]) / 2n;
     if (amounts.some(a => (a > median ? a - median : median - a) * 100n > median * 5n)) return [];
-    return [{ id: key + '|' + rows.map(m => m.id + ':' + m.delta).join(','), sourceIds: rows.map(m => m.id), median: median.toString(), nextDate: dates.at(-1)!.add({ days: 7 }).toString(), category: annotations.find(a => a.movementId === rows[0].id)!.category, destination: rows[0].counterparty }];
+    const id='pattern_'+bytesToHex(sha256(new TextEncoder().encode(key+'|'+rows.map(m=>m.id+':'+m.delta).join(','))));
+    return [{ id, sourceIds: rows.map(m => m.id), median: median.toString(), nextDate: dates.at(-1)!.add({ days: 7 }).toString(), category: annotations.find(a => a.movementId === rows[0].id)!.category, destination: rows[0].counterparty }];
   });
 }

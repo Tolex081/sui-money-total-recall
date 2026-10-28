@@ -1,0 +1,64 @@
+{
+  "checkedAt": "2026-10-28T22:23:02.213Z",
+  "base": "http://localhost:3100",
+  "automatedCaptures": true,
+  "manualVisualReview": false,
+  "checks": [
+    {
+      "screen": "demo",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-390.png"
+    },
+    {
+      "screen": "demo/activity",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-activity-390.png"
+    },
+    {
+      "screen": "demo/plan",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-plan-390.png"
+    },
+    {
+      "screen": "proof",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/proof-390.png"
+    },
+    {
+      "screen": "demo",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-1440.png"
+    },
+    {
+      "screen": "demo/activity",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-activity-1440.png"
+    },
+    {
+      "screen": "demo/plan",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-plan-1440.png"
+    },
+    {
+      "screen": "proof",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/proof-1440.png"
+    }
+  ]
+}

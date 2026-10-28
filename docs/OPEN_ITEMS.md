@@ -1,12 +1,18 @@
 # Open items
 
-| ID | Owner | Severity | Source / impact | Exact next action | Status / resolution evidence |
-|---|---|---|---|---|---|
-| O01 | Builder | Critical | G02–G04: Tatum entitlement and both-direction history | Configure TATUM_API_KEY privately; supply an authorized public reference address/digests; run read-only live spike. Confirm free quota in dashboard. | Open; no app key present |
-| O02 | Builder | Critical | G06–G08/G12: Mainnet memory identity, writes, recall, quota and expiry | Configure a registered server delegate privately (never owner key); verify sponsored/free behavior and retention before any write. | Open; no app credentials present |
-| O03 | Builder + implementation | Critical | G05/G10: durable PostgreSQL and deployment | Discover available free storage/hosting; configure pooled DATABASE_URL; run migrations and deployed spike. | Open |
-| O04 | Builder | Release | G01/G11/H09: eligibility, live form, ambiguous published rules | Inspect current rules/form, confirm eligibility and one submission; retain clarification for any material ambiguity. | Open |
-| O05 | Builder | Release | G13: real learning across actual sessions | After live integrations pass, confirm recurrence and record real correction across sessions with consent and redacted evidence. | Open |
-| O06 | Builder | Release | H04/H05/H07/H08: public artifacts | Publish repository/app/article/video and submit form, retaining actual URLs and receipt. Drafts alone do not qualify. | Open |
+Last reviewed 28 October 2026. Closed prerequisites are not requested again. Credentials belong only in ignored local configuration and server secrets.
 
-No spending, billing attachment, wallet funding or value transfer is authorized. Continue independent domain/UI work around integration blockers.
+| ID | Owner | Severity | Impact | Exact next action | Status / evidence |
+|---|---|---|---|---|---|
+| O01 | Implementation | Closed | G02–G04 public native-USDC history | No builder action. Suitable public examples were found and independently read through Tatum. | `transfer-reference.json`: incoming +50 base units, outgoing −60000000; two resumed pages; incoming sender differs from reference wallet. |
+| O02 | Implementation | Closed | G06/G07/G12 seed lifecycle and retention | No more seed writes. Use `npm run audit:seed` for read-only refresh. | `seed-mainnet.json`: 24 distinct active stored blobs, matching signed recalls; every expiry covers 30 November 2026. |
+| O03 | Implementation | Verified boundary; final revision pending | G05/G10 durable DB and deployed runtime | Re-run the enhanced runtime probe after final deployment. | `deployed-runtime.json`: actual Node v24.21.0 Linux, Tatum balance, signed MemWal recall and PostgreSQL write/read. Real isolated-schema DB tests pass. |
+| O04 | Tatum/provider contract + implementation | Critical | F08/F09 commitment settlement versus balance snapshot | Obtain a supported atomic balance checkpoint/index watermark or another verified Tatum contract proving a balance includes a payment. Add actual adapter evidence and tests before personal release. No transfers are needed. | Open. GetBalance has no matching checkpoint; the latest-checkpoint response header is appended independently. Adapter returns checkpoint null; matched allocations stay pending. See `BALANCE_CONSISTENCY.md`. |
+| O05 | Builder + implementation | Release | G09/G13 genuine installed-wallet and learning acceptance | Complete isolated browser/security acceptance, then prepare exact minimal personal context for separate review. After approval, sign in with an installed supported wallet, confirm a recurrence, return in another actual session and correct it. Retain actual event/blob IDs and before/after inputs. | Open. Public reference activity, generated test wallets and synthetic seed records do not establish real personal sessions. No extra personal memory writes are authorized. |
+| O06 | Builder | Release | G01/G08/G11/H09 eligibility, current form and actual account limits | Inspect current form flags; confirm eligibility and one entry. Verify Tatum dashboard quota/charges and sponsored MemWal setup without upgrading, funding or enabling billing. | Open. Builder confirmed sponsored/no-charge setup; quota dashboard evidence and current form inspection remain unrecorded. |
+| O07 | Builder + implementation | Release | H04/H05/H07/H08 public deliverables | Publish clean repository and verify CI; publish article after real learning evidence; record/upload 2–3 minute video; verify URLs signed out; submit once and retain receipt. | App alias is public. Article/video/social remain drafts. Submission is not claimed. |
+| O08 | Implementation | Verification | P02/P04/P09/P12/P14 full acceptance | Complete route-level resource injection, fresh authenticated-browser persistence and each dependency-down recovery journey. Record final CI, visual checks, source fingerprint and deployed revision. | Open until actual results exist. Pure, database and public-demo passes do not certify missing personal flows. |
+
+Public artifacts above are in `evidence/public/`. Automatic approval review temporarily failed with a usage-limit error; the command did not execute. Review recovered after the reported reset time and verification resumed.
+
+No funding, value transfer, paid plan, extra memory batch or paid renewal is authorized. The exact 24-event seed approval is complete and is not permission for different records.

@@ -15,6 +15,8 @@ All handlers run in Node. Bodies are strict Zod-validated JSON, bounded to 16 KB
 | GET /api/plan | Explicit plan, rules, occurrences and allocations |
 | POST /api/plan | End date/kind, decimal reserve, optional expected income, timezone, expected version and consent; preview acknowledgement for timezone change |
 | POST /api/commitments | Alias, decimal amount, category, start local date, recurrence; optional ID/version for edits |
+| POST /api/preferences/reserve | Decimal reserve and expected memory revision; queues a preference; never silently overwrites an explicit plan |
+| POST /api/commitment-allocations/:id/reverse | Scoped reversal; restores the obligation without changing wallet facts |
 | POST /api/sync | `{kind: "balances" | "history"}`; bounded work and persisted progress |
 | POST /api/activity/:id/annotation | Category/note/own-transfer interpretation, expected revision and superseded ID; queues memory |
 | POST /api/destination-rules | Explicit own/category default confirmed separately from a note |
@@ -24,9 +26,10 @@ All handlers run in Node. Bodies are strict Zod-validated JSON, bounded to 16 KB
 | POST /api/suggestions/:id/decision | Confirm/reject; confirmation includes user-selected amount/date/alias and optional explicit association |
 | GET /api/memory-jobs/:id | Scoped outbox/job status and provenance |
 | POST /api/memory-jobs/advance | Advance one bounded job step; no unawaited work after response |
-| POST /api/memories/recall | Signed scoped recall; validates envelope identities against structured records |
+| POST /api/memories/recall | Enumerates scoped storage availability/expiry, then signed recall; validates identities against structured records |
 | GET /api/memories | Complete profile event history and cached/verified status |
 | POST /api/memories/:id/deactivate | Expected revision plus reason; prior rule stays active while pending |
+| POST /api/memories/:id/correct | Confirmed recurrence amount/date/frequency correction, or explicit reimbursement reversal; new revision waits for storage/recall |
 | GET /api/learning-comparison | Hypothetical same-input comparison |
 | GET /api/export | Versioned user-only JSON; no signatures, nonces, credentials or session tokens |
 | GET /api/demo/* | Public read-only fictional data; no public writes or on-demand external scans |

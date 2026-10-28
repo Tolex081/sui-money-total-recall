@@ -1,9 +1,9 @@
 {
-  "checkedAt": "2026-10-28T16:01:52.989Z",
+  "checkedAt": "2026-10-28T22:32:03.880Z",
   "environment": "authenticated-neon-postgresql-isolated-schema",
   "tests": [
     {
-      "test": "Empty PostgreSQL migration",
+      "test": "Empty PostgreSQL migrations through version 3",
       "passed": true
     },
     {
@@ -47,11 +47,27 @@
       "passed": true
     },
     {
+      "test": "Wallet switch rejects a session for the previous address",
+      "passed": true
+    },
+    {
       "test": "CSRF, missing session and revocation enforced",
       "passed": true
     },
     {
       "test": "Optimistic plan edit rejects concurrent stale version",
+      "passed": true
+    },
+    {
+      "test": "F19 unknown memory submission persists across calls and never resubmits",
+      "passed": true
+    },
+    {
+      "test": "HTTP handlers reject cross-profile resource IDs, namespace injection and export leakage",
+      "passed": true
+    },
+    {
+      "test": "F20 expired confirmed context cannot generate future unpaid obligations",
       "passed": true
     }
   ],

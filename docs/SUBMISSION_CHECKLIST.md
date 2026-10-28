@@ -6,12 +6,12 @@ Current source review: event landing page and Walrus event rules were re-opened 
 
 | Deliverable / field category | Current status / builder action |
 |---|---|
-| Working public app | Project created, deployment verification pending |
+| Working public app | https://sui-money.vercel.app/demo ; deployed runtime passed; final source redeploy and personal release gates tracked separately |
 | Public repository | Fresh local repository; publication pending |
 | Published article | Complete draft in BLOG.md; builder publishes and records URL after real learning evidence |
 | 2–3 minute video | Script prepared; builder records/uploads; verify signed-out playback |
-| Mainnet memory evidence | One completed synthetic spike; approved 24-event batch in progress; require ≥15 distinct confirmed active stored product memories |
-| Tatum evidence | Mainnet identity/metadata/balances and bounded history transport passed; public populated reference investigation continues |
+| Mainnet memory evidence | One completed synthetic spike plus all 24 approved product seed records stored/recalled; every expiry covers 30 November 2026 |
+| Tatum evidence | Mainnet identity/metadata/balances, public native-USDC incoming/outgoing, direct re-read and cursor resume passed; live atomic balance snapshot remains open |
 | Builder contact/profile | Builder enters email, Discord, LinkedIn and discovery/experience answers in current form |
 | Tatum ID | Dashboard account ID, never the API key |
 | SUI address / Account ID (SUI) | Builder confirms exact current form labels; do not confuse wallet address with MemWal object ID |
