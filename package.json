@@ -1,0 +1,65 @@
+{
+  "name": "sui-money",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.17.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:db": "tsx --env-file-if-exists=.env.local scripts/db-test.ts",
+    "test:e2e": "playwright test",
+    "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts",
+    "smoke:live": "tsx --env-file-if-exists=.env.local scripts/smoke-live.ts",
+    "seed:mainnet": "tsx --env-file-if-exists=.env.local scripts/seed-mainnet.ts",
+    "verify:evidence": "tsx scripts/evidence.ts verify",
+    "snapshot:learning": "tsx scripts/snapshot-learning.ts",
+    "audit:submission": "tsx scripts/evidence.ts submission",
+    "scan:secrets": "tsx scripts/scan-secrets.ts"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "1.14.6",
+    "@js-temporal/polyfill": "0.5.1",
+    "@mysten-incubation/memwal": "0.1.11",
+    "@mysten/dapp-kit-react": "2.1.43",
+    "@mysten/sui": "2.38.0",
+    "@protobuf-ts/grpc-transport": "2.11.1",
+    "lucide-react": "1.63.0",
+    "next": "16.4.3",
+    "pg": "8.23.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@electric-sql/pglite": "0.5.13",
+    "@esbuild/win32-x64": "0.28.2",
+    "@next/swc-win32-x64-msvc": "16.4.3",
+    "@playwright/test": "1.64.1",
+    "@rollup/rollup-win32-x64-msvc": "4.66.0",
+    "@types/node": "26.6.5",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.3",
+    "fast-check": "4.10.2",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "0.28.2",
+    "@next/swc-win32-x64-msvc": "16.4.3",
+    "@rolldown/binding-win32-x64-msvc": "1.2.15",
+    "@rollup/rollup-win32-x64-msvc": "4.66.0"
+  }
+}

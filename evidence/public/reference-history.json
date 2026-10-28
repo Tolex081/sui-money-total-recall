@@ -1,0 +1,79 @@
+{
+  "checkedAt": "2026-10-28T16:24:22.877Z",
+  "source": "Tatum gRPC public reference data, unrelated to fictional demo finances",
+  "referenceAddress": "0x6b1f333b9c3f7a4ea29e0d4b9d7cf3d8bb9e4770161fd1e56dd9dde192042c58",
+  "fromCheckpoint": "339062534",
+  "toCheckpoint": "339112535",
+  "discovery": {
+    "movement": {
+      "id": "mov_57d923f66045704866708bbb631d168342af8954",
+      "digest": "2Bqko9xfEVuh5MXCMF3HK7s3LWm6fdVFqPo6yV8ZWJy4",
+      "owner": "0x6b1f333b9c3f7a4ea29e0d4b9d7cf3d8bb9e4770161fd1e56dd9dde192042c58",
+      "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+      "delta": "-72771914140",
+      "checkpoint": "339112533",
+      "timestamp": "2026-10-28T16:24:24.166Z",
+      "status": "success",
+      "operation": "complex",
+      "counterparty": null,
+      "gasPaid": "-14290",
+      "source": "tatum"
+    },
+    "sender": "0x6b1f333b9c3f7a4ea29e0d4b9d7cf3d8bb9e4770161fd1e56dd9dde192042c58"
+  },
+  "movements": [
+    {
+      "id": "mov_aaabfb47548a55be11eb7f05df76692a5b4da674",
+      "digest": "JUv2uDr4iq77UhEuXqg4Ahu3UN2LwEfymqBeHEWDiaA",
+      "owner": "0x6b1f333b9c3f7a4ea29e0d4b9d7cf3d8bb9e4770161fd1e56dd9dde192042c58",
+      "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+      "delta": "86533340246",
+      "checkpoint": "339111646",
+      "timestamp": "2026-10-28T16:20:56.273Z",
+      "status": "success",
+      "operation": "complex",
+      "counterparty": null,
+      "gasPaid": "18123935",
+      "source": "tatum"
+    },
+    {
+      "id": "mov_57d923f66045704866708bbb631d168342af8954",
+      "digest": "2Bqko9xfEVuh5MXCMF3HK7s3LWm6fdVFqPo6yV8ZWJy4",
+      "owner": "0x6b1f333b9c3f7a4ea29e0d4b9d7cf3d8bb9e4770161fd1e56dd9dde192042c58",
+      "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+      "delta": "-72771914140",
+      "checkpoint": "339112533",
+      "timestamp": "2026-10-28T16:24:24.166Z",
+      "status": "success",
+      "operation": "complex",
+      "counterparty": null,
+      "gasPaid": "-14290",
+      "source": "tatum"
+    }
+  ],
+  "pages": [
+    {
+      "count": 30,
+      "cursor": "KAE6DAjvndmhARDnpszfFw",
+      "complete": false,
+      "reason": "ITEM_LIMIT",
+      "scanned": "339103472"
+    },
+    {
+      "count": 30,
+      "cursor": "KAE6DAjk69ihARCXm8HfFw",
+      "complete": false,
+      "reason": "ITEM_LIMIT",
+      "scanned": "339097061"
+    },
+    {
+      "count": 30,
+      "cursor": "KAE6DAiNkdihARDD26vfFw",
+      "complete": false,
+      "reason": "ITEM_LIMIT",
+      "scanned": "339085454"
+    }
+  ],
+  "bothDirections": true,
+  "paginationVerified": true
+}

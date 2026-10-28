@@ -1,0 +1,23 @@
+# What a wallet balance cannot tell you
+
+Article draft — not published. Update deployment/repository links and the actual evidence outcomes before publication. No real personal cross-session story is claimed yet.
+
+A wallet can tell you how much native USDC it holds. It cannot tell you whether an outgoing transfer was lunch, a move to another wallet you own, or a shared expense someone later reimbursed. It also cannot tell you how much of the balance you have already mentally committed to next week's bills.
+
+Sui Money brings those questions together. Today shows the current wallet observation alongside an estimate of what remains after entered obligations and a virtual reserve. Activity keeps immutable onchain facts next to explanations the user confirms. Plan looks forward to a selected income date or planning end date. SUI stays separate for network costs; there is no fiat conversion, bank connection, custody or payment execution.
+
+Tatum supplies the Sui Mainnet facts through native gRPC. The build verifies exact coin types and metadata rather than trusting token symbols. A zero balance is distinct from an unavailable read. History uses an affected-address filter because an incoming payment can matter even when the tracked wallet did not submit the transaction. Bounded streams return progress cursors and termination reasons; an empty page is not automatically the end of a scan. Public reference transactions are kept separate from fictional demo finances and the builder's wallet.
+
+Walrus Memory supplies confirmed context. A short explanation or recurring rule first becomes a versioned event with a durable job. It does not change the active interpretation while the write is merely pending or accepted. After storage completes, the application checks a matching signed recall against the expected event, profile and revision. PostgreSQL retains the complete ledger and validated projections; a semantic top-K search is never used as a financial total.
+
+The first actual integration spike completed a synthetic Mainnet write and matching recall. The evidence report retains its job and blob identifiers. A separately reviewed batch of 24 individually useful synthetic events illustrates explanations, destination rules, reimbursements, preferences, recurrences, corrections and deactivations. Its actual completed count and expiry must be taken from the seed manifest, not this draft.
+
+The public replay makes the arithmetic visible. Its fixed fictional wallet holds 1,240.50 USDC. Explicit rent and internet total 328; the virtual reserve is 180. Without selected learned obligations, 732.50 remains. Remembered groceries and transport add 134 of future commitments, leaving 598.50. The wallet observation is identical in both views. Reclassifying a fictional 120-USDC own transfer lowers consumption spending but does not put that money back into the tracked wallet.
+
+That distinction matters. Subtracting old expenses from the current balance would count them twice. Adding a settled reimbursement again would invent money. Matching a bill payment cannot release its reservation while the app still uses a pre-payment balance. BigInt amounts, local calendar dates, database locks and explicit provenance enforce those boundaries.
+
+The current memory ownership model is operator-managed. One shared account owns the blobs; each signed-in user receives an opaque namespace, with authorization enforced by the server. The managed relayer processes context plaintext before encryption. Users should enter short non-identifying aliases, and export is available for their structured records. Hiding a rule is not a promise of immediate erasure from storage or backups. Actual storage expiry and judging-period retention must be checked.
+
+Before calling the product complete, the remaining release gates must be evidenced: populated incoming/outgoing history and real resume, deployed Tatum/MemWal/PostgreSQL behavior, genuine installed-wallet sign-in, all isolation/recovery checks, retained Mainnet seed count, and one real correction and recurring confirmation across actual sessions. The published version of this article should replace this paragraph with precise tested outcomes and the supported real learning story, including its actual dates.
+
+Public app URL: pending deployment verification. Public repository URL: pending publication. Video URL: pending recording/upload. See the repository verification report for what is implemented, locally tested, live-tested and still blocked. A working demo and transparent evidence are more useful than a claim the build cannot substantiate.

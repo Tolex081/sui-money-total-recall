@@ -1,0 +1,8 @@
+.env*
+!.env.example
+evidence/private
+test-results
+playwright-report
+.git
+node_modules
+.next

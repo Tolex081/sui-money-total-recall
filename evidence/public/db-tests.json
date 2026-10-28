@@ -1,0 +1,59 @@
+{
+  "checkedAt": "2026-10-28T16:01:52.989Z",
+  "environment": "authenticated-neon-postgresql-isolated-schema",
+  "tests": [
+    {
+      "test": "Empty PostgreSQL migration",
+      "passed": true
+    },
+    {
+      "test": "F07 PostgreSQL concurrent reimbursement allocations conserve capacity",
+      "passed": true
+    },
+    {
+      "test": "Cross-profile allocation references rejected",
+      "passed": true
+    },
+    {
+      "test": "Immutable chain facts and duplicate imports",
+      "passed": true
+    },
+    {
+      "test": "F07 commitment allocation race cannot spend one outflow twice",
+      "passed": true
+    },
+    {
+      "test": "Sync page and cursor roll back together",
+      "passed": true
+    },
+    {
+      "test": "G09 valid wallet signature, durable single-use nonce and replay rejection",
+      "passed": true
+    },
+    {
+      "test": "Invalid signature and wrong wallet rejected",
+      "passed": true
+    },
+    {
+      "test": "Expired nonce rejected",
+      "passed": true
+    },
+    {
+      "test": "Concurrent nonce consumption succeeds only once",
+      "passed": true
+    },
+    {
+      "test": "Wrong app domain rejected",
+      "passed": true
+    },
+    {
+      "test": "CSRF, missing session and revocation enforced",
+      "passed": true
+    },
+    {
+      "test": "Optimistic plan edit rejects concurrent stale version",
+      "passed": true
+    }
+  ],
+  "complete": true
+}

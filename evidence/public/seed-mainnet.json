@@ -1,0 +1,787 @@
+{
+  "checkedAt": "2026-10-28T16:39:40.297Z",
+  "network": "mainnet",
+  "provenance": "synthetic_demo",
+  "confirmedActiveStoredCount": 12,
+  "target": 24,
+  "minimum": 15,
+  "complete": false,
+  "retentionTarget": "2026-11-30T23:59:59Z",
+  "retentionVerified": false,
+  "memories": [
+    {
+      "eventId": "sm-demo-v1-category-cafe",
+      "envelope": {
+        "kind": "category_rule",
+        "eventId": "sm-demo-v1-category-cafe",
+        "payload": {
+          "category": "Food",
+          "destinationId": "synthetic-cafe"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "category-cafe",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-lunch"
+        ]
+      },
+      "state": "recall_confirmed",
+      "jobId": "08391045-f5ed-4f30-925b-931dd18a9ea9",
+      "blobId": "oZlo0MEMdor59p4TWbJrHmrcfx2DRTFKF9PMKH_wfv8",
+      "recalledAt": "2026-10-28T16:25:04.155Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:18:43.829736Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-category-market",
+      "envelope": {
+        "kind": "category_rule",
+        "eventId": "sm-demo-v1-category-market",
+        "payload": {
+          "category": "Groceries",
+          "destinationId": "synthetic-market"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "category-market",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-groceries"
+        ]
+      },
+      "state": "recall_confirmed",
+      "jobId": "95eafe86-e699-4bbe-9cbd-8269b94fec26",
+      "blobId": "jhPhkdKTl8oX5EiZnx_dv7g8BdxncLQUXxyKPDAtwTA",
+      "recalledAt": "2026-10-28T16:25:07.812Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:18:43.829736Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-category-transport",
+      "envelope": {
+        "kind": "category_rule",
+        "eventId": "sm-demo-v1-category-transport",
+        "payload": {
+          "category": "Transport",
+          "destinationId": "synthetic-transport"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "category-transport",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-transport-3"
+        ]
+      },
+      "state": "recall_confirmed",
+      "jobId": "cb60ba57-302e-4282-b235-32c748bdd258",
+      "blobId": "-nMT_AfuSvV6xCHi1XabwhFbRdOkje_HlkiVPqeeVus",
+      "recalledAt": "2026-10-28T16:25:11.829Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:18:43.829736Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-correct-allocation",
+      "envelope": {
+        "kind": "correction",
+        "eventId": "sm-demo-v1-correct-allocation",
+        "payload": {
+          "value": {
+            "reverseIds": [
+              "synthetic-allocation-five"
+            ]
+          },
+          "targetKind": "reimbursement"
+        },
+        "revision": 2,
+        "profileId": "synthetic-demo",
+        "logicalKey": "reimbursement-two",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-refund",
+          "synthetic-groceries"
+        ],
+        "supersedesEventId": "sm-demo-v1-reimbursement-two"
+      },
+      "state": "recall_confirmed",
+      "jobId": "ee33e418-96ae-4c6d-b9df-df9f6df14264",
+      "blobId": "BIZ2E1A0dLliKrbChaPuXlFx0Xe0uzFC0gM21geSn6o",
+      "recalledAt": "2026-10-28T16:25:15.512Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:18:43.829736Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-correct-category",
+      "envelope": {
+        "kind": "correction",
+        "eventId": "sm-demo-v1-correct-category",
+        "payload": {
+          "value": {
+            "note": "A new book for learning",
+            "category": "Learning",
+            "movementId": "synthetic-book",
+            "ownTransfer": false
+          },
+          "targetKind": "annotation"
+        },
+        "revision": 2,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-book",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-book"
+        ],
+        "supersedesEventId": "sm-demo-v1-explanation-book"
+      },
+      "state": "recall_confirmed",
+      "jobId": "81ba446a-e018-4ebc-b2b9-e272f0129697",
+      "blobId": "k9QMu8FQ89lFDPVQ4hcdMDN1Xdp8d99HuGrLKpwpwWs",
+      "recalledAt": "2026-10-28T16:28:47.009Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:28:02.854327Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-correct-note",
+      "envelope": {
+        "kind": "correction",
+        "eventId": "sm-demo-v1-correct-note",
+        "payload": {
+          "value": {
+            "note": "Shared lunch was a one-time payment",
+            "category": "Food",
+            "movementId": "synthetic-lunch",
+            "ownTransfer": false
+          },
+          "targetKind": "annotation"
+        },
+        "revision": 2,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-lunch",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-lunch"
+        ],
+        "supersedesEventId": "sm-demo-v1-explanation-lunch"
+      },
+      "state": "recall_confirmed",
+      "jobId": "17946e0b-b16c-40fc-b447-634be5a5ecc2",
+      "blobId": "lDDLqaYZPDieq1Vmme1MqHNeadODULOYLLVmDLrMV9k",
+      "recalledAt": "2026-10-28T16:28:51.208Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:28:02.854327Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-correct-transport",
+      "envelope": {
+        "kind": "correction",
+        "eventId": "sm-demo-v1-correct-transport",
+        "payload": {
+          "value": {
+            "alias": "Weekly transport",
+            "amount": "22000000",
+            "ruleId": "synthetic-weekly-transport",
+            "category": "Transport",
+            "nextDate": "2026-10-29",
+            "frequency": "weekly"
+          },
+          "targetKind": "recurrence"
+        },
+        "revision": 2,
+        "profileId": "synthetic-demo",
+        "logicalKey": "recurring-transport",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-transport-3"
+        ],
+        "supersedesEventId": "sm-demo-v1-recurring-transport"
+      },
+      "state": "recall_confirmed",
+      "jobId": "f47df7d3-dc7c-4f3c-ba78-a005dc7627c8",
+      "blobId": "Ibc4aQ5VDN_U3E-BLvT_2Ue7h-55g1lz9iUPcEdNibs",
+      "recalledAt": "2026-10-28T16:28:55.544Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:28:02.854327Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-disable-category-cafe",
+      "envelope": {
+        "kind": "deactivation",
+        "eventId": "sm-demo-v1-disable-category-cafe",
+        "payload": {
+          "reason": "One lunch does not establish a future category rule"
+        },
+        "revision": 2,
+        "profileId": "synthetic-demo",
+        "logicalKey": "category-cafe",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-lunch"
+        ],
+        "supersedesEventId": "sm-demo-v1-category-cafe"
+      },
+      "state": "recall_confirmed",
+      "jobId": "8acd6269-4587-45ce-b383-a5e0681eaf9e",
+      "blobId": "XQAzRaCbvaPu5eG_iA4EK3szPdzAbiC0gltq573YP9Y",
+      "recalledAt": "2026-10-28T16:29:00.165Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:28:02.854327Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-disable-recurring-book",
+      "envelope": {
+        "kind": "deactivation",
+        "eventId": "sm-demo-v1-disable-recurring-book",
+        "payload": {
+          "reason": "A one-time book is not a weekly commitment"
+        },
+        "revision": 2,
+        "profileId": "synthetic-demo",
+        "logicalKey": "recurring-book",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-book"
+        ],
+        "supersedesEventId": "sm-demo-v1-recurring-book"
+      },
+      "state": "recall_confirmed",
+      "jobId": "12f6970c-17f3-4286-8a32-b760344b8101",
+      "blobId": "J1S0s_qUawUA9w3iGENCesAly-fbeYXLm6n9r6BptNw",
+      "recalledAt": "2026-10-28T16:39:33.618Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:35:22.712977Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-explanation-book",
+      "envelope": {
+        "kind": "payment_explanation",
+        "eventId": "sm-demo-v1-explanation-book",
+        "payload": {
+          "note": "A new book",
+          "category": "Learning",
+          "movementId": "synthetic-book",
+          "ownTransfer": false
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-book",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-book"
+        ]
+      },
+      "state": "recall_confirmed",
+      "jobId": "317ef828-960c-4033-a46d-211eaaf232f4",
+      "blobId": "VGFKo8u3t-tVhB5fI_Zyr8oYa-38B2u1uxvitfuuHR8",
+      "recalledAt": "2026-10-28T16:39:36.906Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:35:22.712977Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-explanation-groceries",
+      "envelope": {
+        "kind": "payment_explanation",
+        "eventId": "sm-demo-v1-explanation-groceries",
+        "payload": {
+          "note": "Shared grocery shop",
+          "category": "Groceries",
+          "movementId": "synthetic-groceries",
+          "ownTransfer": false
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-groceries",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-groceries"
+        ]
+      },
+      "state": "recall_confirmed",
+      "jobId": "5a6fe993-d176-4987-81c2-e66abab8baa1",
+      "blobId": "Fx6hcKEfTZWJ5MaOU0M5Ef7udHkOwrla5L5CWccYJH8",
+      "recalledAt": "2026-10-28T16:39:40.682Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:35:22.712977Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-explanation-lunch",
+      "envelope": {
+        "kind": "payment_explanation",
+        "eventId": "sm-demo-v1-explanation-lunch",
+        "payload": {
+          "note": "Lunch with a friend",
+          "category": "Food",
+          "movementId": "synthetic-lunch",
+          "ownTransfer": false
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-lunch",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-lunch"
+        ]
+      },
+      "state": "recall_confirmed",
+      "jobId": "54855e32-8b0a-4096-b6e4-0bf3fa49b8d6",
+      "blobId": "fpwuUkxCoqcqLZoNinbEXdabl7bmTOQ1hU0o52mpgrc",
+      "recalledAt": "2026-10-28T16:39:44.154Z",
+      "stored": true,
+      "storageStatus": "active",
+      "expiresAt": "2027-05-26T16:35:22.712977Z",
+      "endEpoch": 57,
+      "available": true
+    },
+    {
+      "eventId": "sm-demo-v1-explanation-transport-1",
+      "envelope": {
+        "kind": "payment_explanation",
+        "eventId": "sm-demo-v1-explanation-transport-1",
+        "payload": {
+          "note": "First weekly transport",
+          "category": "Transport",
+          "movementId": "synthetic-transport-1",
+          "ownTransfer": false
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-transport-1",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-transport-1"
+        ]
+      },
+      "state": "accepted",
+      "jobId": "1d2e0d3a-faeb-4c15-b22b-ab777b7400c3",
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-explanation-transport-2",
+      "envelope": {
+        "kind": "payment_explanation",
+        "eventId": "sm-demo-v1-explanation-transport-2",
+        "payload": {
+          "note": "Second weekly transport",
+          "category": "Transport",
+          "movementId": "synthetic-transport-2",
+          "ownTransfer": false
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-transport-2",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-transport-2"
+        ]
+      },
+      "state": "accepted",
+      "jobId": "b7904f39-0035-4d89-9733-8f22a6339415",
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-explanation-transport-3",
+      "envelope": {
+        "kind": "payment_explanation",
+        "eventId": "sm-demo-v1-explanation-transport-3",
+        "payload": {
+          "note": "Third weekly transport",
+          "category": "Transport",
+          "movementId": "synthetic-transport-3",
+          "ownTransfer": false
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "explanation-transport-3",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-transport-3"
+        ]
+      },
+      "state": "accepted",
+      "jobId": "f1dd4660-633a-43d6-8637-b84a8341abcc",
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-own-destination",
+      "envelope": {
+        "kind": "own_destination_rule",
+        "eventId": "sm-demo-v1-own-destination",
+        "payload": {
+          "ownTransfer": true,
+          "destinationId": "synthetic-second-wallet"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "own-destination",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-own"
+        ]
+      },
+      "state": "accepted",
+      "jobId": "e2f44acd-9810-4a61-ab13-019addb2355f",
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-preference-category",
+      "envelope": {
+        "kind": "planning_preference",
+        "eventId": "sm-demo-v1-preference-category",
+        "payload": {
+          "value": "Keep unknown spending visible until explained",
+          "preference": "category"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "preference-category",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-plan"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-preference-horizon",
+      "envelope": {
+        "kind": "planning_preference",
+        "eventId": "sm-demo-v1-preference-horizon",
+        "payload": {
+          "value": "Plan until the next expected income date",
+          "preference": "horizon"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "preference-horizon",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-plan"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-preference-reserve",
+      "envelope": {
+        "kind": "planning_preference",
+        "eventId": "sm-demo-v1-preference-reserve",
+        "payload": {
+          "value": "Keep a virtual reserve of 180 USDC",
+          "preference": "reserve"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "preference-reserve",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-plan"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-recurring-book",
+      "envelope": {
+        "kind": "recurrence_confirmation",
+        "eventId": "sm-demo-v1-recurring-book",
+        "payload": {
+          "alias": "Weekly learning",
+          "amount": "12000000",
+          "ruleId": "synthetic-weekly-book",
+          "category": "Learning",
+          "nextDate": "2026-10-31",
+          "frequency": "weekly"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "recurring-book",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-book"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-recurring-groceries",
+      "envelope": {
+        "kind": "recurrence_confirmation",
+        "eventId": "sm-demo-v1-recurring-groceries",
+        "payload": {
+          "alias": "Weekly groceries",
+          "amount": "45000000",
+          "ruleId": "synthetic-weekly-groceries",
+          "category": "Groceries",
+          "nextDate": "2026-10-30",
+          "frequency": "weekly"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "recurring-groceries",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-groceries"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-recurring-transport",
+      "envelope": {
+        "kind": "recurrence_confirmation",
+        "eventId": "sm-demo-v1-recurring-transport",
+        "payload": {
+          "alias": "Weekly transport",
+          "amount": "25000000",
+          "ruleId": "synthetic-weekly-transport",
+          "category": "Transport",
+          "nextDate": "2026-10-29",
+          "frequency": "weekly"
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "recurring-transport",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-transport-3"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-reimbursement-one",
+      "envelope": {
+        "kind": "reimbursement_link",
+        "eventId": "sm-demo-v1-reimbursement-one",
+        "payload": {
+          "allocationIds": [
+            "synthetic-allocation-ten"
+          ]
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "reimbursement-one",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-refund",
+          "synthetic-groceries"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    },
+    {
+      "eventId": "sm-demo-v1-reimbursement-two",
+      "envelope": {
+        "kind": "reimbursement_link",
+        "eventId": "sm-demo-v1-reimbursement-two",
+        "payload": {
+          "allocationIds": [
+            "synthetic-allocation-five"
+          ]
+        },
+        "revision": 1,
+        "profileId": "synthetic-demo",
+        "logicalKey": "reimbursement-two",
+        "provenance": "synthetic_demo",
+        "recordedAt": "2026-10-28T16:13:50.196Z",
+        "effectiveFrom": "2026-10-28",
+        "schemaVersion": 1,
+        "sourceRecordIds": [
+          "synthetic-refund",
+          "synthetic-groceries"
+        ]
+      },
+      "state": "queued",
+      "jobId": null,
+      "blobId": null,
+      "recalledAt": null,
+      "stored": false,
+      "storageStatus": "not_listed",
+      "expiresAt": null,
+      "endEpoch": null,
+      "available": false
+    }
+  ]
+}

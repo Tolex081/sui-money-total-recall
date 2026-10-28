@@ -1,0 +1,559 @@
+{
+  "source": "Tatum public Mainnet response sample",
+  "checkedAt": "2026-10-28T16:38:56.925Z",
+  "transactions": [
+    {
+      "digest": "2jNtrFZSGA4VyzAwqRkwCvuixDiT4SFLSGAcLJXh9FgR",
+      "changes": [
+        {
+          "address": "0x0dedd7534a3f3caa9924dd2acf5da742910313919727a458af01780df0edc6fe",
+          "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "amount": "-2001643"
+        },
+        {
+          "address": "0x0dedd7534a3f3caa9924dd2acf5da742910313919727a458af01780df0edc6fe",
+          "coinType": "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA",
+          "amount": "1036192266865"
+        },
+        {
+          "address": "0x0dedd7534a3f3caa9924dd2acf5da742910313919727a458af01780df0edc6fe",
+          "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+          "amount": "-271938098"
+        }
+      ],
+      "commands": [
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 2,
+                  "input": 3
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "redeem_funds"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 2,
+                  "input": 1
+                },
+                {
+                  "kind": 2,
+                  "input": 0
+                },
+                {
+                  "kind": 2,
+                  "input": 4
+                },
+                {
+                  "kind": 2,
+                  "input": 5
+                },
+                {
+                  "kind": 2,
+                  "input": 6
+                },
+                {
+                  "kind": 2,
+                  "input": 7
+                },
+                {
+                  "kind": 2,
+                  "input": 2
+                }
+              ],
+              "package": "0x0acd1d187950450ae3e625375f8067a7802e99a05b6e655e1fec124a0e3c891e",
+              "module": "pool",
+              "function": "flash_swap"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 2
+                }
+              ],
+              "package": "0x0acd1d187950450ae3e625375f8067a7802e99a05b6e655e1fec124a0e3c891e",
+              "module": "pool",
+              "function": "swap_pay_amount"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 0
+                },
+                {
+                  "kind": 3,
+                  "result": 2
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "split"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "zero"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 2,
+                  "input": 1
+                },
+                {
+                  "kind": 2,
+                  "input": 0
+                },
+                {
+                  "kind": 3,
+                  "result": 3
+                },
+                {
+                  "kind": 3,
+                  "result": 4
+                },
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 2
+                }
+              ],
+              "package": "0x0acd1d187950450ae3e625375f8067a7802e99a05b6e655e1fec124a0e3c891e",
+              "module": "pool",
+              "function": "repay_flash_swap"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 0
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "destroy_zero"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 1
+                },
+                {
+                  "kind": 2,
+                  "input": 8
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "send_funds"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 0
+                },
+                {
+                  "kind": 2,
+                  "input": 8
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "send_funds"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "digest": "DhbNaEQDujQZz2rTYwnHA1oTjp6Lrvy9prPSE2JnGxhd",
+      "changes": [
+        {
+          "address": "0x0dedd7534a3f3caa9924dd2acf5da742910313919727a458af01780df0edc6fe",
+          "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "amount": "-2001643"
+        },
+        {
+          "address": "0x0dedd7534a3f3caa9924dd2acf5da742910313919727a458af01780df0edc6fe",
+          "coinType": "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA",
+          "amount": "1052962573254"
+        },
+        {
+          "address": "0x0dedd7534a3f3caa9924dd2acf5da742910313919727a458af01780df0edc6fe",
+          "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+          "amount": "-276223393"
+        }
+      ],
+      "commands": [
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 2,
+                  "input": 3
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "redeem_funds"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 2,
+                  "input": 1
+                },
+                {
+                  "kind": 2,
+                  "input": 0
+                },
+                {
+                  "kind": 2,
+                  "input": 4
+                },
+                {
+                  "kind": 2,
+                  "input": 5
+                },
+                {
+                  "kind": 2,
+                  "input": 6
+                },
+                {
+                  "kind": 2,
+                  "input": 7
+                },
+                {
+                  "kind": 2,
+                  "input": 2
+                }
+              ],
+              "package": "0x0acd1d187950450ae3e625375f8067a7802e99a05b6e655e1fec124a0e3c891e",
+              "module": "pool",
+              "function": "flash_swap"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 2
+                }
+              ],
+              "package": "0x0acd1d187950450ae3e625375f8067a7802e99a05b6e655e1fec124a0e3c891e",
+              "module": "pool",
+              "function": "swap_pay_amount"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 0
+                },
+                {
+                  "kind": 3,
+                  "result": 2
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "split"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "zero"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 2,
+                  "input": 1
+                },
+                {
+                  "kind": 2,
+                  "input": 0
+                },
+                {
+                  "kind": 3,
+                  "result": 3
+                },
+                {
+                  "kind": 3,
+                  "result": 4
+                },
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 2
+                }
+              ],
+              "package": "0x0acd1d187950450ae3e625375f8067a7802e99a05b6e655e1fec124a0e3c891e",
+              "module": "pool",
+              "function": "repay_flash_swap"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 0
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "destroy_zero"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0x9f854b3ad20f8161ec0886f15f4a1752bf75d22261556f14cc8d3a1c5d50e529::magma::MAGMA"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 1,
+                  "subresult": 1
+                },
+                {
+                  "kind": 2,
+                  "input": 8
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "send_funds"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 0
+                },
+                {
+                  "kind": 2,
+                  "input": 8
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "send_funds"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "digest": "FaHZBac1zRQmTWJo9NNBnygxAk9uxkKMhoEHG4GLT2Na",
+      "changes": [
+        {
+          "address": "0x5468e414d7f73bf51e449f4cada4cde28db1c27d96490e7b831b5db2772a3886",
+          "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "amount": "-2750999550000"
+        },
+        {
+          "address": "0x60dd01bc037e2c1ea2aaf02187701f9f4453ba323338d2f2f521957065b0984d",
+          "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "amount": "2750998650000"
+        }
+      ],
+      "commands": [
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
+              ],
+              "arguments": [
+                {
+                  "kind": 2,
+                  "input": 0
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "redeem_funds"
+            }
+          }
+        },
+        {
+          "command": {
+            "oneofKind": "moveCall",
+            "moveCall": {
+              "typeArguments": [
+                "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
+              ],
+              "arguments": [
+                {
+                  "kind": 3,
+                  "result": 0
+                },
+                {
+                  "kind": 2,
+                  "input": 1
+                }
+              ],
+              "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "module": "balance",
+              "function": "send_funds"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

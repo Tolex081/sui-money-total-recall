@@ -1,0 +1,104 @@
+{
+  "checkedAt": "2026-10-28T16:02:33.947Z",
+  "environment": "local-authenticated-live",
+  "checks": {
+    "tatum-service": {
+      "state": "passed",
+      "result": {
+        "network": "mainnet",
+        "chainId": "4btiuiMPvEENsttpZC7CZ53DruC3MAgfznDbASZ7DR6S",
+        "checkpoint": "339106972",
+        "observedAt": "2026-10-28T16:02:35.514Z",
+        "lowestCheckpoint": "237661232",
+        "lowestTransactionCheckpoint": "237661232"
+      }
+    },
+    "coin-metadata": {
+      "state": "passed",
+      "result": [
+        {
+          "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+          "decimals": 6,
+          "symbol": "USDC"
+        },
+        {
+          "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "decimals": 9,
+          "symbol": "SUI"
+        }
+      ]
+    },
+    "reference-balances": {
+      "state": "passed",
+      "result": {
+        "usdc": "0",
+        "sui": "160430524",
+        "checkpoint": null,
+        "observedAt": "2026-10-28T16:02:40.544Z",
+        "source": "tatum",
+        "stale": false
+      }
+    },
+    "history-page": {
+      "state": "passed",
+      "result": {
+        "movements": [],
+        "continuation": null,
+        "complete": true,
+        "reason": "CHECKPOINT_BOUND",
+        "transactionCount": 0,
+        "coverage": {
+          "state": "complete",
+          "from": null,
+          "to": null,
+          "reason": "CHECKPOINT_BOUND",
+          "cursor": null,
+          "scannedCheckpoint": "339105972"
+        }
+      }
+    },
+    "history-both-directions": {
+      "state": "unverified",
+      "incoming": false,
+      "outgoing": false,
+      "referenceAddressHash": "1797138d2c1a6ab3650ef0db3aee731d04acda0dbef0c8b0f44a072da27f7e44"
+    },
+    "memory-signed-recall": {
+      "state": "passed",
+      "result": {
+        "returned": 0,
+        "blobIds": []
+      }
+    },
+    "memory-metadata": {
+      "state": "passed",
+      "result": {
+        "stored": 0,
+        "active": 0,
+        "expiry": []
+      }
+    },
+    "postgres-read": {
+      "state": "passed",
+      "result": {
+        "versions": [
+          1
+        ]
+      }
+    },
+    "accepted-job": {
+      "jobId": "7c602459-5474-4e9c-8ff2-6c9e4b567702",
+      "eventId": "spike-8dd69872-f01c-48d2-b8f4-82a4faff7073"
+    },
+    "memory-mainnet-write": {
+      "state": "passed",
+      "result": {
+        "jobId": "7c602459-5474-4e9c-8ff2-6c9e4b567702",
+        "blobId": "J7WMooZiPKy0q9BGM5IPfyeBqOYhgpWH_ECfws3Zs-Q",
+        "eventId": "spike-8dd69872-f01c-48d2-b8f4-82a4faff7073",
+        "recallConfirmed": true
+      }
+    }
+  },
+  "complete": false
+}

@@ -1,0 +1,69 @@
+{
+  "checkedAt": "2026-10-28T16:40:39.348Z",
+  "source": "Actual Tatum gRPC Mainnet ledger and transaction responses",
+  "publicReference": true,
+  "unrelatedToUserWallet": true,
+  "unrelatedToSyntheticFinances": true,
+  "referenceAddress": "0x6d292ddc95b7d4c2e9d3d920091e1afe064ef1b62277dd36261a2e192881d8af",
+  "transactions": [
+    {
+      "id": "mov_c2a832a8a36b84fe938aee89302eb7db59e3a0df",
+      "digest": "GR7GQ1heAEa7bh1eyg6KVhVo87Y35VPR52gZt2gyLLUm",
+      "owner": "0x6d292ddc95b7d4c2e9d3d920091e1afe064ef1b62277dd36261a2e192881d8af",
+      "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+      "delta": "50",
+      "checkpoint": "338724168",
+      "timestamp": "2026-10-27T14:51:56.900Z",
+      "status": "success",
+      "operation": "simple_transfer",
+      "counterparty": "0x7918bf7014a9a7cd351006047a0929534b47ee1c23a1485f53e8b953bbb9eb6a",
+      "gasPaid": "0",
+      "gasCredit": "0",
+      "gasNet": "0",
+      "source": "tatum",
+      "transactionSender": "0x7918bf7014a9a7cd351006047a0929534b47ee1c23a1485f53e8b953bbb9eb6a"
+    },
+    {
+      "id": "mov_7fc35adbfe298432c07be68e9213d87e657d7538",
+      "digest": "Gau4YSCsJZssVNTEE9jL8q8dxUDLq8fJBcdfYvseDwcG",
+      "owner": "0x6d292ddc95b7d4c2e9d3d920091e1afe064ef1b62277dd36261a2e192881d8af",
+      "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+      "delta": "-60000000",
+      "checkpoint": "339116349",
+      "timestamp": "2026-10-28T16:39:21.055Z",
+      "status": "success",
+      "operation": "simple_transfer",
+      "counterparty": "0x791848e8200a91c4f385b6a4d8ffde3efd37cfbebc4725a2763fdb561aa13b6a",
+      "gasPaid": "0",
+      "gasCredit": "0",
+      "gasNet": "0",
+      "source": "tatum",
+      "transactionSender": "0x6d292ddc95b7d4c2e9d3d920091e1afe064ef1b62277dd36261a2e192881d8af"
+    }
+  ],
+  "pages": [
+    {
+      "count": 30,
+      "reason": "ITEM_LIMIT",
+      "continuation": "KAE6DAiUtrGhARD6w9DWFw",
+      "scannedCheckpoint": "338451221"
+    },
+    {
+      "count": 19,
+      "reason": "CHECKPOINT_BOUND",
+      "continuation": null,
+      "scannedCheckpoint": "337116678"
+    }
+  ],
+  "paginationVerified": true,
+  "incomingNotSentByReference": true,
+  "discoveryFilter": "0x2::balance::send_funds",
+  "queriedBounds": {
+    "from": "337116678",
+    "to": "339116679"
+  },
+  "sources": [
+    "https://suiscan.xyz/mainnet/tx/GR7GQ1heAEa7bh1eyg6KVhVo87Y35VPR52gZt2gyLLUm",
+    "https://suiscan.xyz/mainnet/tx/Gau4YSCsJZssVNTEE9jL8q8dxUDLq8fJBcdfYvseDwcG"
+  ]
+}

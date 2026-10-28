@@ -1,0 +1,13 @@
+import { readFile,writeFile } from 'node:fs/promises';
+import { parseEnv } from 'node:util';
+import { randomBytes } from 'node:crypto';
+const read=async file=>{try{return parseEnv(await readFile(file,'utf8'));}catch{return {};}};
+const current=await read('.env.local'),remote=await read('.env.vercel.local');
+const defaults={...parseEnv(await readFile('.env.example','utf8')),DATABASE_URL:remote.DATABASE_URL??remote.POSTGRES_URL??''};
+defaults.TEST_DATABASE_URL=remote.DATABASE_URL_UNPOOLED??remote.POSTGRES_URL_NON_POOLING??'';
+for(const key of Object.keys(defaults))if(!current[key])current[key]=defaults[key];
+for(const key of ['SESSION_SECRET','MEMWAL_NAMESPACE_SECRET','INTERNAL_ADMIN_SECRET'])if(!current[key])current[key]=randomBytes(32).toString('base64url');
+delete current.VERCEL_OIDC_TOKEN;
+await writeFile('.env.local',Object.entries(current).map(([key,value])=>key+'='+JSON.stringify(value)).join('\n')+'\n');
+console.log('Private local configuration updated. Values not printed.');
+console.log('Configured names: '+Object.keys(defaults).filter(k=>current[k]).join(', '));
