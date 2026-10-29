@@ -16,5 +16,5 @@ export function IntegrationSources() {
 }
 
 export function MemoryMascot({hero=false}:{hero?:boolean}) {
-  return <Image className={hero?'mascot-hero':'mascot-memory'} src={mascot} alt={hero?'The Walrus event mascot holding the Tatum mark':''} sizes={hero?'(max-width: 760px) 240px, 360px':'150px'} preload={hero}/>;
+  return <Image className={hero?'mascot-hero':'mascot-memory'} src={mascot} alt={hero?'The Walrus event mascot holding the Tatum mark':''} sizes={hero?'(max-width: 760px) 240px, 360px':'150px'} preload={hero} loading={hero?undefined:'eager'}/>;
 }

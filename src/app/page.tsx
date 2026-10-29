@@ -20,7 +20,7 @@ export default function Home(){
     <IntegrationSources/>
     <section className="landing-preview">
       <div><h2>Less guessing.<br/>More breathing room.</h2><p>Start with the balance already in your wallet. Set aside your bills and a reserve. See what remains before your next income date.</p><Link href="/demo">See the numbers <ArrowRight size={17}/></Link></div>
-      <div className="preview-paper"><div className="row"><span>Fictional account · 28 Oct</span><span className="pill">DEMO</span></div><p>Money remaining after your plan</p><strong>598.50 <small>USDC</small></strong><div className="preview-line"/><div className="row"><span>Wallet balance</span><b>1,240.50 USDC</b></div><div className="row"><span>Upcoming commitments</span><b>−462.00 USDC</b></div><div className="row"><span>Your virtual reserve</span><b>−180.00 USDC</b></div><p className="micro">Synthetic numbers. Estimate based on the entered plan.</p></div>
+      <div className="preview-paper"><div className="row"><span>Fictional account · 28 Oct</span><span className="pill">Demo</span></div><p>Money remaining after your plan</p><strong>598.50 <small>USDC</small></strong><div className="preview-line"/><div className="row"><span>Wallet balance</span><b>1,240.50 USDC</b></div><div className="row"><span>Upcoming commitments</span><b>−462.00 USDC</b></div><div className="row"><span>Your virtual reserve</span><b>−180.00 USDC</b></div><p className="micro">Synthetic numbers. Estimate based on the entered plan.</p></div>
     </section>
     <footer className="landing-footer"><span>Built with Tatum and Walrus Memory. Independent hackathon project.</span><Link href="/about">Scope, privacy & limitations <ArrowUpRight size={14}/></Link></footer>
   </main>;

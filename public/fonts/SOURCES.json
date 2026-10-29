@@ -1,0 +1,20 @@
+{
+  "retrievedAt": "2026-10-29T14:33:24.636Z",
+  "stylesheet": "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:wght@300..900&display=swap",
+  "sources": [
+    {
+      "family": "Figtree",
+      "file": "public/fonts/figtree.woff2",
+      "url": "https://fonts.gstatic.com/s/figtree/v9/_Xms-HUzqDCFdgfMm4S9DQ.woff2",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/figtree/OFL.txt",
+      "bytes": 20156
+    },
+    {
+      "family": "Bricolage Grotesque",
+      "file": "public/fonts/bricolage-grotesque.woff2",
+      "url": "https://fonts.gstatic.com/s/bricolagegrotesque/v9/3y9K6as8bTXq_nANBjzKo3IeZx8z6up5BeSl9D4dj_x9PpZBMlGIInE.woff2",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/bricolagegrotesque/OFL.txt",
+      "bytes": 76888
+    }
+  ]
+}

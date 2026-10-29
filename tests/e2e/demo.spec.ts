@@ -32,3 +32,28 @@ test('accessible demo has no serious/critical WCAG violations',async({page})=>{
   await page.goto('/demo');const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
   expect(result.violations.filter(v=>v.impact==='serious'||v.impact==='critical')).toEqual([]);
 });
+
+test('mobile navigation traps focus natively, closes on Escape and closes after choosing a screen',async({page})=>{
+  await page.setViewportSize({width:390,height:950});await page.goto('/demo');
+  const toggle=page.getByRole('button',{name:'Toggle navigation'}),drawer=page.getByRole('dialog',{name:'Navigation'});
+  await toggle.click();await expect(drawer).toBeVisible();await expect(drawer.getByRole('button',{name:'Close navigation'})).toBeFocused();
+  await page.keyboard.press('Escape');await expect(drawer).not.toBeVisible();await expect(toggle).toBeFocused();
+  await toggle.click();await drawer.getByRole('link',{name:'Activity',exact:true}).click();await expect(drawer).not.toBeVisible();await expect(page.getByRole('heading',{name:'Every payment has a story.'})).toBeVisible();
+  await page.setViewportSize({width:768,height:1024});await toggle.click();await expect(drawer).toBeVisible();await page.setViewportSize({width:1440,height:1000});await expect(drawer).not.toBeVisible();await expect(page.locator('.desktop-sidebar')).toBeVisible();
+});
+
+test('Proof keeps raw data collapsed while its evidence remains inspectable',async({page})=>{
+  await page.goto('/proof');const disclosure=page.locator('.proof-disclosure');
+  await expect(disclosure).toBeVisible();await expect(disclosure).toHaveJSProperty('open',false);
+  await disclosure.getByText('Inspect the raw public evidence',{exact:true}).click();await expect(disclosure.locator('pre')).toBeVisible();await expect(disclosure.locator('pre')).toContainText('Sui Mainnet only');
+  await expect(page.getByRole('link',{name:'Download public evidence'})).toHaveAttribute('href','/api/proof');
+});
+
+test('tablet layout remains usable with the self-hosted type system',async({page})=>{
+  await page.setViewportSize({width:768,height:1024});
+  for(const path of ['/','/demo','/demo/activity','/demo/plan','/proof']){
+    await page.goto(path);await page.evaluate(()=>document.fonts.ready);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    expect(await page.locator('body').evaluate(el=>{const family=getComputedStyle(el).fontFamily.split(',')[0].replaceAll('"','').trim();return [...document.fonts].some(face=>face.family.replaceAll('"','').trim()===family&&face.status==='loaded');})).toBe(true);
+  }
+});
