@@ -1,8 +1,8 @@
 {
   "origin": "https://sui-money.vercel.app",
-  "checkedAt": "2026-10-28T22:38:57.523Z",
+  "checkedAt": "2026-10-29T19:47:18.767Z",
   "environment": "production",
-  "commit": "80bc5af130d459eb97107bd60048247868cc6ba1",
+  "commit": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
   "runtime": {
     "node": "v24.21.0",
     "platform": "linux",
@@ -13,8 +13,8 @@
     "service": {
       "network": "mainnet",
       "chainId": "4btiuiMPvEENsttpZC7CZ53DruC3MAgfznDbASZ7DR6S",
-      "checkpoint": "339207750",
-      "observedAt": "2026-10-28T22:38:49.979Z",
+      "checkpoint": "339527369",
+      "observedAt": "2026-10-29T19:47:09.950Z",
       "lowestCheckpoint": "237661232",
       "lowestTransactionCheckpoint": "237661232"
     },
@@ -23,7 +23,7 @@
       "usdc": "0",
       "sui": "2768113537",
       "checkpoint": null,
-      "observedAt": "2026-10-28T22:38:52.800Z",
+      "observedAt": "2026-10-29T19:47:12.833Z",
       "source": "tatum",
       "stale": false
     },
@@ -61,7 +61,30 @@
         "source": "tatum"
       }
     ],
-    "bothDirectionsVerified": true
+    "bothDirectionsVerified": true,
+    "history": {
+      "pages": [
+        {
+          "transactionCount": 30,
+          "reason": "ITEM_LIMIT",
+          "complete": false,
+          "cursorAdvanced": true
+        },
+        {
+          "transactionCount": 19,
+          "reason": "CHECKPOINT_BOUND",
+          "complete": true,
+          "cursorAdvanced": false
+        }
+      ],
+      "complete": true,
+      "bothDirectionsVerified": true,
+      "bounds": {
+        "from": "337116678",
+        "to": "339116679"
+      },
+      "source": "Actual deployed Tatum Mainnet stream"
+    }
   },
   "walrus": {
     "state": "authenticated_recall_passed",

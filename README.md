@@ -14,7 +14,9 @@ A fresh Sui Mainnet application combining native-USDC spending explanations and 
 
 Demo finances are fictional, fixed at 28 October 2026. Learning interactions are read-only replays; no fake saves occur. Mainnet seed evidence is recorded separately. `/proof` reports sanitized actual integration evidence. Personal production accounts remain release-gated while critical verification is unfinished.
 
-The interface uses official Walrus/Tatum event artwork and source-role labels; see [asset attribution](docs/BRAND_ASSETS.md). Slush extension 26.21.6 (e2be7f2) has displayed a malicious-site warning to the builder. **Do not bypass it or sign on the flagged origin.** Wallet sign-in is being paused pending official review; [review request](docs/SLUSH_REVIEW_REQUEST.md) and [real preference guide](docs/REAL_PREFERENCE_GUIDE.md) track the next steps. This warning is unresolved, not declared a false positive.
+The interface uses official Walrus/Tatum event artwork and source-role labels; see [asset attribution](docs/BRAND_ASSETS.md). Slush extension 26.21.6 (e2be7f2) has displayed a malicious-site warning to the builder. **Do not bypass it or sign on the flagged origin.** Wallet sign-in is disabled in production pending official review; [review request](docs/SLUSH_REVIEW_REQUEST.md) and [real preference guide](docs/REAL_PREFERENCE_GUIDE.md) track the next steps. This warning is unresolved, not declared a false positive.
+
+The completed UI refinement follows Impeccable and Anthropic frontend-design, with self-hosted Figtree/Bricolage typography, native mobile navigation and readable source/state/time proof. See [the design system](DESIGN.md), [independent public UI review](.impeccable/critique/ux-final-review.md) and [delivery actions](docs/DELIVERY.md).
 
 ## Run locally
 

@@ -1,6 +1,6 @@
 # Demo video script
 
-Target: 2 minutes 40 seconds. Draft, not recorded or uploaded. Record only actual behavior after live gates pass. Use explicit edits for asynchronous waits; never fake instant storage.
+Target: 2 minutes 40 seconds. Script draft; a separate local captioned replay recording exists, not uploaded. Genuine personal learning still requires the recorded actual sessions. Record only actual behavior after live gates pass. Use explicit edits for asynchronous waits; never fake instant storage.
 
 | Time | Screen / narration / evidence |
 |---|---|

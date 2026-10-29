@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-29T04:44:10.451Z",
+  "environment": {
+    "node": "v22.17.1",
+    "platform": "win32"
+  },
+  "baseCommit": "80bc5af130d459eb97107bd60048247868cc6ba1",
+  "sourceSha256": "78f65f0507498d9f5748ba145ce17efa1c0796dba19bb89f446f4502d9856c45",
+  "checks": [
+    {
+      "command": "npm run lint",
+      "startedAt": "2026-10-29T04:44:10.574Z",
+      "finishedAt": "2026-10-29T04:44:20.956Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run typecheck",
+      "startedAt": "2026-10-29T04:44:20.956Z",
+      "finishedAt": "2026-10-29T04:44:31.730Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test",
+      "startedAt": "2026-10-29T04:44:31.730Z",
+      "finishedAt": "2026-10-29T04:44:34.273Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test:db",
+      "startedAt": "2026-10-29T04:44:34.273Z",
+      "finishedAt": "2026-10-29T04:44:51.230Z",
+      "exitCode": 1,
+      "passed": false
+    }
+  ],
+  "sourceUnchanged": true,
+  "complete": false
+}

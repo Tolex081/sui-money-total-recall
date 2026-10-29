@@ -1,0 +1,441 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-29T19:33:58.754Z",
+  "title": "Design System: Sui Money",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(0.15 0.0045 174.96)",
+          "oklch(0.26 0.0078 174.96)",
+          "oklch(0.38 0.0114 174.96)",
+          "oklch(0.50 0.0150 174.96)",
+          "oklch(0.62 0.0150 174.96)",
+          "oklch(0.74 0.0130 174.96)",
+          "oklch(0.85 0.0075 174.96)",
+          "oklch(0.95 0.0025 174.96)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Olive",
+        "tonalRamp": [
+          "oklch(0.15 0.0130 134.41)",
+          "oklch(0.26 0.0225 134.41)",
+          "oklch(0.38 0.0329 134.41)",
+          "oklch(0.50 0.0432 134.41)",
+          "oklch(0.62 0.0432 134.41)",
+          "oklch(0.74 0.0375 134.41)",
+          "oklch(0.85 0.0216 134.41)",
+          "oklch(0.95 0.0072 134.41)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(0.15 0.0024 139.44)",
+          "oklch(0.26 0.0041 139.44)",
+          "oklch(0.38 0.0060 139.44)",
+          "oklch(0.50 0.0079 139.44)",
+          "oklch(0.62 0.0079 139.44)",
+          "oklch(0.74 0.0068 139.44)",
+          "oklch(0.85 0.0039 139.44)",
+          "oklch(0.95 0.0013 139.44)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "tonalRamp": [
+          "oklch(0.15 0.0000 89.88)",
+          "oklch(0.26 0.0000 89.88)",
+          "oklch(0.38 0.0000 89.88)",
+          "oklch(0.50 0.0000 89.88)",
+          "oklch(0.62 0.0000 89.88)",
+          "oklch(0.74 0.0000 89.88)",
+          "oklch(0.85 0.0000 89.88)",
+          "oklch(0.95 0.0000 89.88)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "tonalRamp": [
+          "oklch(0.15 0.0017 128.52)",
+          "oklch(0.26 0.0029 128.52)",
+          "oklch(0.38 0.0043 128.52)",
+          "oklch(0.50 0.0057 128.52)",
+          "oklch(0.62 0.0057 128.52)",
+          "oklch(0.74 0.0049 128.52)",
+          "oklch(0.85 0.0028 128.52)",
+          "oklch(0.95 0.0009 128.52)"
+        ]
+      },
+      "green": {
+        "role": "primary",
+        "displayName": "Deep Green",
+        "tonalRamp": [
+          "oklch(0.15 0.0171 163.72)",
+          "oklch(0.26 0.0296 163.72)",
+          "oklch(0.38 0.0432 163.72)",
+          "oklch(0.50 0.0569 163.72)",
+          "oklch(0.62 0.0569 163.72)",
+          "oklch(0.74 0.0493 163.72)",
+          "oklch(0.85 0.0284 163.72)",
+          "oklch(0.95 0.0095 163.72)"
+        ]
+      },
+      "green-hover": {
+        "role": "primary",
+        "displayName": "Deep Green Hover",
+        "tonalRamp": [
+          "oklch(0.15 0.0202 158.03)",
+          "oklch(0.26 0.0351 158.03)",
+          "oklch(0.38 0.0513 158.03)",
+          "oklch(0.50 0.0675 158.03)",
+          "oklch(0.62 0.0675 158.03)",
+          "oklch(0.74 0.0585 158.03)",
+          "oklch(0.85 0.0337 158.03)",
+          "oklch(0.95 0.0112 158.03)"
+        ]
+      },
+      "selection": {
+        "role": "primary",
+        "displayName": "Selection Green",
+        "tonalRamp": [
+          "oklch(0.15 0.0149 151.55)",
+          "oklch(0.26 0.0257 151.55)",
+          "oklch(0.38 0.0376 151.55)",
+          "oklch(0.50 0.0495 151.55)",
+          "oklch(0.62 0.0495 151.55)",
+          "oklch(0.74 0.0429 151.55)",
+          "oklch(0.85 0.0248 151.55)",
+          "oklch(0.95 0.0083 151.55)"
+        ]
+      },
+      "remainder": {
+        "role": "primary",
+        "displayName": "Remainder Green",
+        "tonalRamp": [
+          "oklch(0.15 0.0156 162.70)",
+          "oklch(0.26 0.0271 162.70)",
+          "oklch(0.38 0.0396 162.70)",
+          "oklch(0.50 0.0521 162.70)",
+          "oklch(0.62 0.0521 162.70)",
+          "oklch(0.74 0.0452 162.70)",
+          "oklch(0.85 0.0261 162.70)",
+          "oklch(0.95 0.0087 162.70)"
+        ]
+      },
+      "memory": {
+        "role": "secondary",
+        "displayName": "Memory Mint",
+        "tonalRamp": [
+          "oklch(0.15 0.0060 164.58)",
+          "oklch(0.26 0.0104 164.58)",
+          "oklch(0.38 0.0151 164.58)",
+          "oklch(0.50 0.0199 164.58)",
+          "oklch(0.62 0.0199 164.58)",
+          "oklch(0.74 0.0173 164.58)",
+          "oklch(0.85 0.0100 164.58)",
+          "oklch(0.95 0.0033 164.58)"
+        ]
+      },
+      "memory-border": {
+        "role": "secondary",
+        "displayName": "Memory Border",
+        "tonalRamp": [
+          "oklch(0.15 0.0088 163.17)",
+          "oklch(0.26 0.0152 163.17)",
+          "oklch(0.38 0.0222 163.17)",
+          "oklch(0.50 0.0293 163.17)",
+          "oklch(0.62 0.0293 163.17)",
+          "oklch(0.74 0.0254 163.17)",
+          "oklch(0.85 0.0146 163.17)",
+          "oklch(0.95 0.0049 163.17)"
+        ]
+      },
+      "pill": {
+        "role": "neutral",
+        "displayName": "Pill",
+        "tonalRamp": [
+          "oklch(0.15 0.0029 125.68)",
+          "oklch(0.26 0.0051 125.68)",
+          "oklch(0.38 0.0074 125.68)",
+          "oklch(0.50 0.0098 125.68)",
+          "oklch(0.62 0.0098 125.68)",
+          "oklch(0.74 0.0085 125.68)",
+          "oklch(0.85 0.0049 125.68)",
+          "oklch(0.95 0.0016 125.68)"
+        ]
+      },
+      "warning-bg": {
+        "role": "neutral",
+        "displayName": "Warning Background",
+        "tonalRamp": [
+          "oklch(0.15 0.0053 39.40)",
+          "oklch(0.26 0.0092 39.40)",
+          "oklch(0.38 0.0134 39.40)",
+          "oklch(0.50 0.0176 39.40)",
+          "oklch(0.62 0.0176 39.40)",
+          "oklch(0.74 0.0153 39.40)",
+          "oklch(0.85 0.0088 39.40)",
+          "oklch(0.95 0.0029 39.40)"
+        ]
+      },
+      "warning-border": {
+        "role": "neutral",
+        "displayName": "Warning Border",
+        "tonalRamp": [
+          "oklch(0.15 0.0093 43.11)",
+          "oklch(0.26 0.0162 43.11)",
+          "oklch(0.38 0.0236 43.11)",
+          "oklch(0.50 0.0311 43.11)",
+          "oklch(0.62 0.0311 43.11)",
+          "oklch(0.74 0.0270 43.11)",
+          "oklch(0.85 0.0156 43.11)",
+          "oklch(0.95 0.0052 43.11)"
+        ]
+      },
+      "warning-text": {
+        "role": "neutral",
+        "displayName": "Warning Text",
+        "tonalRamp": [
+          "oklch(0.15 0.0293 33.23)",
+          "oklch(0.26 0.0508 33.23)",
+          "oklch(0.38 0.0742 33.23)",
+          "oklch(0.50 0.0976 33.23)",
+          "oklch(0.62 0.0976 33.23)",
+          "oklch(0.74 0.0846 33.23)",
+          "oklch(0.85 0.0488 33.23)",
+          "oklch(0.95 0.0163 33.23)"
+        ]
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "Keyboard Focus",
+        "tonalRamp": [
+          "oklch(0.15 0.0299 155.70)",
+          "oklch(0.26 0.0518 155.70)",
+          "oklch(0.38 0.0757 155.70)",
+          "oklch(0.50 0.0996 155.70)",
+          "oklch(0.62 0.0996 155.70)",
+          "oklch(0.74 0.0863 155.70)",
+          "oklch(0.85 0.0498 155.70)",
+          "oklch(0.95 0.0166 155.70)"
+        ]
+      },
+      "green-active": {
+        "role": "primary",
+        "displayName": "Deep Green Active",
+        "tonalRamp": [
+          "oklch(.15 .014 161)",
+          "oklch(.26 .024 161)",
+          "oklch(.38 .035 161)",
+          "oklch(.50 .046 161)",
+          "oklch(.62 .046 161)",
+          "oklch(.74 .040 161)",
+          "oklch(.85 .023 161)",
+          "oklch(.95 .008 161)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Self-hosted Bricolage Grotesque for landing headlines; its family also identifies the wordmark and preview heading."
+      },
+      "body": {
+        "displayName": "Task body",
+        "purpose": "Self-hosted Figtree for tasks, data, forms and prose."
+      },
+      "landing-body": {
+        "displayName": "Landing introduction",
+        "purpose": "Introductory copy with a 520px maximum width."
+      },
+      "page-heading": {
+        "displayName": "Page heading",
+        "purpose": "Account page title; 30px below 760px."
+      },
+      "title": {
+        "displayName": "Card title",
+        "purpose": "Ordinary working-card and section headings."
+      },
+      "amount": {
+        "displayName": "Planning amount",
+        "purpose": "Tabular financial figure; 48px below 980px, 58px below 760px and 52px below 380px."
+      },
+      "label": {
+        "displayName": "Supporting label",
+        "purpose": "Compact source labels; contextual 11px metadata is not a prose scale."
+      },
+      "button": {
+        "displayName": "Action",
+        "purpose": "Default 44px minimum-height task action; small and landing variants remain distinct."
+      }
+    },
+    "shadows": [
+      {
+        "name": "dialog",
+        "value": "0 30px 110px #1d392340",
+        "purpose": "Content dialog only; backdrop #1a2d2266 with blur(4px)."
+      },
+      {
+        "name": "mobile-drawer",
+        "value": "12px 0 60px #14251e26",
+        "purpose": "Native navigation dialog only; solid backdrop #172d2466."
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-color-transition",
+        "value": "background .15s, border-color .15s",
+        "purpose": "Default action hover colors."
+      },
+      {
+        "name": "loading-spin",
+        "value": "spin 1s linear infinite",
+        "purpose": "Existing loading indicator; disabled by reduced-motion mode."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-content-min",
+        "value": "1550px"
+      },
+      {
+        "name": "compact-desktop-max",
+        "value": "1190px"
+      },
+      {
+        "name": "native-drawer-max",
+        "value": "1000px"
+      },
+      {
+        "name": "secondary-stack-max",
+        "value": "980px"
+      },
+      {
+        "name": "landing-stack-max",
+        "value": "760px"
+      },
+      {
+        "name": "today-stack-max",
+        "value": "540px"
+      },
+      {
+        "name": "small-mobile-max",
+        "value": "420px"
+      },
+      {
+        "name": "compact-controls-max",
+        "value": "380px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default 44px minimum-height action with hover, active, focus and disabled states.",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">Save plan</button>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:9px;background:var(--green, #244e3c);color:#fff;border:1px solid var(--green, #244e3c);border-radius:10px;padding:12px 17px;font-family:var(--font-body,Figtree),sans-serif;font-size:14px;font-weight:600;line-height:1.3;min-height:44px;transition:background .15s,border-color .15s;white-space:nowrap;cursor:pointer}.ds-button-primary:hover:not(:disabled){background:#346349}.ds-button-primary:focus-visible{outline:3px solid #327c52;outline-offset:5px}.ds-button-primary:disabled{opacity:.46;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}}.ds-button-primary:active:not(:disabled){background:#1c402f}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Default 44px minimum-height action with hover, active, focus and disabled states.",
+      "html": "<button class=\"ds-button-secondary\" type=\"button\">View evidence</button>",
+      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:9px;background:#fff;color:#33483b;border:1px solid #dce3d9;border-radius:10px;padding:12px 17px;font-family:var(--font-body,Figtree),sans-serif;font-size:14px;font-weight:600;line-height:1.3;min-height:44px;transition:background .15s,border-color .15s;white-space:nowrap;cursor:pointer}.ds-button-secondary:hover:not(:disabled){background:#f0f5ec;border-color:#afc6b0}.ds-button-secondary:focus-visible{outline:3px solid #327c52;outline-offset:5px}.ds-button-secondary:disabled{opacity:.46;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition:none}}.ds-button-secondary:active:not(:disabled){background:#e4eddf}"
+    },
+    {
+      "name": "Form Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Visible 14px label and 46px minimum-height planning field.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-plan-name\">Plan name</label><input class=\"ds-field\" id=\"ds-plan-name\" value=\"Upcoming commitments\">",
+      "css": ".ds-field-label{display:block;margin-bottom:8px;font-family:var(--font-body,Figtree),sans-serif;font-size:14px;line-height:1.6;color:var(--muted, #596950)}.ds-field{background:#fff;border:1px solid #dce5d2;border-radius:8px;min-height:46px;padding:11px 12px;color:#405536;width:100%;font-family:var(--font-body,Figtree),sans-serif;font-size:14px;caret-color:var(--green, #244e3c)}.ds-field:focus-visible{outline:3px solid #327c52;outline-offset:5px}"
+    },
+    {
+      "name": "Account Navigation",
+      "kind": "nav",
+      "description": "Primary 14px routes with current-page semantics and pale active/hover treatments.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Account\"><a class=\"ds-nav-item ds-nav-active\" href=\"#today\" aria-current=\"page\">Today</a><a class=\"ds-nav-item\" href=\"#activity\">Activity</a><a class=\"ds-nav-item\" href=\"#plan\">Plan</a></nav>",
+      "css": ".ds-nav{font-family:var(--font-body,Figtree),sans-serif}.ds-nav-item{display:flex;align-items:center;gap:12px;border-radius:10px;padding:12px 14px;min-height:46px;font-size:14px;color:#596950;margin-bottom:5px;text-decoration:none}.ds-nav-item:hover{background:#f4f7f0}.ds-nav-active{color:#416344;background:#edf4e6;font-weight:600}.ds-nav-item:focus-visible{outline:3px solid #327c52;outline-offset:5px}"
+    },
+    {
+      "name": "Status Pill",
+      "kind": "chip",
+      "refersTo": "pill",
+      "description": "Compact status text; 11px chips do not define general prose.",
+      "html": "<span class=\"ds-pill\">Demo</span>",
+      "css": ".ds-pill{display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-body,Figtree),sans-serif;font-size:11px;font-weight:600;letter-spacing:0;line-height:1.45;padding:6px 9px;border-radius:6px;background:#f2f5ee;color:#61715f;white-space:nowrap}"
+    },
+    {
+      "name": "Working Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat paper surface for financial content.",
+      "html": "<section class=\"ds-card\"><h2 class=\"ds-card-title\">How your plan adds up</h2><p class=\"ds-card-copy\">Wallet balance, upcoming commitments, and your virtual reserve.</p></section>",
+      "css": ".ds-card{background:var(--paper, #fff);color:var(--ink, #202a27);border:1px solid #e6ebe2;border-radius:var(--radius, 16px);padding:24px;font-family:var(--font-body,Figtree),sans-serif}.ds-card-title{font-size:18px;line-height:1.35;font-weight:600;letter-spacing:-.02em;margin:0}.ds-card-copy{font-size:14px;line-height:1.65;color:var(--muted, #596950);margin:12px 0 0}"
+    },
+    {
+      "name": "Warning Notice",
+      "kind": "custom",
+      "description": "Existing warm warning treatment for gating and security messages.",
+      "html": "<div class=\"ds-warning\" role=\"note\">Wallet sign-in is paused while the reported Slush security warning is reviewed.</div>",
+      "css": ".ds-warning{font-family:var(--font-body,Figtree),sans-serif;display:flex;align-items:flex-start;gap:10px;background:#fff0eb;border:1px solid #efd6cc;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:#934d3e}"
+    },
+    {
+      "name": "Evidence Disclosure",
+      "kind": "custom",
+      "description": "Raw evidence follows source/state/time summaries and is collapsed by default.",
+      "html": "<details class=\"ds-evidence\"><summary>Inspect the raw public evidence</summary><pre class=\"ds-evidence-json\">{ \"state\": \"recorded\" }</pre></details>",
+      "css": ".ds-evidence{font-family:var(--font-body,Figtree),sans-serif;border-top:1px solid var(--line,#e8ece7);border-bottom:1px solid var(--line,#e8ece7);margin:8px 0 18px}.ds-evidence>summary{font-size:14px;cursor:pointer;padding:18px 0;color:var(--green,#244e3c);font-weight:500}.ds-evidence>summary:focus-visible{outline:3px solid #327c52;outline-offset:5px}.ds-evidence-json{font-size:12px;line-height:1.7;max-height:640px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f7f3;border-radius:10px;padding:16px}@media(max-width:760px){.ds-evidence-json{max-height:480px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Wallet facts. Remembered context.",
+    "overview": "This phrase comes from the implemented landing illustration caption. It describes the established identity: pale cream-green canvas, white working surfaces, deep-green financial emphasis, and a mint memory surface. A spacious landing introduces a denser account workspace. Self-hosted Figtree supports everyday tasks; Bricolage Grotesque gives the landing and wordmark a distinct voice.\n\nOfficial event artwork adds personality without competing with amounts or warnings. Tatum identifies wallet observations; Walrus identifies confirmed context. Provider marks communicate provenance, not endorsement or live verification of the fictional demo. Asset provenance and ownership are recorded in `docs/BRAND_ASSETS.md`.",
+    "keyCharacteristics": [
+      "Pale tonal surfaces and fine borders establish grouping.",
+      "Large amounts lead; their units and source remain adjacent.",
+      "Dark backings preserve the unchanged white provider wordmarks.",
+      "The mascot accompanies explanations and leaves controls clear."
+    ],
+    "rules": [
+      {
+        "name": "The Provenance Rule",
+        "body": "Provider identity describes the source of facts or context. A provider mark must not turn synthetic finance into verified personal evidence.",
+        "section": "colors"
+      },
+      {
+        "name": "The Amount and Unit Rule",
+        "body": "Keep the amount visually dominant while retaining its unit, provenance, and estimate qualifier in the same reading group.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tonal Surface Rule",
+        "body": "Use tonal grouping and fine borders for ordinary cards. Preserve elevated treatment for overlays.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use tonal surfaces and fine borders for ordinary cards.",
+      "Do retain adjacent units, source labels, and planning qualifiers around financial amounts.",
+      "Do use the existing local provider assets with their unchanged proportions and readable dark backing.",
+      "Do preserve keyboard focus, reduced-motion behavior, and mascot clearance at mobile widths."
+    ],
+    "donts": [
+      "Don't imply sponsor endorsement or give synthetic finance a live-verification badge.",
+      "Don't let artwork obscure amounts, controls, provenance, or security warnings.",
+      "Don't reproduce legacy eyebrows or substitute text glyphs for interface icons on new surfaces.",
+      "Don't extend compact 11px metadata styling into financial explanations, forms, or general prose."
+    ]
+  }
+}

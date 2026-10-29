@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-28T23:09:05.947Z",
+  "checkedAt": "2026-10-29T19:33:18.207Z",
   "environment": "isolated PostgreSQL schema + local production server + disposable signed test wallet",
   "mainnetWrites": 0,
   "financeFixtures": "Two synthetic movements and one stale balance in a disposable schema; never live evidence",
@@ -48,6 +48,10 @@
     },
     {
       "test": "F21 failed refresh preserves and visibly labels a stale cached balance",
+      "passed": true
+    },
+    {
+      "test": "Client navigation keeps the authenticated wallet separate from the fictional demo",
       "passed": true
     },
     {

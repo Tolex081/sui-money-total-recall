@@ -1,0 +1,265 @@
+{
+  "checkedAt": "2026-10-29T19:28:30.177Z",
+  "sourceSha256": "c952fcd7d5a457fcc5236e5a4566d77c51df91019370aa8d15e4d71b42bbb2db",
+  "environment": "local production build / Chromium",
+  "checks": [
+    {
+      "path": "/",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/landing-1440.png",
+      "publishedCapture": "evidence/screenshots/ux/landing-1440.png"
+    },
+    {
+      "path": "/demo",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/today-1440.png",
+      "publishedCapture": "evidence/screenshots/ux/today-1440.png"
+    },
+    {
+      "path": "/demo/activity",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/activity-1440.png",
+      "publishedCapture": "evidence/screenshots/ux/activity-1440.png"
+    },
+    {
+      "path": "/demo/plan",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/plan-1440.png",
+      "publishedCapture": "evidence/screenshots/ux/plan-1440.png"
+    },
+    {
+      "path": "/proof",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/proof-1440.png",
+      "publishedCapture": "evidence/screenshots/ux/proof-1440.png"
+    },
+    {
+      "path": "/today",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/paused-1440.png",
+      "publishedCapture": "evidence/screenshots/ux/paused-1440.png"
+    },
+    {
+      "path": "/about",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/about-1440.png",
+      "publishedCapture": "evidence/screenshots/ux/about-1440.png"
+    },
+    {
+      "path": "/",
+      "width": 768,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/landing-768.png",
+      "publishedCapture": "evidence/screenshots/ux/landing-768.png"
+    },
+    {
+      "path": "/demo",
+      "width": 768,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/today-768.png",
+      "publishedCapture": "evidence/screenshots/ux/today-768.png"
+    },
+    {
+      "path": "/demo/activity",
+      "width": 768,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/activity-768.png",
+      "publishedCapture": "evidence/screenshots/ux/activity-768.png"
+    },
+    {
+      "path": "/demo/plan",
+      "width": 768,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/plan-768.png",
+      "publishedCapture": "evidence/screenshots/ux/plan-768.png"
+    },
+    {
+      "path": "/proof",
+      "width": 768,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/proof-768.png",
+      "publishedCapture": "evidence/screenshots/ux/proof-768.png"
+    },
+    {
+      "path": "/today",
+      "width": 768,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/paused-768.png",
+      "publishedCapture": "evidence/screenshots/ux/paused-768.png"
+    },
+    {
+      "path": "/about",
+      "width": 768,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/about-768.png",
+      "publishedCapture": "evidence/screenshots/ux/about-768.png"
+    },
+    {
+      "path": "/",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/landing-390.png",
+      "publishedCapture": "evidence/screenshots/ux/landing-390.png"
+    },
+    {
+      "path": "/demo",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/today-390.png",
+      "publishedCapture": "evidence/screenshots/ux/today-390.png"
+    },
+    {
+      "path": "/demo/activity",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/activity-390.png",
+      "publishedCapture": "evidence/screenshots/ux/activity-390.png"
+    },
+    {
+      "path": "/demo/plan",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/plan-390.png",
+      "publishedCapture": "evidence/screenshots/ux/plan-390.png"
+    },
+    {
+      "path": "/proof",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/proof-390.png",
+      "publishedCapture": "evidence/screenshots/ux/proof-390.png"
+    },
+    {
+      "path": "/today",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/paused-390.png",
+      "publishedCapture": "evidence/screenshots/ux/paused-390.png"
+    },
+    {
+      "path": "/about",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "badImages": 0,
+      "capture": ".impeccable/review/ux/about-390.png",
+      "publishedCapture": "evidence/screenshots/ux/about-390.png"
+    }
+  ],
+  "reflow": [
+    {
+      "path": "/",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "path": "/demo",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "path": "/demo/activity",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "path": "/demo/plan",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "path": "/proof",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "path": "/today",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "path": "/",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/demo",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/demo/activity",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/demo/plan",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/proof",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/today",
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "reflowMeaning": "720px CSS viewport models 200% reflow of a 1440px window; 320px is an additional narrow layout check, not a physical zoom/device claim.",
+  "pageErrors": [],
+  "complete": true,
+  "publishedDrawerCapture": "evidence/screenshots/ux/navigation-390-viewport.png",
+  "independentReview": ".impeccable/critique/ux-final-review.md",
+  "reviewDisposition": "ship",
+  "reviewScope": "Available public UI only, using local production captures; no security or genuine personal acceptance clearance"
+}

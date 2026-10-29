@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-10-29T09:48:13.487Z",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux"
+  },
+  "baseCommit": "407e3bee37bd0b72792f2d58fcbc7a09227f38a3",
+  "sourceSha256": "0bac5b0130bef0a73fc200733860316623938225493e51a25c927aa40424bdb6",
+  "checks": [
+    {
+      "command": "npm run lint",
+      "startedAt": "2026-10-29T09:48:13.505Z",
+      "finishedAt": "2026-10-29T09:48:17.690Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run typecheck",
+      "startedAt": "2026-10-29T09:48:17.690Z",
+      "finishedAt": "2026-10-29T09:48:22.154Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test",
+      "startedAt": "2026-10-29T09:48:22.154Z",
+      "finishedAt": "2026-10-29T09:48:23.005Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test:db",
+      "startedAt": "2026-10-29T09:48:23.005Z",
+      "finishedAt": "2026-10-29T09:48:24.315Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test:e2e",
+      "startedAt": "2026-10-29T09:48:24.315Z",
+      "finishedAt": "2026-10-29T09:48:41.664Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run build",
+      "startedAt": "2026-10-29T09:48:41.664Z",
+      "finishedAt": "2026-10-29T09:48:55.770Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test:e2e:personal",
+      "startedAt": "2026-10-29T09:48:55.770Z",
+      "finishedAt": "2026-10-29T09:49:08.042Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run scan:secrets",
+      "startedAt": "2026-10-29T09:49:08.042Z",
+      "finishedAt": "2026-10-29T09:49:08.416Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run verify:evidence",
+      "startedAt": "2026-10-29T09:49:08.416Z",
+      "finishedAt": "2026-10-29T09:49:08.711Z",
+      "exitCode": 0,
+      "passed": true
+    }
+  ],
+  "sourceUnchanged": true,
+  "complete": true
+}

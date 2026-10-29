@@ -2,7 +2,7 @@
   "checkedAt": "2026-10-29T04:47:00.055Z",
   "environment": "local production build",
   "signInPause": {
-    "health": false,
+    "walletSignInEnabled": false,
     "challengeRejected": true
   },
   "checks": [

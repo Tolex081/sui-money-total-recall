@@ -1,0 +1,75 @@
+{
+  "startedAt": "2026-10-29T09:49:01.641Z",
+  "finishedAt": "2026-10-29T09:51:39.748Z",
+  "origin": "https://sui-money.vercel.app",
+  "file": "submission/sui-money-demo-draft.webm",
+  "status": "local-captioned-draft-not-published",
+  "sourceRevision": "f8bfe486cd3045fdab0ff4426c610f0227bfe82e",
+  "finance": "synthetic read-only replay",
+  "integrationEvidence": "actual public Mainnet proof displayed",
+  "genuinePersonalLearning": false,
+  "mainnetWrites": 0,
+  "nonGetRequestsBlocked": true,
+  "audio": false,
+  "captionOverlay": "Clearly marked recording annotations; not product UI",
+  "scenes": [
+    {
+      "path": "/",
+      "seconds": 15,
+      "caption": "Sui Money: native-USDC spending and forward budgeting on Sui Mainnet. Tatum supplies wallet facts; Walrus remembers confirmed context.",
+      "startedAt": "2026-10-29T09:49:03.966Z"
+    },
+    {
+      "path": "/demo",
+      "seconds": 23,
+      "caption": "This is the clearly labelled fictional demo, fixed at 28 October. 1,240.50 USDC minus 462 in commitments and a 180 reserve leaves 598.50. SUI stays separate.",
+      "startedAt": "2026-10-29T09:49:21.954Z"
+    },
+    {
+      "path": "/demo/activity",
+      "seconds": 21,
+      "caption": "Activity keeps wallet facts separate from explanations. A 40-USDC shared expense and a 15-USDC reimbursement give net spending of 25. These displayed payments are synthetic.",
+      "startedAt": "2026-10-29T09:49:47.795Z"
+    },
+    {
+      "path": "/demo/learning",
+      "seconds": 24,
+      "caption": "The comparison uses identical fictional balances, dates and explicit bills. Selected remembered obligations account for a 134-USDC difference. This is a replay, not a genuine personal learning session.",
+      "startedAt": "2026-10-29T09:50:11.980Z"
+    },
+    {
+      "path": "/demo/plan",
+      "seconds": 21,
+      "caption": "Plan counts only USDC already held. Expected income is excluded until settled. Recurring suggestions require confirmation; this public demo cannot save or move funds.",
+      "startedAt": "2026-10-29T09:50:41.052Z"
+    },
+    {
+      "path": "/proof",
+      "seconds": 20,
+      "caption": "The proof is real and separate: Tatum verified public incoming/outgoing native-USDC transfers; 24 approved synthetic memories were stored and signed-recall verified on Walrus Mainnet.",
+      "startedAt": "2026-10-29T09:51:09.127Z"
+    },
+    {
+      "path": "/today",
+      "seconds": 6,
+      "caption": "Personal access is gated. Slush reported a security warning; do not bypass it. Atomic balance consistency and genuine cross-session learning remain release gates.",
+      "startedAt": "2026-10-29T09:51:32.602Z"
+    }
+  ],
+  "playbackVerification": {
+    "checkedAt": "2026-10-29T14:27:52.428Z",
+    "duration": 157.72,
+    "width": 1440,
+    "height": 1000,
+    "bytes": 19760776,
+    "seekSamplesSeconds": [
+      5,
+      90,
+      147.72
+    ],
+    "withinRequiredDuration": true
+  },
+  "currentUiRevision": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
+  "currentUiCaptured": false,
+  "refreshState": "not_started_permission_review_timeout"
+}

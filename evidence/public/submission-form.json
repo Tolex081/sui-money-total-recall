@@ -1,0 +1,140 @@
+{
+  "checkedAt": "2026-10-29T09:24:13.578Z",
+  "source": "https://recall-tatum-walrus.vercel.app/",
+  "url": "https://recall-tatum-walrus.vercel.app/",
+  "location": "Submit Project dialog on official event landing page",
+  "readOnly": true,
+  "nonGetRequestsBlocked": true,
+  "fields": [
+    {
+      "name": "email",
+      "type": "email",
+      "required": true,
+      "placeholder": null
+    },
+    {
+      "name": "discordId",
+      "type": null,
+      "required": true,
+      "placeholder": "username"
+    },
+    {
+      "name": "linkedinUrl",
+      "type": null,
+      "required": true,
+      "placeholder": "https://linkedin.com/in/…"
+    },
+    {
+      "name": "telegramId",
+      "type": null,
+      "required": false,
+      "placeholder": "@handle"
+    },
+    {
+      "name": "howHeard",
+      "type": null,
+      "required": true,
+      "placeholder": null
+    },
+    {
+      "name": "heardFromSource",
+      "type": null,
+      "required": false,
+      "placeholder": "Discord server, X account, newsletter…"
+    },
+    {
+      "name": "firstWeb3Project",
+      "type": null,
+      "required": true,
+      "placeholder": null
+    },
+    {
+      "name": "tatumAccountId",
+      "type": null,
+      "required": true,
+      "placeholder": null
+    },
+    {
+      "name": "suiAddress",
+      "type": null,
+      "required": true,
+      "placeholder": "0x…"
+    },
+    {
+      "name": "accountId",
+      "type": null,
+      "required": true,
+      "placeholder": "0x3247e3da…"
+    },
+    {
+      "name": "memwalAgentId",
+      "type": null,
+      "required": true,
+      "placeholder": "Public key from Delegate keys"
+    },
+    {
+      "name": "description",
+      "type": null,
+      "required": true,
+      "placeholder": "What it does, how it uses Tatum + Walrus Memory…"
+    },
+    {
+      "name": "demoVideoUrl",
+      "type": "url",
+      "required": true,
+      "placeholder": "YouTube or other link"
+    },
+    {
+      "name": "repoUrl",
+      "type": "url",
+      "required": true,
+      "placeholder": "https://github.com/…"
+    },
+    {
+      "name": "additionalDocs",
+      "type": null,
+      "required": false,
+      "placeholder": "Docs, blog, deck URL…"
+    },
+    {
+      "name": "walrusExperience",
+      "type": null,
+      "required": true,
+      "placeholder": null
+    },
+    {
+      "name": "tatumAiBuilderExperience",
+      "type": null,
+      "required": true,
+      "placeholder": null
+    },
+    {
+      "name": "walrusFriction",
+      "type": null,
+      "required": false,
+      "placeholder": "Optional, specific Memory pain point"
+    },
+    {
+      "name": "socialPosts",
+      "type": null,
+      "required": false,
+      "placeholder": "X, LinkedIn, etc."
+    },
+    {
+      "name": "acceptTerms",
+      "type": "checkbox",
+      "required": true,
+      "placeholder": null
+    }
+  ],
+  "termsAccepted": false,
+  "submitted": false,
+  "valuesEntered": false,
+  "notes": [
+    "Account ID (SUI) help says it is received after creating the first Walrus delegate key.",
+    "MEMWAL_AGENT_ID is the Public key under Delegate keys, not the private secret.",
+    "Tatum ID help points to My Account / My Account Info.",
+    "Video is required; additional documentation is optional in the form, while event rules still require a published blog.",
+    "AI Builder feedback is required and explicitly permits saying it was not used."
+  ]
+}

@@ -1,11 +1,312 @@
 {
-  "status": "in_progress",
-  "commit": null,
-  "appUrl": null,
-  "repositoryUrl": null,
+  "status": "implemented_and_deployed_release_gated",
+  "checkedAt": "2026-10-29T20:09:07.494Z",
+  "commit": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
+  "sourceSha256": "c952fcd7d5a457fcc5236e5a4566d77c51df91019370aa8d15e4d71b42bbb2db",
+  "appUrl": "https://sui-money.vercel.app",
+  "repositoryUrl": "https://github.com/Tolex081/sui-money-total-recall",
   "articleUrl": null,
   "videoUrl": null,
   "submissionReceipt": null,
-  "requirements": {},
-  "criticalOpenItems": ["ordinary-transfer-and-incoming-nonsender-proof", "payment-balance-snapshot-consistency", "deployed-runtime", "complete-seed-and-retention", "real-wallet-and-cross-session-learning", "remaining-route-and-recovery-acceptance"]
+  "ciUrl": "https://github.com/Tolex081/sui-money-total-recall/actions/runs/40940787576",
+  "deployment": {
+    "id": "dpl_9FpwHJVnS3SLFp5qXRdaYqkMygYq",
+    "url": "https://sui-money-4pnj5gz7m-oyewole-toluwalase-oluwaseuns-projects.vercel.app",
+    "sourceRevision": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
+    "walletSignInEnabled": false,
+    "personalAccessEnabled": false
+  },
+  "requirements": {
+    "H01": {
+      "status": "passed",
+      "artifact": "evidence/public/deployed-runtime.json"
+    },
+    "H02": {
+      "status": "passed",
+      "artifact": "evidence/public/deployed-runtime.json"
+    },
+    "H03": {
+      "status": "passed",
+      "artifact": "evidence/public/seed-mainnet.json"
+    },
+    "H04": {
+      "status": "pending",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "H05": {
+      "status": "passed",
+      "artifact": "evidence/public/ci.json",
+      "limitation": "Public demo and public repository; personal release remains gated."
+    },
+    "H06": {
+      "status": "passed",
+      "artifact": "docs/BUILD_LOG.md",
+      "limitation": "Fresh public dated repository and attribution; builder eligibility attestation is H09."
+    },
+    "H07": {
+      "status": "pending",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "H08": {
+      "status": "pending",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "H09": {
+      "status": "pending",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "H10": {
+      "status": "partial",
+      "artifact": "evidence/public/learning-replay.json",
+      "limitation": "Auditable synthetic effects; real cross-session story remains open."
+    },
+    "P01": {
+      "status": "passed",
+      "artifact": "evidence/public/seed-mainnet.json",
+      "limitation": "Public read-only fictional finances plus independently verified Mainnet seed recall."
+    },
+    "P02": {
+      "status": "blocked",
+      "artifact": "evidence/public/personal-browser.json",
+      "limitation": "Automated cryptographic auth/isolation passes; real Slush sign-in blocked by security warning."
+    },
+    "P03": {
+      "status": "passed",
+      "artifact": "evidence/public/personal-browser.json",
+      "limitation": "Actual deployed Tatum balances; unknown/stale/error browser scenarios use explicit isolated fixtures."
+    },
+    "P04": {
+      "status": "passed",
+      "artifact": "evidence/public/history-recovery.json",
+      "limitation": "Actual bounded incoming/outgoing history, resumed and repeated pages; interruption/pruning/throttle cases are local protobuf/transport fixtures, not induced provider outages."
+    },
+    "P05": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "P06": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "P07": {
+      "status": "passed",
+      "artifact": "evidence/public/personal-browser.json",
+      "limitation": "Explicit plan, reserve, commitments and fresh-session persistence tested against isolated real PostgreSQL."
+    },
+    "P08": {
+      "status": "blocked",
+      "artifact": "docs/BALANCE_CONSISTENCY.md",
+      "limitation": "Exact local arithmetic passes; live payment/balance atomic snapshot contract is absent."
+    },
+    "P09": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "P10": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "P11": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "P12": {
+      "status": "passed",
+      "artifact": "evidence/public/personal-browser.json",
+      "limitation": "Real PostgreSQL isolation/export/recovery, durable job tests and each dependency-down browser scenario; no installed-wallet or genuine personal learning claim."
+    },
+    "P13": {
+      "status": "passed",
+      "artifact": "evidence/public/ux-checks.json",
+      "limitation": "Current local production UI/proof and strict scoped inspector checks; historical deployed screenshots are separately versioned."
+    },
+    "P14": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "G01": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "G02": {
+      "status": "passed",
+      "artifact": "evidence/public/deployed-runtime.json"
+    },
+    "G03": {
+      "status": "passed",
+      "artifact": "evidence/public/history-recovery.json",
+      "limitation": "49 actual transactions across two pages within frozen checkpoint bounds, both directions and stable repeat; no lifetime coverage claim."
+    },
+    "G04": {
+      "status": "passed",
+      "artifact": "docs/INTEGRATION_EVIDENCE.md",
+      "limitation": "Installed transport/types/auth/masks/shapes verified. The absence of an atomic balance checkpoint is documented; F08/F09 remain blocked."
+    },
+    "G05": {
+      "status": "passed",
+      "artifact": "evidence/public/deployed-runtime.json"
+    },
+    "G06": {
+      "status": "passed",
+      "artifact": "evidence/public/seed-mainnet.json"
+    },
+    "G07": {
+      "status": "passed",
+      "artifact": "evidence/public/deployed-runtime.json"
+    },
+    "G08": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "G09": {
+      "status": "blocked",
+      "artifact": "docs/SLUSH_REVIEW_REQUEST.md",
+      "limitation": "Installed-wallet sign-in paused pending official warning resolution; generated test signatures are not compatibility evidence."
+    },
+    "G10": {
+      "status": "passed",
+      "artifact": "evidence/public/db-tests.json",
+      "limitation": "All three migrations and durable isolation/concurrency/recovery checks passed against real PostgreSQL in CI; actual production roundtrip separately passed."
+    },
+    "G11": {
+      "status": "partial",
+      "artifact": "docs/EVIDENCE.md"
+    },
+    "G12": {
+      "status": "passed",
+      "artifact": "evidence/public/seed-mainnet.json"
+    },
+    "G13": {
+      "status": "pending",
+      "artifact": "docs/LEARNING_LOG.md",
+      "limitation": "Real recurring confirmation and correction across actual sessions remain absent. Reserve-preference guide does not replace this requirement."
+    },
+    "F01": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F02": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F03": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F04": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F05": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F06": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F07": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F08": {
+      "status": "blocked",
+      "artifact": "docs/BALANCE_CONSISTENCY.md",
+      "limitation": "No verified atomic checkpoint/index watermark for the exact returned balance; reservations remain pending."
+    },
+    "F09": {
+      "status": "blocked",
+      "artifact": "docs/BALANCE_CONSISTENCY.md",
+      "limitation": "No verified atomic checkpoint/index watermark for the exact returned balance; reservations remain pending."
+    },
+    "F10": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F11": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F12": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F13": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F14": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F15": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F16": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F17": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F18": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F19": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F20": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F21": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F22": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F23": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    },
+    "F24": {
+      "status": "passed",
+      "artifact": "evidence/public/quality.json",
+      "limitation": "Automated financial/adapter/database/browser evidence; actual personal learning is separately gated by G13."
+    }
+  },
+  "criticalOpenItems": [
+    "reported-slush-security-warning",
+    "payment-balance-snapshot-consistency",
+    "real-wallet-and-cross-session-learning",
+    "builder-eligibility-identifiers-and-quota-evidence",
+    "article-video-publication-and-submission"
+  ]
 }

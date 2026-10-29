@@ -1,64 +1,121 @@
 {
-  "checkedAt": "2026-10-28T22:39:03.073Z",
-  "base": "https://sui-money.vercel.app",
+  "checkedAt": "2026-10-29T09:19:16.108Z",
+  "origin": "https://sui-money.vercel.app",
+  "sourceRevision": "f8bfe486cd3045fdab0ff4426c610f0227bfe82e",
+  "environment": "public production signed-out Chromium",
   "automatedCaptures": true,
   "manualVisualReview": false,
+  "agentVisualReview": "Local production branding captures were visually reviewed; deployed captures require separate inspection.",
+  "walletSignInEnabled": false,
+  "challengeRejected": true,
   "checks": [
     {
-      "screen": "demo",
-      "width": 390,
-      "status": 200,
-      "overflow": false,
-      "file": "evidence/screenshots/demo-390.png"
-    },
-    {
-      "screen": "demo/activity",
-      "width": 390,
-      "status": 200,
-      "overflow": false,
-      "file": "evidence/screenshots/demo-activity-390.png"
-    },
-    {
-      "screen": "demo/plan",
-      "width": 390,
-      "status": 200,
-      "overflow": false,
-      "file": "evidence/screenshots/demo-plan-390.png"
-    },
-    {
-      "screen": "proof",
-      "width": 390,
-      "status": 200,
-      "overflow": false,
-      "file": "evidence/screenshots/proof-390.png"
-    },
-    {
-      "screen": "demo",
+      "path": "/",
       "width": 1440,
       "status": 200,
       "overflow": false,
-      "file": "evidence/screenshots/demo-1440.png"
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/landing-1440.png"
     },
     {
-      "screen": "demo/activity",
+      "path": "/demo",
       "width": 1440,
       "status": 200,
       "overflow": false,
-      "file": "evidence/screenshots/demo-activity-1440.png"
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-1440.png"
     },
     {
-      "screen": "demo/plan",
+      "path": "/demo/activity",
       "width": 1440,
       "status": 200,
       "overflow": false,
-      "file": "evidence/screenshots/demo-plan-1440.png"
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-activity-1440.png"
     },
     {
-      "screen": "proof",
+      "path": "/demo/plan",
       "width": 1440,
       "status": 200,
       "overflow": false,
-      "file": "evidence/screenshots/proof-1440.png"
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-plan-1440.png"
+    },
+    {
+      "path": "/proof",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/proof-1440.png"
+    },
+    {
+      "path": "/today",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/paused-1440.png"
+    },
+    {
+      "path": "/",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/landing-390.png"
+    },
+    {
+      "path": "/demo",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-390.png"
+    },
+    {
+      "path": "/demo/activity",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-activity-390.png"
+    },
+    {
+      "path": "/demo/plan",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-plan-390.png"
+    },
+    {
+      "path": "/proof",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/proof-390.png"
+    },
+    {
+      "path": "/today",
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/paused-390.png"
     }
   ]
 }

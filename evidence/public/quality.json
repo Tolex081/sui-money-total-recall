@@ -1,41 +1,76 @@
 {
-  "checkedAt": "2026-10-29T04:44:10.451Z",
+  "checkedAt": "2026-10-29T19:32:12.448Z",
   "environment": {
-    "node": "v22.17.1",
-    "platform": "win32"
+    "node": "v24.22.1",
+    "platform": "linux"
   },
-  "baseCommit": "80bc5af130d459eb97107bd60048247868cc6ba1",
-  "sourceSha256": "78f65f0507498d9f5748ba145ce17efa1c0796dba19bb89f446f4502d9856c45",
+  "baseCommit": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
+  "sourceSha256": "c952fcd7d5a457fcc5236e5a4566d77c51df91019370aa8d15e4d71b42bbb2db",
   "checks": [
     {
       "command": "npm run lint",
-      "startedAt": "2026-10-29T04:44:10.574Z",
-      "finishedAt": "2026-10-29T04:44:20.956Z",
+      "startedAt": "2026-10-29T19:32:12.476Z",
+      "finishedAt": "2026-10-29T19:32:17.173Z",
       "exitCode": 0,
       "passed": true
     },
     {
       "command": "npm run typecheck",
-      "startedAt": "2026-10-29T04:44:20.956Z",
-      "finishedAt": "2026-10-29T04:44:31.730Z",
+      "startedAt": "2026-10-29T19:32:17.173Z",
+      "finishedAt": "2026-10-29T19:32:21.931Z",
       "exitCode": 0,
       "passed": true
     },
     {
       "command": "npm run test",
-      "startedAt": "2026-10-29T04:44:31.730Z",
-      "finishedAt": "2026-10-29T04:44:34.273Z",
+      "startedAt": "2026-10-29T19:32:21.931Z",
+      "finishedAt": "2026-10-29T19:32:22.863Z",
       "exitCode": 0,
       "passed": true
     },
     {
       "command": "npm run test:db",
-      "startedAt": "2026-10-29T04:44:34.273Z",
-      "finishedAt": "2026-10-29T04:44:51.230Z",
-      "exitCode": 1,
-      "passed": false
+      "startedAt": "2026-10-29T19:32:22.863Z",
+      "finishedAt": "2026-10-29T19:32:24.246Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test:e2e",
+      "startedAt": "2026-10-29T19:32:24.246Z",
+      "finishedAt": "2026-10-29T19:32:50.889Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run build",
+      "startedAt": "2026-10-29T19:32:50.889Z",
+      "finishedAt": "2026-10-29T19:33:05.074Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run test:e2e:personal",
+      "startedAt": "2026-10-29T19:33:05.074Z",
+      "finishedAt": "2026-10-29T19:33:18.250Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run scan:secrets",
+      "startedAt": "2026-10-29T19:33:18.250Z",
+      "finishedAt": "2026-10-29T19:33:18.653Z",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "command": "npm run verify:evidence",
+      "startedAt": "2026-10-29T19:33:18.653Z",
+      "finishedAt": "2026-10-29T19:33:18.991Z",
+      "exitCode": 0,
+      "passed": true
     }
   ],
   "sourceUnchanged": true,
-  "complete": false
+  "complete": true
 }

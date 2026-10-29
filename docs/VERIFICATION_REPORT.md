@@ -1,38 +1,38 @@
 # Verification report
 
-User-facing work date: 2026-10-28 (Africa/Lagos). Execution timestamps are recorded in UTC without backdating.
+Reviewed 29 October 2026, Africa/Lagos. Artifact timestamps are actual UTC observations. Work and sessions are never backdated.
 
-## Workspace
+## Delivered implementation
 
-Empty workspace inspected before scaffolding. No repository application or AGENTS.md found. Node v22.17.1; Git 2.49.0.windows.1. PowerShell blocks npm.ps1; use npm.cmd without changing execution policy. No Tatum/MemWal/database application environment variables were present (names inspected, no values printed).
+Today, Activity, Plan, Memories, same-fact learning comparisons, Proof and privacy screens are implemented and deployed at https://sui-money.vercel.app . The public repository is https://github.com/Tolex081/sui-money-total-recall . Native-USDC arithmetic uses BigInt and Temporal; SUI remains separate. PostgreSQL stores the ledger, signed sessions, immutable facts and durable jobs. Learned interpretations activate only after completed storage and matching signed recall.
 
-## Implementation and evidence levels
+The UI refinement applies Impeccable and Anthropic frontend-design: self-hosted Figtree and Bricolage Grotesque, attributable Walrus/Tatum artwork, readable financial hierarchy, tablet layout, native modal navigation, clear paused-account recovery, and source/state/recorded time before collapsed raw proof. DESIGN.md and its sidecar document the implemented system. Independent review scope and disposition are in .impeccable/critique/ux-final-review.md; it is not security clearance.
 
-The app has Today, Activity, Plan, memory inspection, learning comparison, proof and privacy screens. BigInt/Temporal domain functions, native Tatum gRPC, PostgreSQL transactions, signed wallet sessions and verified asynchronous MemWal jobs are implemented. New commitment edit/cancel, recurrence correction, reimbursement reversal, wallet-change invalidation and sign-out controls require the final suite and redeployment before their end-to-end status is passed.
+## Exact tested and deployed source
 
-| Boundary | Actual result | Public-safe artifact and limitation |
-|---|---|---|
-| Documentation / installed SDK | Current official references, pinned generated Sui types, masks, numeric shapes and real responses inspected | `INTEGRATION_EVIDENCE.md`, `package-lock.json`; no invented proto contract. |
-| Tatum Mainnet / coins | Mainnet identity, exact native-USDC type/6 decimals and SUI/9 verified | `live-smoke.json`; zero USDC is a valid observation. |
-| Public ordinary USDC history | Incoming +0.000050 USDC and outgoing −60 USDC, successful and directly re-read through Tatum | `transfer-reference.json`; incoming sender differs from reference wallet; separate from builder wallet and synthetic finances. |
-| Pagination | 30-record ITEM_LIMIT page followed by 19-record CHECKPOINT_BOUND page with distinct resume | Same artifact. Complete only for recorded bounds. Complex reference history also has three distinct cursors. |
-| Walrus lifecycle | One completed synthetic Mainnet smoke write and exact matching signed recall | `live-smoke.json`: job `7c602459-5474-4e9c-8ff2-6c9e4b567702`, blob `J7WMooZiPKy0q9BGM5IPfyeBqOYhgpWH_ECfws3Zs-Q`. |
-| Approved synthetic product seed | 24 distinct active stored blobs, matching signed recalls, every expiry covers 30 November 2026 | `seed-mainnet.json`, read-only audit at 2026-10-28T16:59:49.123Z. No extra records or renewals. |
-| Real PostgreSQL | 15 isolated-schema DB/auth/concurrency tests passed | `db-tests.json` at 2026-10-28T17:02:43.705Z; tests include allocation races, immutable facts, cursor rollback, wallet-switch and durable unknown-write no-resubmit. Final migrations/tests supersede this run. |
-| Local unit/property | 24 financial and learning tests passed | Named F01–F24 cases in `tests/`; local fixture evidence does not prove real personal sessions. |
-| Public demo browser | Four earlier tests passed: journey, 390/1440 overflow/keyboard, access controls and no serious/critical axe violations | Historical public-demo evidence. Final suite and visual captures are separate checks. |
-| Deployed runtime | Actual Node v24.21.0 Linux x64: Tatum balance, signed MemWal recall and PostgreSQL write/read passed | `deployed-runtime.json` at 2026-10-28T16:58:16.443Z; empty commit is not a source-revision claim. Enhanced transaction probe needs rerun after final deploy. |
-| Signed-out access | Production health returned HTTP 200 without authentication | `https://sui-money.vercel.app`; immutable protected URLs may still need Vercel access. |
-| Published/submitted | App deployed; repository/article/video/receipt tracked separately | `evidence/release.json` and `SUBMISSION_CHECKLIST.md` are authoritative. Drafts are not publication. |
+Implementation revision: `bdace2432d83f680af0c678c2f7dc5f40d59b5d0`. [CI passed](https://github.com/Tolex081/sui-money-total-recall/actions/runs/40940787576) all nine required checks on v24.22.1 Linux with an unchanged source fingerprint, including public binary assets. Results: **38 unit/adapter/property tests, 18 real PostgreSQL tests, seven public browser tests and 13 authenticated browser checks**, plus lint, TypeScript, production build, secret scan and requirement traceability. The authenticated cases use disposable SDK-signed test wallets and explicit fixtures; they do not prove installed-wallet compatibility or personal Mainnet learning. No Mainnet writes occur in CI.
 
-Artifacts above are under `evidence/public/`; JSON timestamps identify each actual run. Baseline commit: `70be8b4cb458461302c64b5e95a6f3a21c7c09e5`. Later code/evidence was initially uncommitted. The final quality runner records a source fingerprint, so an earlier result is not silently attributed to a later commit.
+Deployment `dpl_9FpwHJVnS3SLFp5qXRdaYqkMygYq` is READY at the canonical public alias. The actual Node v24.21.0 Linux runtime probe at 2026-10-29T19:47:18.767Z identifies this same source and passed Tatum metadata/balances, direct public transactions, two streamed history pages with both directions, signed Walrus recall and PostgreSQL write/read. The runtime probe performs no new Walrus write.
 
-## Unclosed acceptance
+| Boundary | Actual evidence | Practical limit |
+| --- | --- | --- |
+| Tatum identity and balances | Authenticated Mainnet genesis, exact native-USDC/6 decimals and SUI/9 decimals, combined balances; live-smoke.json and deployed-runtime.json | Missing balance is unknown, never zero. Balance has no atomic checkpoint. |
+| Public reference history | Incoming +0.000050 USDC and outgoing −60 USDC, success/exact type/net delta directly verified; transfer-reference.json | Unrelated public wallet, separate from builder and synthetic demo. |
+| Pagination/recovery | history-recovery.json: 30 ITEM_LIMIT +19 CHECKPOINT_BOUND, 49 transactions/93 movements, both directions, stable repeated first page; production also streams both pages | Frozen bounds only. Throttle, interruption, pruning and stalled cursor scenarios are local transport/protobuf fixtures, not induced live outages. |
+| Walrus Mainnet | Approved smoke event plus exact approved 24-event synthetic batch, completed jobs, distinct active blobs and matching signed recalls | No extra personal writes or paid renewal authorized. All seed expiries cover 30 November 2026. |
+| Durable storage/auth | db-tests.json and personal-browser.json: migrations1–3, races/caps, immutability, cursor rollback, nonce/CSRF/session isolation/export, persisted new session, dependency failures and demo/account navigation | Real isolated PostgreSQL in CI; SDK test signatures are not genuine installed-wallet acceptance. |
+| UI and accessibility | ux-checks.json: 21 route/width checks at390/768/1440, no overflow/broken images/serious-critical axe findings; drawer is a separate 22nd visual capture | 12 extra CSS reflow checks at720/320, not physical zoom/device testing. Seven browser tests include keyboard drawer/Escape/route/resize and fonts. |
+| Production presentation | The new deployment is READY; its runtime probe passed. Current source local production captures passed and were independently reviewed. Earlier deployed visual-checks.json identifies its older source. | New deployed capture timed out on network-idle; permission review timed out twice before the corrected capture could start. Fresh deployed screenshot evidence is incomplete. No Slush safety verdict. |
+| Submission material | BLOG.md, DEMO_SCRIPT.md, SOCIAL_POST.md, SUBMISSION_FORM_PREPARED.md; local captioned video and video-draft.json | Drafts are not published/submitted. No article/video URL or receipt exists. |
 
-F01–F24 have named local coverage. F07 additionally has real PostgreSQL allocation races; F19 additionally has durable unknown-submission/no-resubmit testing. F08/F09 live acceptance remains blocked by the absent atomic balance checkpoint contract; see `BALANCE_CONSISTENCY.md`. Matching remains pending rather than releasing an unproven reservation.
+Earlier CI failures and external database DNS/connection failures are retained under diagnostics. A Windows public-browser run passed all seven cases but its dev-server teardown stalled and was interrupted; successful full CI is the authoritative final process result. A sandbox TSX invocation failed before scanning due to uv_os_get_passwd; the permitted rerun completed. The first broad finish reviewer hit a usage limit; its once replacement performed the final review. The design detector ran once, exit0, with truncated advisory output against then-stale DESIGN; no clean-detector claim is made.
 
-Genuine installed-wallet sign-in, actual cross-session recurrence/correction learning, complete route-level resource injection and each dependency-down browser flow remain separate mandatory checks. Synthetic replay, generated test wallets and public reference transfers cannot replace them.
+## Remaining mandatory acceptance
 
-Personal production accounts remain release-gated. `npm run audit:submission` must fail while any mandatory evidence, public article/video, eligibility/form inspection or receipt is absent. See `EVIDENCE.md` for individual H/P/F/G outcomes and `OPEN_ITEMS.md` for exact remaining actions. No completed or submitted entry is claimed.
+Wallet sign-in and personal finance are **disabled in production**. The builder reported a malicious-site warning in Chrome's Slush PC extension26.21.6(e2be7f2); exact flagged hostname remains unconfirmed. Do not bypass it or use another hostname to evade it. docs/SLUSH_REVIEW_REQUEST.md is a prepared, unsent official review request. No genuine installed-wallet success is claimed.
 
-Never infer wallet history from a checkpoint read, authenticated recall from public health, durable storage from filesystem state, or deployment compatibility from a local build.
+F08/F09 remain blocked: GetBalance has no verified atomic checkpoint/index watermark proving the returned balance includes a matched payment. The separately appended latest-checkpoint header is insufficient. Balance.checkpoint remains null and allocations cannot release an unproven reservation. See BALANCE_CONSISTENCY.md and the unsent TATUM_CONTRACT_QUESTION.md.
+
+G13 remains pending: actual recurring confirmation and correction across genuine later sessions. The user explicitly labelled the recurring scenario synthetic; unconfirmed 10000 remains unassigned. REAL_PREFERENCE_GUIDE.md prepares a separate genuine reserve preference, which does not replace recurrence acceptance. Exact new personal payloads require separate review/authorization before Mainnet storage.
+
+Builder eligibility, public account identifiers, actual Tatum quota/charge evidence, published article/video URLs and the submission receipt remain missing. The live public form was inspected read-only:20 visible fields,15 required, no entered values, accepted agreements or submission. audit:submission must fail while these mandatory requirements remain unproven. The software build/public review deployment is delivered; a personal release or completed submission is not claimed.

@@ -1,0 +1,59 @@
+{
+  "checkedAt": "2026-10-29T04:53:07.872Z",
+  "environment": "isolated PostgreSQL schema + local production server + disposable signed test wallet",
+  "mainnetWrites": 0,
+  "financeFixtures": "Two synthetic movements and one stale balance in a disposable schema; never live evidence",
+  "installedWalletCompatibility": false,
+  "databaseFailure": "Actual server missing DATABASE_URL plus simulated save 503; real DB for persistence/retry",
+  "checks": [
+    {
+      "test": "Browser identity uses actual signature-verification HTTP path",
+      "passed": true
+    },
+    {
+      "test": "Explicit plan persists through browser, HTTP and PostgreSQL",
+      "passed": true
+    },
+    {
+      "test": "Explicit commitment can be created, edited and cancelled",
+      "passed": true
+    },
+    {
+      "test": "Browser reimbursement queues once, reserves capacity and reports over-allocation in the dialog",
+      "passed": true
+    },
+    {
+      "test": "Browser commitment match and reversal conserve the source payment",
+      "passed": true
+    },
+    {
+      "test": "Tatum unavailable leaves balance unknown without synthetic fallback",
+      "passed": true
+    },
+    {
+      "test": "Simulated database save failure preserves edits and successful retry",
+      "passed": true
+    },
+    {
+      "test": "MemWal unavailable never activates queued preference",
+      "passed": true
+    },
+    {
+      "test": "Manual recurrence stays pending and is never presented as detected history",
+      "passed": true
+    },
+    {
+      "test": "Fresh browser session reauthenticates and retrieves persisted plan",
+      "passed": true
+    },
+    {
+      "test": "F21 failed refresh preserves and visibly labels a stale cached balance",
+      "passed": true
+    },
+    {
+      "test": "Missing database blocks personal state without a fixture fallback",
+      "passed": true
+    }
+  ],
+  "complete": true
+}
