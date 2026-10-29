@@ -94,7 +94,7 @@ export class TatumChain implements ChainPort {
     if (!response.checkpoint?.summary?.timestamp) throw new Error('TATUM_SHAPE:checkpoint');
     return timestamp(response.checkpoint.summary.timestamp);
   }
-  async historyPage(input: HistoryRequest) {
+  async historyPage(input: HistoryRequest): Promise<HistoryPage> {
     const address = canonicalAddress(input.address);
     if (integer(input.fromCheckpoint) < 0n || integer(input.toCheckpoint) <= integer(input.fromCheckpoint)) throw new Error('Invalid bounded history range.');
     return readTatum(async()=>{

@@ -19,7 +19,7 @@ try{
  for(let index=0;index<4;index++){
   const page=await chain.historyPage({...request,cursor});
   if(index===0)firstIds=page.movements.map(m=>m.id).sort();
-  const cursorAdvanced=page.continuation!==null&&page.continuation!==cursor;
+  const cursorAdvanced:boolean=page.continuation!==null&&page.continuation!==cursor;
   if(!page.complete)assert.equal(cursorAdvanced,true);
   pages.push({reason:page.reason,transactionCount:page.transactionCount,movementCount:page.movements.length,complete:page.complete,cursorAdvanced});
   for(const m of page.movements)movements.set(m.id,m);
