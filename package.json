@@ -24,7 +24,8 @@
     "audit:submission": "tsx scripts/evidence.ts submission",
     "scan:secrets": "tsx scripts/scan-secrets.ts",
     "verify:quality": "node scripts/quality.mjs",
-    "audit:seed": "tsx --env-file-if-exists=.env.local scripts/audit-seed.ts"
+    "audit:seed": "tsx --env-file-if-exists=.env.local scripts/audit-seed.ts",
+    "verify:history": "tsx --env-file-if-exists=.env.local scripts/verify-history.ts"
   },
   "dependencies": {
     "@grpc/grpc-js": "1.14.6",

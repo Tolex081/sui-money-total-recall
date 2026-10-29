@@ -4,10 +4,12 @@ import { GrpcTypes, SuiGrpcClient } from '@mysten/sui/grpc';
 import { isValidSuiAddress, normalizeSuiAddress, normalizeStructTag } from '@mysten/sui/utils';
 import { normalize } from '@/domain/normalize';
 import { integer, SUI_TYPE, USDC_TYPE } from '@/domain/money';
-import type { ChainPort, HistoryRequest, ServiceObservation } from '@/ports/chain';
+import type { ChainPort, HistoryRequest, HistoryPage, ServiceObservation } from '@/ports/chain';
 import type { Balance, Movement } from '@/domain/types';
 import { required } from '@/lib/config';
 import { createHash } from 'node:crypto';
+import { readTatum } from './read';
+import { AppError } from '@/lib/security';
 
 const MASK = { paths: ['digest','checkpoint','timestamp','transaction','effects.status','effects.gas_used','balance_changes'] };
 export function canonicalAddress(input: string) {
@@ -59,15 +61,13 @@ export class TatumChain implements ChainPort {
   }
   close() { this.transport.close(); }
   async serviceStatus(): Promise<ServiceObservation> {
-    await this.beforeRead();
-    const { response } = await this.client.ledgerService.getServiceInfo({});
+    const { response } = await readTatum(async()=>await this.client.ledgerService.getServiceInfo({}),this.beforeRead);
     if (response.chain !== 'mainnet' || !response.chainId || response.checkpointHeight === undefined) throw new Error('TATUM_NETWORK: Mainnet service identity not established.');
     return { network: 'mainnet', chainId: response.chainId, checkpoint: response.checkpointHeight.toString(), observedAt: new Date().toISOString(), lowestCheckpoint: response.lowestAvailableCheckpoint?.toString() ?? null, lowestTransactionCheckpoint: response.lowestAvailableCheckpoint?.toString() ?? null };
   }
   async coinMetadata(coinType: string) {
     if (coinType !== USDC_TYPE && coinType !== SUI_TYPE) throw new Error('Unsupported coin.');
-    await this.beforeRead();
-    const { response } = await this.client.stateService.getCoinInfo({ coinType });
+    const { response } = await readTatum(async()=>await this.client.stateService.getCoinInfo({ coinType }),this.beforeRead);
     if (!response.coinType || normalizeStructTag(response.coinType) !== coinType || response.metadata?.decimals !== (coinType === USDC_TYPE ? 6 : 9)) throw new Error('TATUM_METADATA: token identity or precision differs.');
     return { coinType, decimals: response.metadata.decimals, symbol: response.metadata.symbol ?? '' };
   }
@@ -77,9 +77,7 @@ export class TatumChain implements ChainPort {
     await this.coinMetadata(USDC_TYPE); await this.coinMetadata(SUI_TYPE);
     const values: string[] = [];
     for (const coinType of [USDC_TYPE, SUI_TYPE]) {
-      await this.beforeRead();
-      const call = this.client.stateService.getBalance({ owner, coinType });
-      const { response } = await call;
+      const { response } = await readTatum(async()=>await this.client.stateService.getBalance({ owner, coinType }),this.beforeRead);
       if (!response.balance?.coinType || normalizeStructTag(response.balance.coinType) !== coinType || response.balance.balance === undefined) throw new Error('TATUM_SHAPE: Missing balance is unknown, never zero.');
       values.push(response.balance.balance.toString());
     }
@@ -87,34 +85,44 @@ export class TatumChain implements ChainPort {
     return { usdc: values[0], sui: values[1], checkpoint: null, observedAt: new Date().toISOString(), source: 'tatum', stale: false };
   }
   async transaction(digest: string, owner: string) {
-    await this.beforeRead();
-    const { response } = await this.client.ledgerService.getTransaction({ digest, readMask: MASK });
+    const { response } = await readTatum(async()=>await this.client.ledgerService.getTransaction({ digest, readMask: MASK }),this.beforeRead);
     if (!response.transaction) throw new Error('TATUM_NOT_FOUND');
     return extractTransaction(response.transaction, canonicalAddress(owner));
   }
   async checkpointTime(checkpoint: string) {
-    await this.beforeRead();
-    const { response } = await this.client.ledgerService.getCheckpoint({ checkpointId: { oneofKind: 'sequenceNumber', sequenceNumber: BigInt(checkpoint) }, readMask: { paths: ['summary.timestamp','summary.sequence_number'] } });
+    const { response } = await readTatum(async()=>await this.client.ledgerService.getCheckpoint({ checkpointId: { oneofKind: 'sequenceNumber', sequenceNumber: BigInt(checkpoint) }, readMask: { paths: ['summary.timestamp','summary.sequence_number'] } }),this.beforeRead);
     if (!response.checkpoint?.summary?.timestamp) throw new Error('TATUM_SHAPE:checkpoint');
     return timestamp(response.checkpoint.summary.timestamp);
   }
   async historyPage(input: HistoryRequest) {
     const address = canonicalAddress(input.address);
     if (integer(input.fromCheckpoint) < 0n || integer(input.toCheckpoint) <= integer(input.fromCheckpoint)) throw new Error('Invalid bounded history range.');
-    await this.beforeRead();
-    const stream = this.client.ledgerService.listTransactions({ startCheckpoint: BigInt(input.fromCheckpoint), endCheckpoint: BigInt(input.toCheckpoint), readMask: MASK, filter: { terms: [{ literals: [{ negated: false, predicate: { oneofKind: 'affectedAddress', affectedAddress: { address } } }] }] }, options: { limit: 30, ordering: GrpcTypes.Ordering.DESCENDING, before: input.cursor ? Buffer.from(input.cursor, 'base64url') : undefined } });
-    const movements: Movement[] = [];
-    let cursor: string | null = input.cursor ?? null, scanned: string | null = null;
-    let end = GrpcTypes.QueryEndReason.UNKNOWN, count = 0;
-    for await (const frame of stream.responses) {
-      if (frame.transaction) { movements.push(...extractTransaction(frame.transaction, address)); count++; }
-      if (frame.watermark?.cursor) cursor = Buffer.from(frame.watermark.cursor).toString('base64url');
-      if (frame.watermark?.checkpoint !== undefined) scanned = frame.watermark.checkpoint.toString();
-      if (frame.end?.reason !== undefined) end = frame.end.reason;
-    }
-    await stream.status;
-    const complete = end === GrpcTypes.QueryEndReason.CHECKPOINT_BOUND;
-    const reason = GrpcTypes.QueryEndReason[end] ?? 'NO_QUERY_END';
-    return { movements, continuation: complete ? null : cursor, complete, reason, transactionCount: count, coverage: { state: complete ? 'complete' as const : 'partial' as const, from: null, to: null, reason, cursor: complete ? null : cursor, scannedCheckpoint: scanned } };
+    return readTatum(async()=>{
+      const stream = this.client.ledgerService.listTransactions({ startCheckpoint: BigInt(input.fromCheckpoint), endCheckpoint: BigInt(input.toCheckpoint), readMask: MASK, filter: { terms: [{ literals: [{ negated: false, predicate: { oneofKind: 'affectedAddress', affectedAddress: { address } } }] }] }, options: { limit: 30, ordering: GrpcTypes.Ordering.DESCENDING, before: input.cursor ? Buffer.from(input.cursor, 'base64url') : undefined } });
+      return collectHistoryPage(input,stream.responses,stream.status);
+    },this.beforeRead);
   }
+}
+
+
+// Buffer the whole page until both QueryEnd and final RPC status are known.
+// An interrupted attempt must not expose its cursor or partial movements.
+export async function collectHistoryPage(input:HistoryRequest,responses:AsyncIterable<GrpcTypes.ListTransactionsResponse>,finalStatus:PromiseLike<{code:string}>):Promise<HistoryPage>{
+  const address=canonicalAddress(input.address),movements:Movement[]=[];
+  let cursor=input.cursor??null,scanned:string|null=null,end=GrpcTypes.QueryEndReason.UNKNOWN,count=0;
+  // Observe the status rejection immediately, even if the response iterator fails
+  // first. Awaiting it below still propagates the error; this only prevents an
+  // unhandled rejection from the independent transport promise.
+  const completion=Promise.resolve(finalStatus);void completion.catch(()=>{});
+  for await(const frame of responses){
+    if(frame.transaction){movements.push(...extractTransaction(frame.transaction,address));count++;}
+    if(frame.watermark?.cursor)cursor=Buffer.from(frame.watermark.cursor).toString('base64url');
+    if(frame.watermark?.checkpoint!==undefined)scanned=frame.watermark.checkpoint.toString();
+    if(frame.end?.reason!==undefined)end=frame.end.reason;
+  }
+  const rpcStatus=await completion;
+  if(rpcStatus.code!=='OK')throw Object.assign(new Error('Tatum history RPC did not finish successfully'),{code:rpcStatus.code});
+  const complete=end===GrpcTypes.QueryEndReason.CHECKPOINT_BOUND,reason=GrpcTypes.QueryEndReason[end]??'NO_QUERY_END';
+  if(!complete&&cursor===(input.cursor??null))throw new AppError('TATUM_CURSOR_STALLED',503,'History did not return a new scan cursor. Saved coverage remains incomplete; try again later.',true);
+  return {movements,continuation:complete?null:cursor,complete,reason,transactionCount:count,coverage:{state:complete?'complete':'partial',from:null,to:null,reason,cursor:complete?null:cursor,scannedCheckpoint:scanned}};
 }
