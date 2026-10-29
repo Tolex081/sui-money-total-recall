@@ -16,6 +16,7 @@ All handlers run in Node. Bodies are strict Zod-validated JSON, bounded to 16 KB
 | POST /api/plan | End date/kind, decimal reserve, optional expected income, timezone, expected version and consent; preview acknowledgement for timezone change |
 | POST /api/commitments | Alias, decimal amount, category, start local date, recurrence; optional ID/version for edits |
 | POST /api/preferences/reserve | Decimal reserve and expected memory revision; queues a preference; never silently overwrites an explicit plan |
+| POST /api/recurrences/manual | Positive amount, alias, local date/frequency/category; explicitly manual context, queued until storage and recall; prevents matching explicit-bill duplication |
 | POST /api/commitment-allocations/:id/reverse | Scoped reversal; restores the obligation without changing wallet facts |
 | POST /api/sync | `{kind: "balances" | "history"}`; bounded work and persisted progress |
 | POST /api/activity/:id/annotation | Category/note/own-transfer interpretation, expected revision and superseded ID; queues memory |
@@ -37,6 +38,6 @@ All handlers run in Node. Bodies are strict Zod-validated JSON, bounded to 16 KB
 | GET /api/proof | Cached sanitized evidence from approved public checks |
 | POST /api/internal/spike | Private admin-header endpoint for bounded Tatum/recall/PostgreSQL runtime proof; no chain or memory writes |
 
-Release gating is separate from authentication: `PERSONAL_ACCESS_ENABLED=false` blocks personal production use while integration acceptance is unfinished. Public demo writes always fail. A gate cannot satisfy a missing mandatory feature or acceptance test.
+Release gating is separate from authentication: `PERSONAL_ACCESS_ENABLED=false` blocks personal financial production use while acceptance is unfinished. Identity-only challenge/verification/account/logout remain available for genuine installed-wallet checks. Public demo writes always fail. A gate cannot satisfy a missing mandatory feature or acceptance test.
 
 Known gaps and pending route-level attack coverage are recorded in OPEN_ITEMS.md; the table describes implemented endpoints, not a blanket claim that every acceptance is passed.

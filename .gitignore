@@ -9,6 +9,11 @@ test-results/
 evidence/private/
 *.tsbuildinfo
 *.log
+.impeccable/impeccable-main/
+.impeccable/vendor/
+.impeccable/config.local.json
+.impeccable/review/
+.impeccable/*.png
 
 .vercel
 .env*

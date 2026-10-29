@@ -7,6 +7,7 @@ import { occurrences,weeklySuggestions } from '@/domain/recurrence';
 import { spending,validateAllocation } from '@/domain/spending';
 import { normalize } from '@/domain/normalize';
 import { demoState,demoComparison } from '@/adapters/mock/demo';
+import { summarize } from '@/domain/summary';
 import type { Balance,Occurrence,Movement,Allocation } from '@/domain/types';
 const b=(value:string,checkpoint='100'):Balance=>({usdc:units(value).toString(),sui:'0',observedAt:'2026-10-28T12:00:00Z',checkpoint,source:'synthetic',stale:false});
 const o=(value:string):Occurrence=>({id:'bill',ruleId:'rule',dueDate:'2026-11-01',amount:units(value).toString(),alias:'Bill',category:'Home',cancelled:false});
@@ -31,4 +32,6 @@ describe('Exact financial acceptance',()=>{
   it('conserves exact allowances for arbitrary nonnegative amounts',()=>{fc.assert(fc.property(fc.bigInt({min:0n,max:10n**35n}),fc.bigInt({min:0n,max:10n**35n}),(balance,reserve)=>{const r=planning({balance:{...b('0'),usdc:balance.toString()},plan:{...demoState().plan,reserve:reserve.toString()},today:'2026-10-28',occurrences:[],allocations:[]});if(r.state!=='ready')throw Error();expect(r.discretionary-r.shortfall).toBe(balance-reserve);expect(r.daily*BigInt(r.days)+r.leftover).toBe(r.discretionary);expect(r.daily>=0n).toBe(true);}));});
   it('uses an actual timezone library for DST, never fixed millisecond day counts',()=>{expect(Temporal.PlainDate.from('2026-03-07').until('2026-03-09').days).toBe(2);});
   it('keeps storage rebates separate from nonnegative paid SUI network costs',()=>{const tx={digest:'rebate-fixture',checkpoint:'1',timestamp:'2026-10-28T00:00:00Z',success:true,simple:true,counterparty:null,gasOwner:'wallet',gasCost:'-123',changes:[{owner:'wallet',coinType:USDC_TYPE,amount:'-50'}]};const [row]=normalize(tx,'wallet');expect(row.gasPaid).toBe('0');expect(row.gasCredit).toBe('123');expect(row.gasNet).toBe('-123');expect(row.delta).toBe('-50');});
+  it('F13 never calls an uncovered period or excluded complex activity complete',()=>{const s=demoState(),period={from:'2026-09-28T12:00:00.000Z',to:s.now};expect(spending(s.movements,s.annotations,[],period,{state:'complete',from:'2026-09-29T00:00:00.000Z',to:s.now,reason:'bounded'}).complete).toBe(false);expect(spending(s.movements,s.annotations,[],period,{...s.coverage,to:'2026-10-28T11:59:59.000Z'}).complete).toBe(false);expect(spending([{...s.movements[0],operation:'complex'}],[],[],period,s.coverage).complete).toBe(false);});
+  it('F13 rolling spending uses the frozen history observation, not newer wall time',()=>{const s=demoState(),later={...s,now:'2026-10-28T13:00:00.000Z'};const report=summarize(later).spending;expect(report.period.to).toBe(s.coverage.to);expect(report.period.from).toBe('2026-09-28T12:00:00.000Z');expect(report.complete).toBe(true);});
 });

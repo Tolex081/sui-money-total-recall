@@ -11,3 +11,58 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 :root{--muted:#596950}.demo-banner .pill{color:#405c34}
+
+/* Sponsor identities describe data provenance; they never imply live demo balances. */
+:root{--radius:16px;--tatum-purple:#5842ed;--walrus-mint:#72e8ca}
+::selection{background:#c4e5cb;color:#202a27}
+input,select{caret-color:var(--green)}
+h1,h2,h3{letter-spacing:-.03em;text-wrap:balance}
+.brand,.hero-amount,.balance-amount,.stat strong,.plan-preview h2,.preview-paper>strong{letter-spacing:-.035em}
+.integration-identity{display:inline-flex;align-items:center;justify-content:center;background:#202a27;padding:10px 13px;border-radius:7px;flex-shrink:0;line-height:1;vertical-align:middle}
+.integration-identity img{display:block;width:auto;height:18px;max-width:94px}
+.integration-sources{display:flex;align-items:center;justify-content:center;gap:30px;padding:25px 0 38px;margin-bottom:26px;border-bottom:1px solid #dce5d9}
+.integration-sources>div{display:flex;align-items:center;gap:14px;min-width:0}
+.integration-sources>div>span:last-child{font-size:12px;line-height:1.5;max-width:210px;color:#40563e}
+.integration-join{color:#596950;font-size:20px}
+.landing-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(230px,1fr);align-items:center;gap:45px;text-align:left;padding:55px 0 40px}
+.landing-hero h1{font-size:clamp(50px,5.7vw,80px);letter-spacing:-.035em;margin:0 0 25px;line-height:1.06;text-wrap:balance}
+.landing-intro>p{font-size:16px;color:#496145;line-height:1.8;max-width:520px}
+.landing-intro .hero-buttons,.landing-intro .landing-facts{justify-content:flex-start}
+.landing-intro .hero-buttons{gap:10px;flex-wrap:wrap}
+.landing-intro .landing-facts{font-size:12px;gap:20px;flex-wrap:wrap;margin-top:25px}
+.landing-mascot{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.mascot-hero{width:min(100%,340px);height:auto;display:block;object-fit:contain}
+.landing-mascot figcaption{font-size:13px;line-height:1.6;text-align:center;color:#40563e}
+.landing-preview{border-radius:16px;gap:65px}
+.landing-preview h2{letter-spacing:-.03em;margin-top:0}
+.landing-preview p{font-size:14px}
+.preview-paper{box-shadow:none;transform:none;border-radius:12px}
+.preview-paper>.row,.preview-paper>p,.preview-paper>.micro{font-size:12px}
+.landing-footer{font-size:12px}
+.sidebar-memory-brand{margin-bottom:14px}
+.sidebar-memory-brand .integration-identity{padding:8px 10px}
+.sidebar-memory-brand img{height:14px}
+.sidebar-note p,.sidebar-note a,.sidebar-bottom .micro{font-size:11px}
+.page-heading p{font-size:13px}
+.nav-item{font-size:13px}.secondary-nav .nav-item{font-size:12px}
+.balance-card .integration-identity{padding:9px 11px}
+.balance-card .integration-identity img{height:15px}
+.memory-card{display:block;min-height:325px;padding-right:155px;background:#e4f4ec;border-color:#cfe6da}
+.memory-card h2{font-size:23px;line-height:1.25;margin:0 0 13px;color:#244e3c}
+.memory-card>.integration-identity{padding:7px 10px;margin-bottom:2px}
+.memory-card>.integration-identity img{height:14px}
+.memory-card>p{font-size:12px;line-height:1.7;color:#365b47;margin:14px 0}
+.memory-card>.text-link{font-size:12px;color:#244e3c}
+.memory-card .mascot-memory{position:absolute;right:7px;bottom:56px;width:143px;height:auto;pointer-events:none}
+.memory-card-footer{margin-top:22px;margin-right:-130px;border-color:#c8dfd1;color:#365b47;font-size:11px}
+.proof-provider{margin-bottom:20px;min-height:40px;display:flex;align-items:center;color:#244e3c}
+.proof-card h2{letter-spacing:-.02em}
+.proof-card>p,.notice,.connect-state>p{font-size:13px}
+.source-line,.timestamp,.balance-card>.muted,.balance-card>.micro,.hero-caption,.hero-footnote,.hero-amount small,.hero-caption,.light-label{font-size:12px}
+.formula-line,.formula-total,.quiet-details,.coverage-note{font-size:12px}
+.remainder-card .hero-footnote{color:#c7dfc5}
+.hero-caption,.light-label{color:#c7dfc5}
+.hero-amount{font-size:clamp(42px,4.7vw,65px)}
+@media(min-width:761px) and (max-width:1190px){.memory-card{padding-right:110px}.memory-card .mascot-memory{width:105px;right:0}.memory-card-footer{margin-right:-85px}.landing-hero{gap:24px}.landing-intro .button.large{padding:14px 16px;font-size:12px}.integration-sources{gap:20px}.integration-sources>div{gap:9px}}
+@media(max-width:760px){.landing-hero{grid-template-columns:1fr;gap:30px;padding:38px 0 30px}.landing-hero h1{font-size:54px;max-width:550px}.landing-intro>p{font-size:15px}.landing-mascot{flex-direction:row;gap:18px;justify-content:center}.mascot-hero{width:210px}.landing-mascot figcaption{text-align:left;max-width:160px}.integration-sources{gap:15px;justify-content:space-between;align-items:stretch;padding:22px 0;margin-bottom:30px}.integration-sources>div{flex-direction:column;align-items:flex-start;gap:12px;flex:1}.integration-sources>div>span:last-child{font-size:12px}.integration-join{align-self:center}.memory-card{padding-right:155px;min-height:285px}.middle-grid .memory-card{padding-right:155px}.memory-card-footer{margin-right:-130px}.memory-card h2{font-size:23px}.memory-card h2 br{display:block}.landing-preview{gap:28px}.landing-preview p{font-size:13px}.landing-intro .hero-buttons{align-items:flex-start}.landing-intro .landing-facts{align-items:flex-start;flex-direction:row;gap:14px}.landing-footer{line-height:1.7;text-align:center}.page-heading h1{font-size:30px}.page-heading p{font-size:12px}.memory-card .mascot-memory{width:145px;bottom:64px}}
+@media(max-width:420px){.landing-hero h1{font-size:46px}.landing-mascot{gap:10px}.mascot-hero{width:180px}.landing-mascot figcaption{font-size:12px;max-width:130px}.memory-card{padding-right:124px}.middle-grid .memory-card{padding-right:124px}.memory-card .mascot-memory{width:116px;right:3px;bottom:83px}.memory-card-footer{margin-right:-99px}.memory-card h2{font-size:22px}.integration-sources{gap:10px}.integration-sources .integration-identity{padding:9px 11px}.landing-intro .landing-facts{font-size:11px}.landing-intro .hero-buttons .button{max-width:100%;width:100%}}

@@ -31,12 +31,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run db:migrate
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run test:db
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
-      - run: npm run build
-      - run: npm run scan:secrets
-      - run: npm run verify:evidence
+      - run: npm run verify:quality
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: quality-evidence
+          path: |
+            evidence/public/quality.json
+            evidence/public/db-tests.json
+            evidence/public/personal-browser.json
+          retention-days: 14

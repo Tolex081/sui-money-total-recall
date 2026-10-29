@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-10-28T22:23:02.213Z",
-  "base": "http://localhost:3100",
+  "checkedAt": "2026-10-28T22:39:03.073Z",
+  "base": "https://sui-money.vercel.app",
   "automatedCaptures": true,
   "manualVisualReview": false,
   "checks": [

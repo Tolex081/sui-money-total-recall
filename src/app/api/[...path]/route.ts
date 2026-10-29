@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { database,transaction } from '@/adapters/postgres/client';
 import { authenticate,issueChallenge,verifyChallenge,revoke,sessionCookie,CONSENT_VERSION } from '@/application/auth';
 import { accountState,summarize } from '@/application/state';
-import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,reverseCommitmentAllocation } from '@/application/commands';
+import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,rememberManualRecurrence,reverseCommitmentAllocation } from '@/application/commands';
 import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
 import { advanceMemoryJob,refreshRecall } from '@/application/memory-jobs';
 import { syncWallet } from '@/application/sync';
@@ -33,7 +33,7 @@ async function proof() {
 async function handle(request:Request) {
   const path=new URL(request.url).pathname.replace(/^\/api\//,'');const method=request.method;
   appMode();
-  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),liveIntegrationVerified:false});
+  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED!=='false',liveIntegrationVerified:false});
   if(method==='GET'&&path==='proof')return json(await proof());
   if(path==='demo'||path.startsWith('demo/')){
     if(method!=='GET')throw new AppError('READ_ONLY',405,'The public demo is read-only.');
@@ -49,8 +49,9 @@ async function handle(request:Request) {
     return json(demoState());
   }
   const identityOnly=['auth/challenge','auth/verify','auth/logout','account'].includes(path);
-  if(process.env.PERSONAL_ACCESS_ENABLED==='false'&&!identityOnly)throw new AppError('RELEASE_GATE',503,'Personal financial screens are gated while mandatory live verification is completed. Wallet identity verification, the read-only demo and proof remain available.');
+  if(process.env.PERSONAL_ACCESS_ENABLED==='false'&&!identityOnly)throw new AppError('RELEASE_GATE',503,'Personal financial screens are gated while mandatory verification is completed. The read-only demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
+  if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED==='false')throw new AppError('WALLET_REVIEW_GATE',503,'Wallet sign-in is paused while the reported Slush security warning is reviewed. Do not bypass the warning.');
   if(method==='POST'&&path==='auth/challenge'){
     const data=z.object({wallet:z.string().max(80)}).strict().parse(await body(request));
     await consumeLimits([{key:'auth:global',max:40,seconds:60},{key:'auth:wallet:'+hash(data.wallet),max:5,seconds:60}]);
@@ -71,6 +72,7 @@ async function handle(request:Request) {
   if(method==='POST'&&profile.consent_version!==CONSENT_VERSION)throw new AppError('CONSENT_REQUIRED',409,'Review the operator-managed memory terms and save your plan to continue.');
   if(method==='POST'&&path==='commitments')return json(await saveCommitment(profile,await body(request)));
   if(method==='POST'&&path==='preferences/reserve')return json(await rememberReserve(profile,await body(request)));
+  if(method==='POST'&&path==='recurrences/manual')return json(await rememberManualRecurrence(profile,await body(request)));
   if(method==='POST'&&/^commitment-allocations\/[^/]+\/reverse$/.test(path))return json(await reverseCommitmentAllocation(profile,decodeURIComponent(path.split('/')[1])));
   if(method==='POST'&&path==='sync'){const input=z.object({kind:z.enum(['balances','history'])}).strict().parse(await body(request));return json(await syncWallet(profile,input.kind));}
   if(method==='POST'&&/^activity\/[^/]+\/annotation$/.test(path))return json(await annotate(profile,decodeURIComponent(path.split('/')[1]),await body(request)));

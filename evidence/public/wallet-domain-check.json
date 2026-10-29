@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-10-28T23:09:42.705Z",
+  "reportedWarning": "Slush: Malicious website; flagged for malicious behavior",
+  "reportedOrigin": "https://sui-money.vercel.app",
+  "officialBlocklistCommit": "fe160fa2e5e0d103bdcbed92c7d72f5dc8685bf1",
+  "checks": [
+    {
+      "file": "blocklists/domain-list.json",
+      "source": "https://github.com/MystenLabs/wallet_blocklist/blob/fe160fa2e5e0d103bdcbed92c7d72f5dc8685bf1/blocklists/domain-list.json",
+      "stringsChecked": 50630,
+      "matches": []
+    },
+    {
+      "file": "allowlists/domain-list.json",
+      "source": "https://github.com/MystenLabs/wallet_blocklist/blob/fe160fa2e5e0d103bdcbed92c7d72f5dc8685bf1/allowlists/domain-list.json",
+      "stringsChecked": 2,
+      "matches": []
+    },
+    {
+      "file": "src/domain-list.json",
+      "source": "https://github.com/MystenLabs/wallet_blocklist/blob/fe160fa2e5e0d103bdcbed92c7d72f5dc8685bf1/src/domain-list.json",
+      "stringsChecked": 50630,
+      "matches": []
+    }
+  ],
+  "limitation": "This public list check does not establish the complete wallet reputation decision or clear a warning. No bypass or domain change is performed."
+}

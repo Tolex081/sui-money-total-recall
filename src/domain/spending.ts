@@ -20,5 +20,7 @@ export function spending(movements: Movement[], annotations: Annotation[], alloc
     if (refunded > gross) throw new Error('Expense reimbursement cap exceeded.');
     return { movement: m, category: annotations.find(a => a.movementId === m.id)?.category ?? 'Unclassified', gross, reimbursed: refunded, net: gross - refunded, receipts: reimbursements.map(a => a.receiptDate) };
   });
-  return { gross: sum(rows.map(r => r.gross)), reimbursed: sum(rows.map(r => r.reimbursed)), net: sum(rows.map(r => r.net)), rows, complete: coverage.state === 'complete', exclusions: unique.filter(m => m.operation === 'complex' && m.timestamp >= period.from && m.timestamp < period.to).length };
+  const exclusions=unique.filter(m=>m.operation==='complex'&&m.timestamp>=period.from&&m.timestamp<period.to).length;
+  const coversPeriod=coverage.state==='complete'&&coverage.from!==null&&coverage.to!==null&&Date.parse(coverage.from)<=Date.parse(period.from)&&Date.parse(coverage.to)>=Date.parse(period.to);
+  return {gross:sum(rows.map(r=>r.gross)),reimbursed:sum(rows.map(r=>r.reimbursed)),net:sum(rows.map(r=>r.net)),rows,period,complete:coversPeriod&&exclusions===0,exclusions};
 }

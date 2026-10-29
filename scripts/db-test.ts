@@ -9,7 +9,8 @@ const input=process.env.TEST_DATABASE_URL??process.env.DATABASE_URL;
 if(!input)throw new Error('TEST_DATABASE_URL is required (or DATABASE_URL for an isolated disposable test schema).');
 const connection=new URL(input);connection.searchParams.set('options','-c search_path='+schema);
 process.env.DATABASE_URL=connection.toString();process.env.APP_ORIGIN='http://localhost:3000';process.env.MEMWAL_NAMESPACE_SECRET??=randomBytes(32).toString('base64url');
-const admin=new Pool({connectionString:input,max:1}),pool=new Pool({connectionString:connection.toString(),max:4});
+const admin=new Pool({connectionString:input,max:1,connectionTimeoutMillis:8000}),pool=new Pool({connectionString:connection.toString(),max:4,connectionTimeoutMillis:8000});
+for(const connectionPool of [admin,pool])connectionPool.on('error',()=>console.error('An idle test database connection closed; the pool will reconnect.'));
 const results:{test:string;passed:boolean}[]=[];
 async function test(name:string,fn:()=>Promise<void>){await fn();results.push({test:name,passed:true});console.log('PASS '+name);}
 const a=randomUUID(),b=randomUUID(),walletA=Ed25519Keypair.generate(),walletB=Ed25519Keypair.generate();
@@ -67,6 +68,23 @@ try{
     await transaction(async db=>{const job=await queueEvent(db,profile,event,0);await db.query("UPDATE memory_jobs SET state='recall_confirmed',blob_id='synthetic-test-blob',recalled_at=now(),expires_at=now()-interval '1 day' WHERE profile_id=$1 AND id=$2",[a,job.jobId]);const rule={id:'expired-rule',alias:'Expired context',amount:'1000000',category:'Other',startDate:date,frequency:'weekly' as const,effectiveFrom:date,learnedEventId:event.eventId};await db.query('INSERT INTO commitment_rules(profile_id,id,definition,event_id) VALUES($1,$2,$3,$4)',[a,rule.id,rule,event.eventId]);await persistOccurrences(db,a,rule,Temporal.PlainDate.from(date).add({days:8}).toString());});
     const state=await accountState(profile);assert.equal(state.memories.find(m=>m.envelope.eventId===event.eventId)?.available,false);assert.equal(state.occurrences.some(o=>o.ruleId==='expired-rule'),false);
   });
+  await test('F16 confirmed recurrence, correction and deactivation change only active future obligations',async()=>{
+    const {newEvent,queueEvent}=await import('../src/application/commands');const {transaction}=await import('../src/adapters/postgres/client');const {accountState,summarize}=await import('../src/application/state');const {advanceMemoryJob}=await import('../src/application/memory-jobs');
+    const id=randomUUID(),key=Ed25519Keypair.generate(),today=Temporal.Now.plainDateISO('Africa/Lagos'),next=today.add({days:1}).toString(),end=today.add({days:10}).toString();
+    const profile=(await pool.query('INSERT INTO profiles(id,wallet,namespace) VALUES($1,$2,$3) RETURNING *',[id,key.toSuiAddress(),'projection-fixture-'+id])).rows[0];
+    await pool.query("INSERT INTO plans(profile_id,end_date,end_kind,reserve,version) VALUES($1,$2,'planning',100000000,1)",[id,end]);
+    await pool.query("INSERT INTO balance_observations(id,profile_id,usdc,sui,checkpoint,observed_at,metadata_version,source) VALUES($1,$2,500000000,0,100,now(),'isolated-fixture','tatum')",[randomUUID(),id]);
+    // Deliberately synthetic adapter evidence: this tests projection transactions,
+    // not signed Mainnet transport (covered by the independent live manifest).
+    const fixture={submit:async()=>{throw Error('No writes allowed in projection fixture');},status:async()=>{throw Error('No remote job');},recallEvent:async(e:import('../src/domain/learning').LearnedEvent)=>[{blob_id:'fixture-'+e.eventId,text:JSON.stringify(e),distance:0}]};
+    const first=newEvent(profile,{kind:'recurrence_confirmation',logicalKey:'projection-rule',sourceRecordIds:[],expectedRevision:0,payload:{ruleId:'projection-rule',alias:'Test recurring bill',amount:'20000000',category:'Other',nextDate:next,frequency:'weekly',origin:'manual'}});
+    async function pending(event:typeof first,revision:number){await transaction(async db=>{const job=await queueEvent(db,profile,event,revision);await db.query("UPDATE memory_jobs SET state='submission_outcome_unknown' WHERE profile_id=$1 AND id=$2",[id,job.jobId]);});}
+    async function remainder(){const state=await accountState(profile),result=summarize(state).plan;if(result.state!=='ready')throw Error('Fixture plan not ready');return {value:result.remainder,observedAt:state.balance!.observedAt};}
+    await pending(first,0);const before=await remainder();assert.equal(before.value,400000000n);await advanceMemoryJob(profile,fixture);assert.equal((await remainder()).value,360000000n);
+    const correction=newEvent(profile,{kind:'correction',logicalKey:first.logicalKey,sourceRecordIds:[],expectedRevision:1,supersedesEventId:first.eventId,payload:{targetKind:'recurrence',value:{ruleId:'projection-rule',alias:'Test recurring bill',amount:'15000000',category:'Other',nextDate:next,frequency:'weekly',origin:'manual'}}});
+    await pending(correction,1);assert.equal((await remainder()).value,360000000n);await advanceMemoryJob(profile,fixture);assert.equal((await remainder()).value,370000000n);
+    const deactivate=newEvent(profile,{kind:'deactivation',logicalKey:first.logicalKey,sourceRecordIds:[],expectedRevision:2,supersedesEventId:correction.eventId,payload:{reason:'Do not use this recurrence'}});await pending(deactivate,2);await advanceMemoryJob(profile,fixture);const after=await remainder();assert.equal(after.value,400000000n);assert.equal(after.observedAt,before.observedAt);assert.equal((await pool.query('SELECT id FROM learned_events WHERE profile_id=$1',[id])).rowCount,3);
+  });
   console.log('All real PostgreSQL tests passed in an isolated disposable schema.');
 }catch(error){console.error('Database test failed:',error instanceof Error?error.message:'unknown');process.exitCode=1;}
 finally{
@@ -74,5 +92,5 @@ finally{
   // Generated test schema is the sole destructive target; no public/application table is dropped.
   if(!/^test_[0-9a-f]{32}$/.test(schema))throw Error('Invalid cleanup schema');
   await admin.query('DROP SCHEMA IF EXISTS "'+schema+'" CASCADE');await admin.end();
-  await mkdir('evidence/public',{recursive:true});await writeFile('evidence/public/db-tests.json',JSON.stringify({checkedAt:new Date().toISOString(),environment:'authenticated-neon-postgresql-isolated-schema',tests:results,complete:!process.exitCode},null,2));
+  await mkdir('evidence/public',{recursive:true});await writeFile('evidence/public/db-tests.json',JSON.stringify({checkedAt:new Date().toISOString(),environment:['localhost','127.0.0.1','::1'].includes(new URL(input).hostname)?'local-postgresql-isolated-schema':'authenticated-hosted-postgresql-isolated-schema',tests:results,complete:!process.exitCode},null,2));
 }

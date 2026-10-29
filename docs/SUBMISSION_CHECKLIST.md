@@ -7,7 +7,7 @@ Current source review: event landing page and Walrus event rules were re-opened 
 | Deliverable / field category | Current status / builder action |
 |---|---|
 | Working public app | https://sui-money.vercel.app/demo ; deployed runtime passed; final source redeploy and personal release gates tracked separately |
-| Public repository | Fresh local repository; publication pending |
+| Public repository | https://github.com/Tolex081/sui-money-total-recall ; public, with dated commits and CI. Final source revision/CI must match the submitted deployment. |
 | Published article | Complete draft in BLOG.md; builder publishes and records URL after real learning evidence |
 | 2–3 minute video | Script prepared; builder records/uploads; verify signed-out playback |
 | Mainnet memory evidence | One completed synthetic spike plus all 24 approved product seed records stored/recalled; every expiry covers 30 November 2026 |

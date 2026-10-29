@@ -22,10 +22,17 @@ export function extractTransaction(tx: GrpcTypes.ExecutedTransaction, owner: str
   if (!tx.digest || tx.checkpoint === undefined || tx.effects?.status?.success === undefined) throw new Error('TATUM_SHAPE:transaction');
   const data = tx.transaction?.kind?.data;
   const commands = data?.oneofKind === 'programmableTransaction' ? data.programmableTransaction.commands : [];
-  const changes = tx.balanceChanges.map(c => {
+  const uniqueChanges=new Map<string,{owner:string;coinType:string;amount:string}>();
+  for(const c of tx.balanceChanges){
     if (!c.address || !c.coinType || c.amount === undefined) throw new Error('TATUM_SHAPE:balanceChange');
-    return { owner: canonicalAddress(c.address), coinType: normalizeStructTag(c.coinType), amount: integer(c.amount).toString() };
-  });
+    const change={owner:canonicalAddress(c.address),coinType:normalizeStructTag(c.coinType),amount:integer(c.amount).toString()},key=change.owner+':'+change.coinType;
+    // Sui derives one net change per (address, coin type), including accumulator
+    // funds. Repeated transport entries must never double that economic change.
+    const prior=uniqueChanges.get(key);
+    if(prior&&prior.amount!==change.amount)throw Error('TATUM_SHAPE:conflictingNetBalanceChange');
+    uniqueChanges.set(key,change);
+  }
+  const changes=[...uniqueChanges.values()];
   const usdcOwners = [...new Set(changes.filter(c => c.coinType === USDC_TYPE && integer(c.amount) !== 0n).map(c => c.owner))];
   const allowedStablecoinCalls = new Set(['balance::send_funds','balance::redeem_funds','coin::send_funds','coin::into_balance','funds_accumulator::withdrawal_split']);
   const supportedCommand = (c: GrpcTypes.Command) => {

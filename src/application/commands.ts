@@ -52,7 +52,7 @@ export async function saveCommitment(profile:Profile,raw:unknown) {
     else await db.query('INSERT INTO commitment_rules(profile_id,id,definition) VALUES($1,$2,$3)',[profile.id,rule.id,rule]);
     const end=(await db.query('SELECT end_date FROM plans WHERE profile_id=$1',[profile.id])).rows[0]?.end_date??Temporal.PlainDate.from(rule.effectiveFrom).add({days:90}).toString();
     // New revision uses its own rule identity so edited unpaid occurrences cannot collide with preserved settled ones.
-    if(prior) {rule.id=rule.id+':v'+(prior.version+1);await db.query('INSERT INTO commitment_rules(profile_id,id,definition) VALUES($1,$2,$3)',[profile.id,rule.id,rule]);}
+    if(prior) {rule.id=randomUUID();await db.query('INSERT INTO commitment_rules(profile_id,id,definition) VALUES($1,$2,$3)',[profile.id,rule.id,rule]);}
     await persistOccurrences(db,profile.id,rule,String(end).slice(0,10));
     return {saved:true,id:rule.id};
   });
@@ -75,6 +75,19 @@ export function newEvent(profile:Profile,input:Pick<LearnedEvent,'kind'|'payload
 export async function rememberReserve(profile:Profile,raw:unknown){
   const input=z.object({reserve:amountInput,expectedRevision:z.number().int().nonnegative(),supersedesEventId:z.string().max(100).optional()}).strict().parse(raw);
   return transaction(db=>queueEvent(db,profile,newEvent(profile,{kind:'planning_preference',logicalKey:'preference:reserve',sourceRecordIds:[],expectedRevision:input.expectedRevision,supersedesEventId:input.supersedesEventId,payload:{preference:'reserve',value:input.reserve}}),input.expectedRevision));
+}
+
+export async function rememberManualRecurrence(profile:Profile,raw:unknown){
+  const input=commitmentInput.parse(raw);
+  if(input.id||input.cancelled||BigInt(input.amount)<=0n)throw new AppError('INVALID_RECURRENCE',400,'Confirm a new positive recurring commitment.');
+  if(input.startDate<localToday(new Date().toISOString(),profile.timezone))throw new AppError('INVALID_DATE',400,'Choose today or a future local date for remembered context.');
+  return transaction(async db=>{
+    await db.query('SELECT id FROM profiles WHERE id=$1 FOR UPDATE',[profile.id]);
+    const duplicate=(await db.query("SELECT id FROM commitment_rules WHERE profile_id=$1 AND definition->>'amount'=$2 AND definition->>'category'=$3 AND NOT coalesce((definition->>'cancelled')::boolean,false) AND (definition->>'endDate' IS NULL OR definition->>'endDate'>$4) LIMIT 1",[profile.id,input.amount,input.category,localToday(new Date().toISOString(),profile.timezone)])).rows[0];
+    if(duplicate)throw new AppError('EXISTING_COMMITMENT',409,'An entered commitment may already cover this. Review it before adding remembered obligations.');
+    const id=randomUUID();
+    return queueEvent(db,profile,newEvent(profile,{kind:'recurrence_confirmation',logicalKey:'manual-recurrence:'+id,sourceRecordIds:[],expectedRevision:0,payload:{ruleId:id,alias:input.alias,amount:input.amount,category:input.category,nextDate:input.startDate,frequency:input.frequency,origin:'manual'}}),0);
+  });
 }
 
 export async function reverseCommitmentAllocation(profile:Profile,id:string){

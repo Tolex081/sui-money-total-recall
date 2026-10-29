@@ -3,7 +3,7 @@ const safeText = z.string().trim().min(1).max(160).refine(s => !/suiprivkey|(?:0
 export { safeText };
 const base = z.object({ schemaVersion: z.literal(1), eventId: z.string().min(1).max(100), profileId: z.string().min(1).max(100), logicalKey: z.string().min(1).max(160), revision: z.number().int().positive(), recordedAt: z.iso.datetime(), effectiveFrom: z.iso.date(), provenance: z.enum(['user_confirmed', 'synthetic_demo']), sourceRecordIds: z.array(z.string().max(120)).max(20), supersedesEventId: z.string().max(100).optional() });
 const annotation = z.object({ movementId: z.string().max(120), category: safeText, note: safeText, ownTransfer: z.boolean() }).strict();
-const recurrence = z.object({ ruleId: z.string().max(100), alias: safeText, amount: z.string().regex(/^\d{1,78}$/), category: safeText, nextDate: z.iso.date(), frequency: z.enum(['once','weekly','monthly']), destination: z.string().max(100).nullable().optional(), associateRuleId: z.string().max(100).optional() }).strict();
+const recurrence = z.object({ ruleId: z.string().max(100), alias: safeText, amount: z.string().regex(/^\d{1,78}$/), category: safeText, nextDate: z.iso.date(), frequency: z.enum(['once','weekly','monthly']), destination: z.string().max(100).nullable().optional(), associateRuleId: z.string().max(100).optional(), origin:z.enum(['manual','history']).optional() }).strict();
 const decision = z.object({ suggestionId: z.string().max(2000), decision: z.enum(['confirmed','rejected']) }).strict();
 const preference=z.union([z.object({preference:z.enum(['reserve','horizon','category']),value:safeText}).strict(),z.object({preference:z.literal('reserve'),value:z.string().regex(/^\d{1,78}$/)}).strict()]);
 const variants = [

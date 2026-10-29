@@ -10,6 +10,7 @@ import { USDC_TYPE } from '@/domain/money';
 import type { Profile } from './auth';
 import type { CommitmentRule } from '@/domain/types';
 import { Temporal } from '@js-temporal/polyfill';
+import { randomUUID } from 'node:crypto';
 
 async function applyEvent(profile:Profile,event:LearnedEvent,jobId:string,blobId:string) {
   await transaction(async db=>{
@@ -40,7 +41,7 @@ async function applyEvent(profile:Profile,event:LearnedEvent,jobId:string,blobId
           await db.query('UPDATE commitment_rules SET definition=$3,version=version+1 WHERE profile_id=$1 AND id=$2',[profile.id,recurrence.ruleId,{...old.definition,endDate:event.effectiveFrom}]);
           await db.query(`UPDATE commitment_occurrences o SET cancelled=true WHERE profile_id=$1 AND rule_id=$2 AND scheduled_date>=$3 AND NOT EXISTS(SELECT 1 FROM commitment_allocations a WHERE a.profile_id=o.profile_id AND a.target_id=o.id AND a.state='active')`,[profile.id,recurrence.ruleId,event.effectiveFrom]);
         }
-        const rule:CommitmentRule={id:old?recurrence.ruleId+':'+event.revision:recurrence.ruleId,alias:recurrence.alias,category:recurrence.category,amount:recurrence.amount,startDate:recurrence.nextDate,frequency:recurrence.frequency,dayOfMonth:Temporal.PlainDate.from(recurrence.nextDate).day,effectiveFrom:event.effectiveFrom,learnedEventId:event.eventId,destination:null};
+        const rule:CommitmentRule={id:old?randomUUID():recurrence.ruleId,alias:recurrence.alias,category:recurrence.category,amount:recurrence.amount,startDate:recurrence.nextDate,frequency:recurrence.frequency,dayOfMonth:Temporal.PlainDate.from(recurrence.nextDate).day,effectiveFrom:event.effectiveFrom,learnedEventId:event.eventId,destination:null};
         await db.query('INSERT INTO commitment_rules(profile_id,id,definition,event_id) VALUES($1,$2,$3,$4) ON CONFLICT(profile_id,id) DO UPDATE SET definition=$3,event_id=$4,version=commitment_rules.version+1',[profile.id,rule.id,rule,event.eventId]);
         const end=(await db.query('SELECT end_date FROM plans WHERE profile_id=$1',[profile.id])).rows[0]?.end_date??Temporal.PlainDate.from(event.effectiveFrom).add({days:90}).toString();
         await persistOccurrences(db,profile.id,rule,String(end).slice(0,10));

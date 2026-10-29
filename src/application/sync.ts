@@ -12,12 +12,15 @@ export async function syncWallet(profile:Profile,kind:'balances'|'history') {
   try {
     if(kind==='balances'){const balance=await chain.balances(profile.wallet);await recordBalance(profile.id,balance);return {balance,saved:true};}
     const saved=(await database().query('SELECT * FROM sync_progress WHERE profile_id=$1',[profile.id])).rows[0];
-    if(!saved || saved.coverage.state==='complete') {
+    if(!saved || saved.coverage.state==='complete'||saved.filter_version!==2) {
       const service=await chain.serviceStatus();
       if(service.lowestCheckpoint===null)throw new AppError('RETENTION_UNKNOWN',503,'History retention has not been established.',true);
-      const toTime=new Date().toISOString(),fromTime=new Date(Date.now()-30*86400000).toISOString();
+      const tipTime=await chain.checkpointTime(service.checkpoint);
+      // Half-open period includes the observed tip's millisecond; it never claims
+      // unobserved wall-clock history beyond that frozen checkpoint snapshot.
+      const toTime=new Date(Date.parse(tipTime)+1).toISOString(),fromTime=new Date(Date.parse(toTime)-30*86400000).toISOString();
       const search:BoundsSearch={lo:service.lowestCheckpoint,hi:service.checkpoint,target:fromTime,tip:(BigInt(service.checkpoint)+1n).toString(),fromTime,toTime,floor:service.lowestCheckpoint};
-      await database().query(`INSERT INTO sync_progress(profile_id,filter_version,cursor,coverage) VALUES($1,1,NULL,$2) ON CONFLICT(profile_id) DO UPDATE SET cursor=NULL,coverage=$2,version=sync_progress.version+1`,[profile.id,{state:'partial',from:fromTime,to:toTime,reason:'Resolving the 30-day checkpoint boundary.',search}]);
+      await database().query(`INSERT INTO sync_progress(profile_id,filter_version,cursor,coverage) VALUES($1,2,NULL,$2) ON CONFLICT(profile_id) DO UPDATE SET filter_version=2,cursor=NULL,coverage=$2,version=sync_progress.version+1`,[profile.id,{state:'partial',from:fromTime,to:toTime,reason:'Resolving the 30-day checkpoint boundary.',search}]);
       return {state:'partial',reason:'History bounds search started. Continue import.'};
     }
     if(saved.coverage.search) {

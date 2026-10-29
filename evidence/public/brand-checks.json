@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-29T04:47:00.055Z",
+  "environment": "local production build",
+  "signInPause": {
+    "health": false,
+    "challengeRejected": true
+  },
+  "checks": [
+    {
+      "path": "/",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "capture": ".impeccable/review/landing-1440.png"
+    },
+    {
+      "path": "/demo",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "capture": ".impeccable/review/today-1440.png"
+    },
+    {
+      "path": "/today",
+      "width": 1440,
+      "overflow": false,
+      "violations": [],
+      "capture": ".impeccable/review/paused-1440.png"
+    },
+    {
+      "path": "/",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "capture": ".impeccable/review/landing-390.png"
+    },
+    {
+      "path": "/demo",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "capture": ".impeccable/review/today-390.png"
+    },
+    {
+      "path": "/today",
+      "width": 390,
+      "overflow": false,
+      "violations": [],
+      "capture": ".impeccable/review/paused-390.png"
+    }
+  ]
+}

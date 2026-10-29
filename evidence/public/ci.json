@@ -1,0 +1,9 @@
+{
+  "conclusion": "success",
+  "headSha": "80bc5af130d459eb97107bd60048247868cc6ba1",
+  "startedAt": "2026-10-28T22:35:44Z",
+  "status": "completed",
+  "updatedAt": "2026-10-28T22:37:29Z",
+  "url": "https://github.com/Tolex081/sui-money-total-recall/actions/runs/40781170142",
+  "environment": "GitHub Actions ubuntu-latest; Node 24; PostgreSQL 16 service; no live provider secrets"
+}
