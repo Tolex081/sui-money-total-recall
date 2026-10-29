@@ -43,6 +43,9 @@ try{
   await context.close();
   await check('Fresh browser session reauthenticates and retrieves persisted plan',async()=>{const fresh=await browser!.newContext();await signIn(fresh);const next=await fresh.newPage();await next.goto(origin+'/plan');await expect(next.locator('.plan-reserve')).toContainText('150.00');await next.goto(origin+'/memories');await expect(next.getByRole('heading',{name:'queued',exact:true}).first()).toBeVisible();await fresh.close();});
   await check('F21 failed refresh preserves and visibly labels a stale cached balance',async()=>{
+    // Reauthentication keeps the same profile's four-second sync limit. Respect
+    // that real cooldown before checking the distinct missing-provider failure.
+    await new Promise(resolve=>setTimeout(resolve,4100));
     await db.query("INSERT INTO balance_observations(id,profile_id,usdc,sui,checkpoint,observed_at,metadata_version,source) VALUES($1,$2,500000000,0,NULL,now()-interval '5 minutes','explicit-browser-fixture','tatum')",[randomUUID(),profileId]);
     const cached=await browser!.newContext();await signIn(cached);const view=await cached.newPage();await view.goto(origin+'/today');await expect(view.getByText('Stale · Last verified through Tatum',{exact:true})).toBeVisible();await view.getByRole('button',{name:'Refresh balance'}).click();await expect(view.locator('.notice.error[role=alert]')).toContainText('Application setup is incomplete');await expect(view.locator('.balance-amount')).toContainText('500.00');await expect(view.getByText('Stale · Last verified through Tatum',{exact:true})).toBeVisible();expect((await db.query('SELECT id FROM balance_observations')).rowCount).toBe(1);await cached.close();
   });
