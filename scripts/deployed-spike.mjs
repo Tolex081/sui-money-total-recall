@@ -14,6 +14,6 @@ const output=await new Promise((resolve,reject)=>{
   child.on('exit',code=>code===0?resolve(body):reject(Error('Authenticated runtime probe failed.')));
 });
 const result=JSON.parse(output);
-if(result.database?.state!=='write_read_passed'||result.tatum?.state!=='passed'||!result.tatum.bothDirectionsVerified||!result.walrus?.syntheticBlobIds?.length)throw Error('Runtime integration checks did not all pass: '+JSON.stringify(result));
+if(result.database?.state!=='write_read_passed'||result.tatum?.state!=='passed'||!result.tatum.bothDirectionsVerified||!result.tatum.history?.complete||!result.tatum.history?.bothDirectionsVerified||!result.walrus?.syntheticBlobIds?.length)throw Error('Runtime integration checks did not all pass. Inspect the sanitized deployed response privately.');
 await mkdir('evidence/public',{recursive:true});await writeFile('evidence/public/deployed-runtime.json',JSON.stringify({origin,...result},null,2));
 console.log(JSON.stringify({origin,runtime:result.runtime,tatum:result.tatum.state,walrus:result.walrus.state,database:result.database.state}));

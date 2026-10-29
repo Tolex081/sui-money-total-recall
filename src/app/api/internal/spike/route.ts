@@ -7,6 +7,7 @@ import { equalSecret,hash } from '@/lib/security';
 import { consumeLimits } from '@/lib/rate-limit';
 import { learnedEventSchema } from '@/domain/learning';
 import { USDC_TYPE } from '@/domain/money';
+import referenceEvidence from '../../../../../evidence/public/transfer-reference.json';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export async function POST(request:Request){
@@ -22,10 +23,21 @@ export async function POST(request:Request){
     for(const digest of digests)transactions.push(...(await chain.transaction(digest,reference)).filter(m=>m.coinType===USDC_TYPE));
     const bothDirectionsVerified=transactions.some(m=>m.status==='success'&&m.operation==='simple_transfer'&&BigInt(m.delta)>0n)&&transactions.some(m=>m.status==='success'&&m.operation==='simple_transfer'&&BigInt(m.delta)<0n);
     if(!bothDirectionsVerified)throw Error('Public reference transaction verification failed.');
+    if(referenceEvidence.referenceAddress!==reference)throw Error('Public history reference differs from the reviewed manifest.');
+    const bounds=referenceEvidence.queriedBounds,pages=[];let cursor:string|null=null,historyComplete=false;
+    const historyDigests=new Set<string>();
+    for(let index=0;index<3;index++){
+      const page=await chain.historyPage({address:reference,fromCheckpoint:bounds.from,toCheckpoint:bounds.to,cursor});
+      pages.push({transactionCount:page.transactionCount,reason:page.reason,complete:page.complete,cursorAdvanced:page.continuation!==null&&page.continuation!==cursor});
+      for(const movement of page.movements)if(movement.digest&&movement.coinType===USDC_TYPE&&movement.status==='success'&&movement.operation==='simple_transfer'&&transactions.some(t=>t.digest===movement.digest&&t.delta===movement.delta))historyDigests.add(movement.digest);
+      if(page.complete){historyComplete=true;break;}cursor=page.continuation;
+    }
+    const history={pages,complete:historyComplete,bothDirectionsVerified:digests.every(d=>historyDigests.has(d)),bounds,source:'Actual deployed Tatum Mainnet stream'};
+    if(!history.complete||!history.bothDirectionsVerified||pages.length<2)throw Error('Deployed bounded history/resume verification failed.');
     const memory=new WalrusMemory(required('MEMWAL_NAMESPACE_DEMO'));
     const recall=await memory.client.recall({query:'Sui Money synthetic planning preference',namespace:memory.namespace,limit:5});
     const safe=recall.results.filter(r=>{try{return learnedEventSchema.parse(JSON.parse(r.text)).provenance==='synthetic_demo';}catch{return false;}});
-    const result={checkedAt:new Date().toISOString(),environment:process.env.VERCEL_ENV??'local',commit:process.env.BUILD_SOURCE_REVISION||process.env.VERCEL_GIT_COMMIT_SHA||'uncommitted',runtime:{node:process.version,platform:process.platform,arch:process.arch},tatum:{state:'passed',service,referenceAddressHash:hash(reference),balance,publicReferenceTransactions:transactions,bothDirectionsVerified},walrus:{state:'authenticated_recall_passed',syntheticBlobIds:safe.map(r=>r.blob_id),totalReturned:recall.results.length},database:{state:'write_read_pending'}};
+    const result={checkedAt:new Date().toISOString(),environment:process.env.VERCEL_ENV??'local',commit:process.env.BUILD_SOURCE_REVISION||process.env.VERCEL_GIT_COMMIT_SHA||'uncommitted',runtime:{node:process.version,platform:process.platform,arch:process.arch},tatum:{state:'passed',service,referenceAddressHash:hash(reference),balance,publicReferenceTransactions:transactions,bothDirectionsVerified,history},walrus:{state:'authenticated_recall_passed',syntheticBlobIds:safe.map(r=>r.blob_id),totalReturned:recall.results.length},database:{state:'write_read_pending'}};
     await database().query("INSERT INTO public_proof(id,payload,checked_at) VALUES('integrations',$1,now()) ON CONFLICT(id) DO UPDATE SET payload=$1,checked_at=now()",[result]);
     const persisted=(await database().query("SELECT payload FROM public_proof WHERE id='integrations'")).rows[0];
     if(persisted.payload.checkedAt!==result.checkedAt)throw Error('DB_ROUNDTRIP_FAILED');
