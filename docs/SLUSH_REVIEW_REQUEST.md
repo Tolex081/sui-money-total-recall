@@ -14,7 +14,7 @@ Status: unresolved; no support request has been sent. Do not bypass the warning,
 
 `evidence/public/wallet-domain-check.json` records a read-only inspection of MystenLabs/wallet_blocklist at commit `fe160fa2e5e0d103bdcbed92c7d72f5dc8685bf1`. No exact app hostname or literal vercel.app wildcard was found in the inspected lists. This does **not** establish safety or a false positive: other checks, matching behavior and the exact reported origin remain unverified.
 
-Source: https://github.com/MystenLabs/wallet_blocklist . Official security information: https://slush.app/security . Official support: https://support.slush.app/hc/en-us/requests/new . The UI/API sign-in pause is deployed and verified on the prior recorded revision f8bfe48; the pause is retained in deployed source bdace24: health reports disabled sign-in and a new challenge is rejected. See `evidence/public/visual-checks.json`.
+Source: https://github.com/MystenLabs/wallet_blocklist . Official security information: https://slush.app/security . Official support: https://support.slush.app/hc/en-us/requests/new . The UI/API sign-in pause is deployed and verified on deployed source bdace24: health reports disabled sign-in and a new challenge is rejected. See `evidence/public/visual-checks.json`.
 
 ## Draft for official support
 

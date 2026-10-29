@@ -1,15 +1,19 @@
 {
-  "recordedAt": "2026-10-29T20:19:13.403Z",
+  "recordedAt": "2026-10-29T20:49:30.523Z",
   "sourceRevision": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
   "deploymentId": "dpl_9FpwHJVnS3SLFp5qXRdaYqkMygYq",
   "runtimeProbe": "evidence/public/deployed-runtime.json",
   "localProductionUi": "evidence/public/ux-checks.json",
   "independentUiDisposition": "ship",
-  "newDeployedScreenshotsComplete": false,
+  "newDeployedScreenshotsComplete": true,
   "attemptFailure": "page.waitForLoadState networkidle timed out before completion",
-  "correctedCaptureState": "not_started_after_two_permission_review_timeouts",
-  "videoRefreshState": "not_started_permission_review_timeout",
-  "historicalDeployedCaptures": "evidence/public/visual-checks.json explicitly identifies older f8bfe48 source",
+  "correctedCaptureState": "completed_after_explicit_user_approval",
+  "videoRefreshState": "completed_after_explicit_user_approval",
+  "historicalDeployedCaptures": "Prior failures remain documented; current visual-checks.json identifies the same deployed implementation revision.",
   "publicVideoPublished": false,
-  "submissionComplete": false
+  "submissionComplete": false,
+  "captureArtifact": "evidence/public/visual-checks.json",
+  "captureCount": 18,
+  "videoArtifact": "evidence/public/video-draft.json",
+  "videoDurationSeconds": 173.64
 }

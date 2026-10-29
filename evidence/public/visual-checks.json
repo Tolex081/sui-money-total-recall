@@ -1,11 +1,11 @@
 {
-  "checkedAt": "2026-10-29T09:19:16.108Z",
+  "checkedAt": "2026-10-29T20:28:16.265Z",
   "origin": "https://sui-money.vercel.app",
-  "sourceRevision": "f8bfe486cd3045fdab0ff4426c610f0227bfe82e",
+  "sourceRevision": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
   "environment": "public production signed-out Chromium",
   "automatedCaptures": true,
   "manualVisualReview": false,
-  "agentVisualReview": "Local production branding captures were visually reviewed; deployed captures require separate inspection.",
+  "agentVisualReview": "Local production UX captures were independently visually reviewed; deployed captures require separate inspection.",
   "walletSignInEnabled": false,
   "challengeRejected": true,
   "checks": [
@@ -65,6 +65,60 @@
     },
     {
       "path": "/",
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/landing-768.png"
+    },
+    {
+      "path": "/demo",
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-768.png"
+    },
+    {
+      "path": "/demo/activity",
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-activity-768.png"
+    },
+    {
+      "path": "/demo/plan",
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/demo-plan-768.png"
+    },
+    {
+      "path": "/proof",
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/proof-768.png"
+    },
+    {
+      "path": "/today",
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "badImages": [],
+      "violations": [],
+      "capture": "evidence/screenshots/paused-768.png"
+    },
+    {
+      "path": "/",
       "width": 390,
       "status": 200,
       "overflow": false,
@@ -117,5 +171,14 @@
       "violations": [],
       "capture": "evidence/screenshots/paused-390.png"
     }
-  ]
+  ],
+  "sampleVisualReview": {
+    "recordedAt": "2026-10-29T20:49:30.523Z",
+    "captures": [
+      "evidence/screenshots/proof-1440.png",
+      "evidence/screenshots/demo-390.png"
+    ],
+    "scope": "Root visually inspected these two deployed samples. All 18 have automated checks; all 22 local production review images were independently inspected.",
+    "notes": "Actual source-specific recorded times and stored counts are visible in proof. Phone preserves amounts/units, fictional labels and provider identities."
+  }
 }
