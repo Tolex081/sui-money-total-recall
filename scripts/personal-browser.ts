@@ -23,7 +23,7 @@ try{
   for(const f of (await readdir('db/migrations')).filter(f=>/^\d+.*\.sql$/.test(f)).sort())await db.query(await readFile('db/migrations/'+f,'utf8'));
   // No production auth bypass: requests use real challenge signatures and cookies.
   // Provider credentials are explicitly absent, so no chain or memory write can run.
-  const env={...process.env,DATABASE_URL:connection.toString(),APP_ORIGIN:origin,APP_MODE:'mock',PERSONAL_ACCESS_ENABLED:'true',MEMWAL_NAMESPACE_SECRET:randomBytes(32).toString('base64url'),SESSION_SECRET:randomBytes(32).toString('base64url'),TATUM_API_KEY:'',MEMWAL_PRIVATE_KEY:'',MEMWAL_ACCOUNT_ID:'',MEMWAL_NAMESPACE_DEMO:'',INTERNAL_ADMIN_SECRET:''};
+  const env={...process.env,DATABASE_URL:connection.toString(),APP_ORIGIN:origin,APP_MODE:'mock',WALLET_SIGNIN_ENABLED:'true',PERSONAL_ACCESS_ENABLED:'true',MEMWAL_NAMESPACE_SECRET:randomBytes(32).toString('base64url'),SESSION_SECRET:randomBytes(32).toString('base64url'),TATUM_API_KEY:'',MEMWAL_PRIVATE_KEY:'',MEMWAL_ACCOUNT_ID:'',MEMWAL_NAMESPACE_DEMO:'',INTERNAL_ADMIN_SECRET:''};
   server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--port','3200'],{env,stdio:'ignore',windowsHide:true});
   let ready=false;for(let i=0;i<60;i++){try{ready=(await fetch(origin+'/api/health')).ok;}catch{}if(ready)break;await new Promise(r=>setTimeout(r,500));}if(!ready)throw Error('Isolated test server did not start.');
   browser=await chromium.launch({headless:true});const context=await browser.newContext(),page=await context.newPage();
