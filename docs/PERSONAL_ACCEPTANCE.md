@@ -1,6 +1,14 @@
 # Genuine wallet and learning acceptance
 
-This is a prepared checklist, not a completed genuine-wallet test. Production financial access stays gated until the balance consistency contract and genuine acceptance are resolved. The builder reported a malicious-site warning in Slush PC extension **26.21.6 (e2be7f2)**. Stop wallet sign-in until official review resolves it; do not bypass the warning. The UI/API sign-in pause is deployed and verified: production health disables sign-in and a new challenge is rejected. See `SLUSH_REVIEW_REQUEST.md`. Do not sign transactions, fund wallets or transfer tokens for this exercise.
+This is a prepared checklist, not a completed genuine-wallet test. The user reports contacting Slush about a warning in the Slush PC extension **26.21.6 (e2be7f2)** and selected Suiet for the identity-only pilot. This does not clear Slush's warning. Production financial access stays gated until the balance consistency contract and genuine acceptance are resolved. No transaction, gas, funding, or transfer is needed for the identity test.
+
+After the Suiet identity-only deployment is live:
+
+1. In Chrome, install Suiet only from its [official site](https://suiet.app/) if it is not already installed.
+2. Open `https://sui-money.vercel.app/today`, choose Suiet in the wallet list, and connect the intended Mainnet address.
+3. Select **Sign in with wallet**. Review the readable origin, Mainnet, and nonce message. Sign only that personal message; it requests no gas or payment approval.
+4. Record whether **Wallet identity verified** appears and the date/session. Never record or share the signature, nonce, private key, or recovery phrase.
+5. Expect personal balances and planning to remain gated until the balance consistency contract is resolved. This identity test alone does not pass genuine finance or cross-session learning acceptance.
 
 1. Choose the public Sui Mainnet address controlled by the installed wallet you will use. Share only that public address, never a key, seed phrase, signature or delegate secret. Supported identity verification currently enables Ed25519, Secp256k1, Secp256r1 and Passkey personal-message signatures; other schemes fail explicitly rather than invoking a public RPC fallback.
 2. Inspect the sign-in message: app origin, Mainnet, wallet, nonce, issue/expiry times and identity-only wording. Sign with the wallet UI; the app must never request gas, payment approval or transaction execution. Check the displayed account and sign out. A wrong/changed wallet must clear personal state and require sign-in again.

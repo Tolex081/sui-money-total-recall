@@ -2,7 +2,7 @@
 
 This remains a real acceptance task, separate from the approved fictional recurring-payment replay. The earlier `10000` input is unassigned and will not be interpreted as an amount.
 
-1. Wait until the Slush warning is resolved and personal access gates are cleared. Do not bypass the warning or move funds for a test.
+1. Use the separate Suiet identity-only check in `PERSONAL_ACCEPTANCE.md`. Wait for the balance consistency gate before testing personal finance or saving real context. Do not bypass the Slush warning or move funds for a test.
 2. In Plan, choose an actual reserve amount in **USDC**, an end date and your timezone. A reserve is virtual and does not lock funds. Saving the explicit plan persists it in the database.
 3. Choose “Also remember this reserve for future plan choices” only for an amount you actually want remembered. This prepares a separate pending memory. Review its exact event and payload in Memories before any Mainnet submission. Assistant-operated additional writes require separate approval of the exact payload; the 24-record synthetic approval does not cover it.
 4. After an authorized write, wait for confirmed storage and matching signed recall. Pending, failed or unknown jobs do not activate the preference; do not blindly resubmit an unknown job.

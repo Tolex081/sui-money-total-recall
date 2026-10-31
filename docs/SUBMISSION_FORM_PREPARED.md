@@ -31,7 +31,7 @@ Draft only. Do not submit until the release audit passes. The current form was i
 
 Sui Money combines native-USDC spending explanations and a forward budget on Sui Mainnet. Today, Activity and Plan connect immutable wallet facts to confirmed context. Tatum supplies verified balance and transfer observations; Walrus Memory stores versioned explanations, preferences, recurring commitments and corrections that activate only after confirmed storage and matching signed recall. USDC arithmetic is exact; SUI remains separate for network costs. The app never takes custody, sends payments, requests spending approvals or connects bank accounts.
 
-Public demo: https://sui-money.vercel.app/demo . Its finances and learning replay are clearly synthetic. Independent proof includes real incoming/outgoing native-USDC references through Tatum, 24 approved synthetic Mainnet memories with signed recall and verified expiry, and a deployed database/runtime probe. Personal access remains gated by an unresolved balance-snapshot contract and a reported Slush security warning. Genuine personal cross-session learning is not yet claimed.
+Public demo: https://sui-money.vercel.app/demo . Its finances and learning replay are clearly synthetic. Independent proof includes real incoming/outgoing native-USDC references through Tatum, 24 approved synthetic Mainnet memories with signed recall and verified expiry, and a deployed database/runtime probe. Personal financial access remains gated by the unresolved balance-snapshot contract. The user reports contacting Slush and selected Suiet for identity-only testing; no genuine installed-wallet sign-in or personal cross-session learning is yet claimed.
 
 ## Walrus experience draft
 

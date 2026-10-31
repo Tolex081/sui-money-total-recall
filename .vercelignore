@@ -6,3 +6,6 @@ playwright-report
 .git
 node_modules
 .next
+.agents
+.impeccable
+skills-lock.json

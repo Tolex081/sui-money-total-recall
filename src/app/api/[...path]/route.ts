@@ -33,7 +33,7 @@ async function proof() {
 async function handle(request:Request) {
   const path=new URL(request.url).pathname.replace(/^\/api\//,'');const method=request.method;
   appMode();
-  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED!=='false',liveIntegrationVerified:false});
+  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED==='true',personalAccessEnabled:process.env.PERSONAL_ACCESS_ENABLED==='true',liveIntegrationVerified:false});
   if(method==='GET'&&path==='proof')return json(await proof());
   if(path==='demo'||path.startsWith('demo/')){
     if(method!=='GET')throw new AppError('READ_ONLY',405,'The public demo is read-only.');
@@ -49,9 +49,9 @@ async function handle(request:Request) {
     return json(demoState());
   }
   const identityOnly=['auth/challenge','auth/verify','auth/logout','account'].includes(path);
-  if(process.env.PERSONAL_ACCESS_ENABLED==='false'&&!identityOnly)throw new AppError('RELEASE_GATE',503,'Personal financial screens are gated while mandatory verification is completed. The read-only demo and proof remain available.');
+  if(process.env.PERSONAL_ACCESS_ENABLED!=='true'&&!identityOnly)throw new AppError('RELEASE_GATE',503,'Personal financial screens are gated while mandatory verification is completed. The read-only demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
-  if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED==='false')throw new AppError('WALLET_REVIEW_GATE',503,'Wallet sign-in is paused while the reported Slush security warning is reviewed. Do not bypass the warning.');
+  if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED!=='true')throw new AppError('WALLET_SIGNIN_DISABLED',503,'Wallet sign-in is disabled until explicit release configuration enables it.');
   if(method==='POST'&&path==='auth/challenge'){
     const data=z.object({wallet:z.string().max(80)}).strict().parse(await body(request));
     await consumeLimits([{key:'auth:global',max:40,seconds:60},{key:'auth:wallet:'+hash(data.wallet),max:5,seconds:60}]);

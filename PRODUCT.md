@@ -29,7 +29,7 @@ Responsive browser application with Today, Activity and Plan as primary navigati
 - No custody, transfers, payment execution, token approvals, banks, other chains, paid LLMs or unapproved charges.
 - Only storage-confirmed, matching-recall-verified memories affect results. Corrections retain earlier revisions.
 - Missing balances, partial history, pending saves and dependency failures remain explicit.
-- Production personal finance is gated pending the atomic balance consistency contract and genuine acceptance checks. A reported Slush security warning is unresolved; do not evade it.
+- Production personal finance is gated pending the atomic balance consistency contract and genuine acceptance checks. The user reports contacting Slush and selected Suiet for the identity-only wallet test. Prefer Suiet in the wallet picker; do not treat the separate Slush warning as cleared.
 - The unconfirmed input `10000` is not a real amount or personal spending history.
 
 ## Brand Commitments

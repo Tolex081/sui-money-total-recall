@@ -1,5 +1,7 @@
 # Slush security warning — prepared review request
 
+The user later reported contacting Slush independently. This prepared draft was not sent by Codex; no response or provider evidence has been recorded here.
+
 Status: unresolved; no support request has been sent. Do not bypass the warning, disable wallet protections, sign on the flagged origin or use another hostname to evade the warning.
 
 ## Reported environment
