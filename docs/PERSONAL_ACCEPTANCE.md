@@ -1,8 +1,8 @@
 # Genuine wallet and learning acceptance
 
-This is a prepared checklist, not a completed genuine-wallet test. The user reports contacting Slush about a warning in the Slush PC extension **26.21.6 (e2be7f2)** and selected Suiet for the identity-only pilot. This does not clear Slush's warning. Production financial access stays gated until the balance consistency contract and genuine acceptance are resolved. No transaction, gas, funding, or transfer is needed for the identity test.
+This is a prepared checklist, not a completed genuine-wallet test. The Suiet-first identity pilot is live at `https://sui-money.vercel.app/today` as of 31 October 2026. The user reports contacting Slush about a warning in the Slush PC extension **26.21.6 (e2be7f2)** and selected Suiet for this identity-only pilot. This does not clear Slush's warning. Production financial access stays gated until the balance consistency contract and genuine acceptance are resolved. No transaction, gas, funding, or transfer is needed for the identity test.
 
-After the Suiet identity-only deployment is live:
+To complete the genuine installed-wallet check:
 
 1. In Chrome, install Suiet only from its [official site](https://suiet.app/) if it is not already installed.
 2. Open `https://sui-money.vercel.app/today`, choose Suiet in the wallet list, and connect the intended Mainnet address.

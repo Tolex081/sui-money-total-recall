@@ -1,13 +1,26 @@
 {
-  "checkedAt": "2026-10-29T19:34:30.963Z",
+  "checkedAt": "2026-10-31T13:03:08Z",
   "conclusion": "success",
-  "createdAt": "2026-10-29T19:31:02Z",
-  "databaseId": 40940787576,
-  "headSha": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
+  "createdAt": "2026-10-31T13:00:35Z",
+  "databaseId": 41203601118,
+  "headSha": "324a0f59e804a84ae10a76497576899d9bfccce9",
   "status": "completed",
-  "updatedAt": "2026-10-29T19:33:22Z",
-  "url": "https://github.com/Tolex081/sui-money-total-recall/actions/runs/40940787576",
-  "sourceSha256": "c952fcd7d5a457fcc5236e5a4566d77c51df91019370aa8d15e4d71b42bbb2db",
+  "updatedAt": "2026-10-31T13:03:08Z",
+  "url": "https://github.com/Tolex081/sui-money-total-recall/actions/runs/41203601118",
+  "sourceSha256": "b090d14e3a0feb6bcfc4a2b1c627dd3bde1766213ba06d719a20d19b539f6327",
   "qualityArtifact": "quality-evidence",
-  "checks": 9
+  "checks": 9,
+  "results": {
+    "unitTests": 38,
+    "databaseTests": 18,
+    "publicBrowserTests": 7,
+    "authenticatedBrowserChecks": 13,
+    "lint": "passed",
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "secretScan": "passed",
+    "evidenceTraceability": "passed"
+  },
+  "deployedApplicationRevision": "16105293178921859727ea2fc6e9cfff8b568ad9",
+  "verificationNote": "Commit 324a0f59 contains the deployed application source plus a test-only wallet-sign-in gate setting for its disposable signed-browser acceptance run."
 }

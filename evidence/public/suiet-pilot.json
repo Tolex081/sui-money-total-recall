@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-10-31T12:52:38.000Z",
+  "sourceRevision": "16105293178921859727ea2fc6e9cfff8b568ad9",
+  "verificationRevision": "324a0f59e804a84ae10a76497576899d9bfccce9",
+  "githubActionsRun": "https://github.com/Tolex081/sui-money-total-recall/actions/runs/41203601118",
+  "deployment": {
+    "id": "dpl_AzMRT5oiDMDR4rvnxtUMYVzP9Lra",
+    "url": "https://sui-money-pbam696ux-oyewole-toluwalase-oluwaseuns-projects.vercel.app",
+    "state": "READY",
+    "target": "production",
+    "canonicalAlias": "https://sui-money.vercel.app"
+  },
+  "production": {
+    "health": {
+      "httpStatus": 200,
+      "mode": "live",
+      "status": "application_reachable",
+      "walletSignInEnabled": true,
+      "personalAccessEnabled": false,
+      "liveIntegrationVerified": false
+    },
+    "today": {
+      "httpStatus": 200,
+      "heading": "Connect with Suiet.",
+      "connectWalletButtonPresent": true,
+      "officialSuietLinkPresent": true,
+      "walletAdapter": "Wallet Standard discovery; Suiet is preferred in the wallet picker when installed and compatible.",
+      "actualWalletSignature": "not tested"
+    },
+    "unauthenticatedAccountStatus": 401,
+    "personalFinanceGates": [
+      { "path": "/api/state", "httpStatus": 503, "code": "RELEASE_GATE" },
+      { "path": "/api/plan", "httpStatus": 503, "code": "RELEASE_GATE" }
+    ]
+  },
+  "localChecks": {
+    "lint": "passed with one existing unused-variable warning in evidence/private/finalize-current.mjs",
+    "typecheck": "passed",
+    "unitTests": { "status": "passed", "files": 3, "tests": 38 },
+    "productionBuild": "passed"
+  },
+  "ciChecks": {
+    "status": "passed",
+    "checks": 9,
+    "unitTests": 38,
+    "databaseTests": 18,
+    "publicBrowserTests": 7,
+    "authenticatedBrowserChecks": 13,
+    "sourceSha256": "b090d14e3a0feb6bcfc4a2b1c627dd3bde1766213ba06d719a20d19b539f6327",
+    "testHarnessChange": "Enabled wallet sign-in only for the disposable test server; production environment is unchanged."
+  },
+  "limits": [
+    "No genuine Suiet-installed-wallet signature or connected-wallet balance check was performed.",
+    "Financial access remains gated pending the atomic Tatum balance checkpoint and genuine acceptance requirements.",
+    "Slush's reported Chrome warning remains under separate review; no warning was bypassed."
+  ]
+}

@@ -1,19 +1,20 @@
 {
   "status": "implemented_and_deployed_release_gated",
-  "checkedAt": "2026-10-29T20:09:07.494Z",
-  "commit": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
-  "sourceSha256": "c952fcd7d5a457fcc5236e5a4566d77c51df91019370aa8d15e4d71b42bbb2db",
+  "checkedAt": "2026-10-31T13:03:08Z",
+  "commit": "324a0f59e804a84ae10a76497576899d9bfccce9",
+  "sourceSha256": "b090d14e3a0feb6bcfc4a2b1c627dd3bde1766213ba06d719a20d19b539f6327",
   "appUrl": "https://sui-money.vercel.app",
   "repositoryUrl": "https://github.com/Tolex081/sui-money-total-recall",
   "articleUrl": null,
   "videoUrl": null,
   "submissionReceipt": null,
-  "ciUrl": "https://github.com/Tolex081/sui-money-total-recall/actions/runs/40940787576",
+  "ciUrl": "https://github.com/Tolex081/sui-money-total-recall/actions/runs/41203601118",
   "deployment": {
-    "id": "dpl_9FpwHJVnS3SLFp5qXRdaYqkMygYq",
-    "url": "https://sui-money-4pnj5gz7m-oyewole-toluwalase-oluwaseuns-projects.vercel.app",
-    "sourceRevision": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
-    "walletSignInEnabled": false,
+    "id": "dpl_AzMRT5oiDMDR4rvnxtUMYVzP9Lra",
+    "url": "https://sui-money-pbam696ux-oyewole-toluwalase-oluwaseuns-projects.vercel.app",
+    "sourceRevision": "16105293178921859727ea2fc6e9cfff8b568ad9",
+    "ciVerificationRevision": "324a0f59e804a84ae10a76497576899d9bfccce9",
+    "walletSignInEnabled": true,
     "personalAccessEnabled": false
   },
   "requirements": {
@@ -66,9 +67,9 @@
       "limitation": "Public read-only fictional finances plus independently verified Mainnet seed recall."
     },
     "P02": {
-      "status": "blocked",
-      "artifact": "evidence/public/personal-browser.json",
-      "limitation": "Automated cryptographic auth/isolation passes; real Slush sign-in blocked by security warning."
+      "status": "partial",
+      "artifact": "evidence/public/suiet-pilot.json",
+      "limitation": "Identity-only Suiet pilot is deployed; a genuine installed-wallet signature and personal acceptance are not yet verified. Personal finance remains gated."
     },
     "P03": {
       "status": "passed",
@@ -159,9 +160,9 @@
       "artifact": "docs/EVIDENCE.md"
     },
     "G09": {
-      "status": "blocked",
-      "artifact": "docs/SLUSH_REVIEW_REQUEST.md",
-      "limitation": "Installed-wallet sign-in paused pending official warning resolution; generated test signatures are not compatibility evidence."
+      "status": "partial",
+      "artifact": "evidence/public/suiet-pilot.json",
+      "limitation": "Suiet identity pilot is enabled, but no genuine installed-wallet signature has been verified. Slush's reported warning remains separate and unresolved."
     },
     "G10": {
       "status": "passed",
@@ -303,9 +304,8 @@
     }
   },
   "criticalOpenItems": [
-    "reported-slush-security-warning",
     "payment-balance-snapshot-consistency",
-    "real-wallet-and-cross-session-learning",
+    "genuine-suiet-wallet-and-cross-session-learning",
     "builder-eligibility-identifiers-and-quota-evidence",
     "article-video-publication-and-submission"
   ]

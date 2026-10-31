@@ -29,7 +29,7 @@ Responsive browser application with Today, Activity and Plan as primary navigati
 - No custody, transfers, payment execution, token approvals, banks, other chains, paid LLMs or unapproved charges.
 - Only storage-confirmed, matching-recall-verified memories affect results. Corrections retain earlier revisions.
 - Missing balances, partial history, pending saves and dependency failures remain explicit.
-- Production personal finance is gated pending the atomic balance consistency contract and genuine acceptance checks. The user reports contacting Slush and selected Suiet for the identity-only wallet test. Prefer Suiet in the wallet picker; do not treat the separate Slush warning as cleared.
+- Production identity-only wallet sign-in is enabled through the Wallet Standard picker, with Suiet preferred when installed; the signed-out screen and health flags are verified, but no genuine installed-wallet signature has been tested. Personal finance stays gated pending the atomic balance consistency contract and genuine acceptance checks. The user reports contacting Slush; the separate Slush warning remains unresolved and is not bypassed.
 - The unconfirmed input `10000` is not a real amount or personal spending history.
 
 ## Brand Commitments
@@ -38,7 +38,7 @@ The user explicitly requests visible Walrus and Tatum customization, including t
 
 ## Evidence on Hand
 
-Public Tatum Mainnet balance/history checks, two verified native-USDC transaction directions, 24 separately approved synthetic Mainnet memories with matching recall, deployed runtime/database evidence, automated tests and public repository. See `docs/EVIDENCE.md`. The user's genuine cross-session learning/correction story, installed-wallet sign-in, article publication, video and submission remain incomplete. Never fabricate these.
+Public Tatum Mainnet balance/history checks, two verified native-USDC transaction directions, 24 separately approved synthetic Mainnet memories with matching recall, deployed runtime/database evidence, automated tests and public repository. See `docs/EVIDENCE.md`. The user's genuine installed-wallet sign-in, balance acceptance, cross-session learning/correction story, article publication, video and submission remain incomplete. Never fabricate these.
 
 ## Product Principles
 
