@@ -1,4 +1,4 @@
-﻿# Build log
+# Build log
 
 Fresh project started from the complete v2.0 brief. Empty workspace inspected before scaffolding; requirements and evidence documents created first. No Handshake codebase was sought or modified. UTC observations below come from actual evidence artifacts, not fictional demo dates.
 
