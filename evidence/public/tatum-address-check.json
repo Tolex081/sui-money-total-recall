@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-10-31T15:02:21.353Z",
+  "provider": "Tatum Sui Mainnet gRPC",
+  "network": "mainnet",
+  "chainId": "4btiuiMPvEENsttpZC7CZ53DruC3MAgfznDbASZ7DR6S",
+  "address": "redacted; address supplied by the user",
+  "checks": {
+    "serviceIdentity": "mainnet",
+    "nativeUsdcCoinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+    "nativeUsdcDecimals": 6,
+    "suiCoinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+    "suiDecimals": 9,
+    "balanceResponseReturned": true,
+    "balanceCheckpoint": null
+  },
+  "privateRawEvidence": "evidence/private/tatum-personal-1797138d2c1a.json (gitignored)",
+  "chainWrites": 0,
+  "walrusWrites": 0,
+  "limitations": [
+    "This is a direct Tatum adapter read for the address supplied by the user, not proof of a signed browser session.",
+    "Raw balance values and address are kept in private evidence.",
+    "The response has no balance checkpoint; the separately observed service checkpoint is not substituted for it."
+  ]
+}

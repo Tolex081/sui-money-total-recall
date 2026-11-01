@@ -18,6 +18,7 @@
     "test:e2e:personal": "tsx --env-file-if-exists=.env.local scripts/personal-browser.ts",
     "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts",
     "smoke:live": "tsx --env-file-if-exists=.env.local scripts/smoke-live.ts",
+    "verify:personal-tatum": "tsx --env-file-if-exists=.env.local scripts/verify-personal-tatum.ts",
     "seed:mainnet": "tsx --env-file-if-exists=.env.local scripts/seed-mainnet.ts",
     "verify:evidence": "tsx scripts/evidence.ts verify",
     "snapshot:learning": "tsx scripts/snapshot-learning.ts",

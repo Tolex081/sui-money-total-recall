@@ -103,4 +103,6 @@ At tablet and phone widths, the desktop sidebar folds into the existing native d
 - Native USDC is the budget unit. SUI stays separate for wallet balances and network costs.
 - Fictional demo data never becomes personal evidence. The wallet gate and financial release checks remain unchanged by the visual redesign.
 - Use the local, attributable Walrus/Tatum assets at their real proportions. Keep mascots clear of amounts, controls and security messages.
+- A payment row has two layers: the Tatum fact (direction, counterparty, time, amount) on top, and beneath it either the confirmed label on the memory tint, a dashed "waiting for Walrus to confirm" chip, or a dashed "What was this for?" prompt. This is the screen's one signature element; keep everything around it quiet.
+- Amounts are exact but unpadded: at least two decimals, more only when the value needs them.
 - Explain uncertainty beside the affected result. Never style a pending balance, unverified memory, missing history or release gate as successful live data.

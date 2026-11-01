@@ -8,7 +8,8 @@ All handlers run in Node. Bodies are strict Zod-validated JSON, bounded to 16 KB
 | POST /api/auth/verify | `{id,wallet,signature}` → verified profile and CSRF; secure HTTP-only session cookie on HTTPS |
 | POST /api/auth/logout | Revoke hashed session; clear cookies |
 | GET /api/account | Current wallet, timezone and consent version |
-| GET /api/state | Complete current profile state for the core UI |
+| POST /api/consent | Explicit consent to save read-only wallet balance/activity in the user's profile |
+| GET /api/state | Current profile state. In the read-only pilot, only after consent, returns verified wallet balance/movements/coverage and timezone; strips plans, annotations, allocations and memories. Before consent it returns the consent version only and no onchain data. |
 | GET /api/today | Exact planning/spending calculations with provenance |
 | GET /api/balances | Latest verified observation or unknown |
 | GET /api/activity?offset= | Page of 25 movements, annotations and coverage |
@@ -38,6 +39,6 @@ All handlers run in Node. Bodies are strict Zod-validated JSON, bounded to 16 KB
 | GET /api/proof | Cached sanitized evidence from approved public checks |
 | POST /api/internal/spike | Private admin-header endpoint for bounded Tatum/recall/PostgreSQL runtime proof; no chain or memory writes |
 
-Release gating is separate from authentication: both `WALLET_SIGNIN_ENABLED` and `PERSONAL_ACCESS_ENABLED` default closed and require the exact value `true` to open. Production currently has `WALLET_SIGNIN_ENABLED=true` and `PERSONAL_ACCESS_ENABLED=false` for the Suiet identity-only pilot; the local and Playwright defaults remain closed. Personal financial production use remains blocked while acceptance is unfinished. Identity-only challenge/verification/account/logout can be enabled separately for genuine installed-wallet checks. Public demo writes always fail. A gate cannot satisfy a missing mandatory feature or acceptance test.
+Release gating is separate from authentication: `WALLET_SIGNIN_ENABLED`, `PERSONAL_READ_ENABLED`, and `PERSONAL_ACCESS_ENABLED` default closed and require the exact value `true` to open. `PERSONAL_READ_ENABLED` allows only authenticated `/api/state` reads plus the consented `/api/sync` balance/history imports; profile consent is required before the state response contains onchain data or sync can save it. Planning, labels, annotations, allocations and memory reads/writes remain gated. `PERSONAL_ACCESS_ENABLED` is a separate broader release. Local and Playwright defaults stay closed. Public demo writes always fail. A gate cannot satisfy a missing mandatory feature or acceptance test.
 
 Known gaps and pending route-level attack coverage are recorded in OPEN_ITEMS.md; the table describes implemented endpoints, not a blanket claim that every acceptance is passed.

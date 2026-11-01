@@ -5,7 +5,8 @@ import { database, transaction } from '@/adapters/postgres/client';
 import { canonicalAddress } from '@/adapters/tatum/chain';
 import { AppError, hash, namespaceFor, token, equalSecret } from '@/lib/security';
 import { required } from '@/lib/config';
-export const CONSENT_VERSION = 'operator-managed-v1';
+import { OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
+export const CONSENT_VERSION = OPERATOR_MANAGED_CONSENT_VERSION;
 export type Profile = { id: string; wallet: string; namespace: string; timezone: string; consent_version: string | null };
 export function challengeMessage(input: { origin: string; wallet: string; nonce: string; issued: string; expires: string }) {
   return ['Sign in to Sui Money',`Origin: ${input.origin}`, 'Network: Sui Mainnet', `Wallet: ${input.wallet}`,`Nonce: ${input.nonce}`,`Issued: ${input.issued}`,`Expires: ${input.expires}`,'This verifies your identity. It does not authorize a payment or transaction.'].join('\n');

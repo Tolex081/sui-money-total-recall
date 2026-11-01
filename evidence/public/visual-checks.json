@@ -1,184 +1,98 @@
 {
-  "checkedAt": "2026-10-29T20:28:16.265Z",
-  "origin": "https://sui-money.vercel.app",
-  "sourceRevision": "bdace2432d83f680af0c678c2f7dc5f40d59b5d0",
-  "environment": "public production signed-out Chromium",
+  "checkedAt": "2026-10-31T13:38:16.650Z",
+  "base": "http://localhost:3100",
   "automatedCaptures": true,
-  "manualVisualReview": false,
-  "agentVisualReview": "Local production UX captures were independently visually reviewed; deployed captures require separate inspection.",
-  "walletSignInEnabled": false,
-  "challengeRejected": true,
+  "manualVisualReview": true,
+  "visualReview": {
+    "checkedAt": "2026-10-31T13:48:25Z",
+    "screensReviewed": 12,
+    "widths": [390, 1440],
+    "notes": "Reviewed landing, Today, Activity, Plan, read-only demo and integration proof at mobile and desktop widths. Checked blue palette, type hierarchy, Walrus/Tatum provenance, synthetic-data labels, card fit and responsive layout."
+  },
   "checks": [
     {
-      "path": "/",
-      "width": 1440,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/landing-1440.png"
-    },
-    {
-      "path": "/demo",
-      "width": 1440,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-1440.png"
-    },
-    {
-      "path": "/demo/activity",
-      "width": 1440,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-activity-1440.png"
-    },
-    {
-      "path": "/demo/plan",
-      "width": 1440,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-plan-1440.png"
-    },
-    {
-      "path": "/proof",
-      "width": 1440,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/proof-1440.png"
-    },
-    {
-      "path": "/today",
-      "width": 1440,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/paused-1440.png"
-    },
-    {
-      "path": "/",
-      "width": 768,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/landing-768.png"
-    },
-    {
-      "path": "/demo",
-      "width": 768,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-768.png"
-    },
-    {
-      "path": "/demo/activity",
-      "width": 768,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-activity-768.png"
-    },
-    {
-      "path": "/demo/plan",
-      "width": 768,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-plan-768.png"
-    },
-    {
-      "path": "/proof",
-      "width": 768,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/proof-768.png"
-    },
-    {
-      "path": "/today",
-      "width": 768,
-      "status": 200,
-      "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/paused-768.png"
-    },
-    {
-      "path": "/",
+      "screen": "/",
       "width": 390,
       "status": 200,
       "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/landing-390.png"
+      "file": "evidence/screenshots/landing-390.png"
     },
     {
-      "path": "/demo",
+      "screen": "/today",
       "width": 390,
       "status": 200,
       "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-390.png"
+      "file": "evidence/screenshots/today-390.png"
     },
     {
-      "path": "/demo/activity",
+      "screen": "/demo",
       "width": 390,
       "status": 200,
       "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-activity-390.png"
+      "file": "evidence/screenshots/demo-390.png"
     },
     {
-      "path": "/demo/plan",
+      "screen": "/demo/activity",
       "width": 390,
       "status": 200,
       "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/demo-plan-390.png"
+      "file": "evidence/screenshots/demo-activity-390.png"
     },
     {
-      "path": "/proof",
+      "screen": "/demo/plan",
       "width": 390,
       "status": 200,
       "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/proof-390.png"
+      "file": "evidence/screenshots/demo-plan-390.png"
     },
     {
-      "path": "/today",
+      "screen": "/proof",
       "width": 390,
       "status": 200,
       "overflow": false,
-      "badImages": [],
-      "violations": [],
-      "capture": "evidence/screenshots/paused-390.png"
+      "file": "evidence/screenshots/proof-390.png"
+    },
+    {
+      "screen": "/",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/landing-1440.png"
+    },
+    {
+      "screen": "/today",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/today-1440.png"
+    },
+    {
+      "screen": "/demo",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-1440.png"
+    },
+    {
+      "screen": "/demo/activity",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-activity-1440.png"
+    },
+    {
+      "screen": "/demo/plan",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/demo-plan-1440.png"
+    },
+    {
+      "screen": "/proof",
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "file": "evidence/screenshots/proof-1440.png"
     }
-  ],
-  "sampleVisualReview": {
-    "recordedAt": "2026-10-29T20:49:30.523Z",
-    "captures": [
-      "evidence/screenshots/proof-1440.png",
-      "evidence/screenshots/demo-390.png"
-    ],
-    "scope": "Root visually inspected these two deployed samples. All 18 have automated checks; all 22 local production review images were independently inspected.",
-    "notes": "Actual source-specific recorded times and stored counts are visible in proof. Phone preserves amounts/units, fictional labels and provider identities."
-  }
+  ]
 }

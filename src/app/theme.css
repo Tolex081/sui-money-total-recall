@@ -271,3 +271,54 @@ input, select { caret-color: var(--blue); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
+
+/* Read-only wallet: balance freshness, and payments as a chain fact with a remembered label beneath. */
+.read-balance-card { display: grid; gap: 14px; }
+.balance-head { display: flex; align-items: center; gap: 12px; }
+.balance-head h2 { font-size: 17px; margin: 0; }
+.balance-fresh { margin-left: auto; color: var(--muted); font-size: 12px; }
+.balance-fresh.busy { color: var(--blue); }
+.read-balance-card .read-sui-row { margin-top: 0; }
+.balance-note { color: var(--muted); max-width: 62ch; }
+.read-coverage-line { margin: 4px 0 12px; color: var(--muted); font-size: 13px; }
+.read-needs-label { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; padding: 11px 14px; border: 1px solid var(--memory-border); border-radius: 10px; color: var(--ink); background: var(--memory); font-size: 13px; }
+.pay-day h3 { margin: 22px 0 6px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0; }
+.pay-day ul { margin: 0; padding: 0; list-style: none; }
+.pay-row { padding: 14px 0; border-top: 1px solid var(--line); }
+.pay-day li:first-child { border-top: 0; }
+.pay-fact { display: flex; align-items: center; gap: 13px; }
+.pay-main { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.pay-main strong { font-size: 14px; font-weight: 600; }
+.pay-main > span { color: var(--muted); font-size: 12px; }
+.pay-party { font-variant-numeric: tabular-nums; font-weight: 500; }
+.pay-digest { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.pay-digest:hover { color: var(--blue); }
+.pay-value { display: grid; justify-items: end; gap: 2px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pay-value strong { font-size: 15px; }
+.pay-value.incoming strong { color: var(--positive); }
+.pay-value small { color: var(--muted); font-size: 11px; }
+.pay-memory, .pay-prompt { display: flex; align-items: center; gap: 8px; margin: 10px 0 0 49px; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+.pay-memory { border: 1px solid var(--memory-border); background: var(--memory); color: var(--ink); }
+.pay-memory svg { color: var(--blue); flex: 0 0 auto; }
+.pay-memory span { min-width: 0; flex: 1; color: var(--muted); }
+.pay-memory b { color: var(--ink); font-weight: 600; margin-right: 6px; }
+.pay-memory-edit { min-height: 32px; padding: 0 8px; border: 0; border-radius: 6px; color: var(--blue); background: none; font: inherit; font-weight: 600; cursor: pointer; }
+.pay-memory-edit:hover { background: var(--blue-tint); }
+.pay-prompt { width: calc(100% - 49px); min-height: 40px; border: 1px dashed #b8cae9; color: var(--blue); background: var(--paper); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; }
+.pay-prompt:hover { border-style: solid; background: var(--blue-soft); }
+.read-label-panel { display: grid; gap: 12px; margin: 10px 0 4px 49px; padding: 16px; border: 1px solid var(--memory-border); border-radius: 10px; background: var(--blue-soft); font-size: 13px; }
+.read-label-panel p { color: var(--muted); line-height: 1.55; }
+.read-label-panel label { display: grid; gap: 6px; color: var(--ink); font-weight: 500; }
+.read-label-panel input:not([type=checkbox]), .read-label-panel select { min-height: 44px; padding: 8px 11px; border: 1px solid #cfd9e8; border-radius: 8px; background: var(--paper); font: inherit; }
+.read-label-panel .button { justify-self: start; }
+.read-label-panel .read-label-own, .read-label-panel .read-consent-check { display: flex; align-items: center; gap: 9px; font-weight: 400; }
+@media (max-width: 600px) {
+  .pay-memory, .pay-prompt, .read-label-panel { margin-left: 0; }
+  .pay-prompt { width: 100%; }
+  .pay-fact { gap: 10px; }
+}
+@media (max-width: 420px) {
+  .stat { flex-wrap: wrap; }
+  .stat strong { white-space: normal; }
+}
+.pay-memory.pending { border-style: dashed; background: var(--paper); }
