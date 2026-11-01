@@ -61,6 +61,26 @@ try{
       const state=await (await call('state?profileId='+b+'&namespace=forged')).json();assert.equal(state.profile.id,a);
     }finally{if(original===undefined)delete process.env.PERSONAL_ACCESS_ENABLED;else process.env.PERSONAL_ACCESS_ENABLED=original;}
   });
+  await test('Read-only pilot allows payment labels only behind their flag and memory consent',async()=>{
+    const routes=await import('../src/app/api/[...path]/route');
+    const c=await auth.issueChallenge(walletA.toSuiAddress()),sig=await walletA.signPersonalMessage(new TextEncoder().encode(c.message));
+    const session=await auth.verifyChallenge({id:c.id,wallet:walletA.toSuiAddress(),signature:sig.signature});
+    await movement('label-expense','-12000000');
+    await pool.query("UPDATE profiles SET consent_version='read-only-wallet-v1' WHERE id=$1",[a]);
+    const saved={access:process.env.PERSONAL_ACCESS_ENABLED,read:process.env.PERSONAL_READ_ENABLED,labels:process.env.PERSONAL_LABELS_ENABLED};
+    delete process.env.PERSONAL_ACCESS_ENABLED;process.env.PERSONAL_READ_ENABLED='true';delete process.env.PERSONAL_LABELS_ENABLED;
+    async function call(path:string,data?:unknown){const req=new Request('http://localhost:3000/api/'+path,{method:data===undefined?'GET':'POST',headers:{origin:'http://localhost:3000',cookie:'sm_session='+session.sessionToken,'x-csrf-token':session.csrf,'content-type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});return data===undefined?routes.GET(req):routes.POST(req);}
+    const label={category:'Home',note:'Test rent',ownTransfer:false,rememberDestination:false,expectedRevision:0};
+    try{
+      assert.equal((await call('activity/label-expense/annotation',label)).status,503);
+      process.env.PERSONAL_LABELS_ENABLED='true';
+      assert.equal((await call('activity/label-expense/annotation',label)).status,409);
+      assert.equal((await call('consent/memory',{accepted:true})).status,200);
+      const queued=await call('activity/label-expense/annotation',label);assert.equal(queued.status,200);assert.equal((await queued.json()).state,'queued');
+      assert.equal((await call('plan',{endDate:'2026-12-01'})).status,503);
+      const state=await (await call('state')).json();assert.equal(state.memories.some((m:{envelope:{logicalKey:string}})=>m.envelope.logicalKey==='annotation:label-expense'),true);assert.equal(state.rules.length,0);
+    }finally{for(const [key,name] of [['access','PERSONAL_ACCESS_ENABLED'],['read','PERSONAL_READ_ENABLED'],['labels','PERSONAL_LABELS_ENABLED']] as const){const value=saved[key];if(value===undefined)delete process.env[name];else process.env[name]=value;}}
+  });
   await test('F20 expired confirmed context cannot generate future unpaid obligations',async()=>{
     const {newEvent,queueEvent,persistOccurrences}=await import('../src/application/commands');const {transaction}=await import('../src/adapters/postgres/client');const {accountState}=await import('../src/application/state');
     const profile=(await pool.query('SELECT * FROM profiles WHERE id=$1',[a])).rows[0],date=Temporal.Now.plainDateISO(profile.timezone).add({days:2}).toString();

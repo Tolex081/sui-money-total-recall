@@ -2,7 +2,7 @@
 
 ## Scope and authority
 
-Existing `/`, Today, Memories and Proof surfaces. This is a narrow extension of the established cream, mint and deep-green interface, requested explicitly by the user on 29 October 2026. Preserve product truth, calculations, navigation and the security gate. No replacement identity or generated comp is required for this scoped asset integration.
+Existing `/`, Today, Activity, Plan, Memories and Proof surfaces. The user now prefers a cool blue-and-white reference palette across the product. Apply the replacement palette while preserving product truth, calculations, navigation and the security gate. Keep attributable official Walrus and Tatum identity artwork; do not imply endorsement or personal live balances from the fictional demo.
 
 ## Visitor modes
 
@@ -10,7 +10,7 @@ Landing: Persuade. Core screens: Operate. Proof and About: Read.
 
 ## Direction
 
-Make the integration recognizable through the official event's Walrus mascot holding the Tatum mark. Tatum identifies wallet facts; Walrus identifies confirmed context. One larger landing illustration and one restrained memory illustration provide personality. Local assets avoid browser requests to sponsor servers. Dark source labels use unchanged white sponsor wordmarks. Synthetic balances never receive a live verification badge.
+Use the official event's Walrus mascot holding the Tatum mark as the product's distinctive visual. Tatum identifies wallet facts; Walrus identifies confirmed context. The mascot appears in the landing and memory context, away from primary amounts and controls. Local assets avoid browser requests to sponsor servers. Dark navy identity backings preserve the unchanged white sponsor wordmarks. Synthetic balances never receive a live verification badge.
 
 ## Acceptance
 

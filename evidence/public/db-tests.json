@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-10-29T19:32:24.215Z",
-  "environment": "local-postgresql-isolated-schema",
+  "checkedAt": "2026-11-01T18:15:34.853Z",
+  "environment": "authenticated-hosted-postgresql-isolated-schema",
   "tests": [
     {
       "test": "Empty PostgreSQL migrations through version 3",
@@ -64,6 +64,10 @@
     },
     {
       "test": "HTTP handlers reject cross-profile resource IDs, namespace injection and export leakage",
+      "passed": true
+    },
+    {
+      "test": "Read-only pilot allows payment labels only behind their flag and memory consent",
       "passed": true
     },
     {

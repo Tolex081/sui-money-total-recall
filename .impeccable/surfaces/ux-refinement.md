@@ -1,41 +1,22 @@
-# Complete UI/UX refinement
+# Blue finance workspace redesign
 
-User request, 29 October 2026: apply Impeccable and Anthropic's frontend-design skill to make the existing product more beautiful and usable while completing the build.
+User request, 31 October 2026: the user said the prior UI did not reflect their reference or the installed design skills. Apply their cool blue-and-white SaaS reference to the actual landing page and app screens, with a more deliberate wallet workspace.
 
-## Existing authority
+## Visual authority
 
-Retain Sui Money's recognizable Walrus/Tatum artwork, cream/mint/deep-green identity, exact financial semantics and source labels. This expands and polishes the established system; it is not a new visual-world exercise. Product truth is in PRODUCT.md; current tokens are in DESIGN.md. No new financial or endorsement claims.
+The blue reference supersedes the former cream, mint and forest-green palette. Keep the existing product facts, Figtree and Bricolage fonts, routes, controls, official Tatum/Walrus assets and source labels. PRODUCT.md remains the product truth. `DESIGN.md` and `.impeccable/design.json` document the current blue system.
 
-## Compact design plan
+Use a near-white ice-blue canvas, clean white panels, dark ink, cobalt actions and a small range of pale blue surfaces. Keep Tatum beside wallet facts and Walrus beside confirmed context. The mascots remain real project assets. The screenshot's layered blue feeling informs the palette and whitespace; do not add decorative blur, glass, gradients, glowing cards or invented financial numbers.
 
-- Ink #202a27, forest #244e3c, canvas #f7f9f5, paper #ffffff, memory mint #e4f4ec, warning #934d3e on #fff0eb.
-- Figtree for task UI, forms, data and prose; Bricolage Grotesque for the landing's display voice and restrained brand headings. Self-host official OFL fonts through Next's local font loader.
-- Left-aligned financial workspace with a strong amount hierarchy, readable 12–14px labels/prose, consistent spacing, and 44px primary touch controls. Main numbers and source status remain immediately distinguishable.
-- The mascot remains the single expressive element. Use tonal layering and precise typography rather than decorative effects. Remove ornamental uppercase headings and redundant labels.
-- Repair mobile navigation as a native modal drawer with a close control, Escape/focus handling and automatic close on navigation. Preserve standard browser controls.
-- Make the paused account state one clear explanation with demo/proof recovery links. Distinguish an intentional release gate from a dependency failure.
-- Proof should summarize source/state/time first and disclose raw JSON on demand, rather than forcing an approximately 20,000px data dump into the reading path.
+The taste-skill finance direction is `pastel-consumer`, seed `637074719`: pale blue data surfaces, rounded panels and quiet money polarity. The direction's icon rail was declined because six destinations, including three core tasks, need readable labels for first-use navigation. Keep the labelled open-plane sidebar. Use Figtree for all operational text and figures; retain Bricolage only for the wordmark and landing display. The Sui Money signature is the visible split between Tatum-verified wallet observations and Walrus-confirmed context, with every amount carrying its source and status.
 
-## Brief check
+## Interaction and truthful states
 
-A generic finance template would add graphs, gradient decoration and many interchangeable cards. This pass instead makes the existing fact/context split legible: Tatum beside observations, Walrus beside confirmed context, and the exact plan formula beside its inputs. Existing images, data, routes and security boundaries remain authoritative. The custom font pairing addresses the prior default typography without borrowing a new unrelated theme.
+- Keep the native mobile drawer, keyboard focus behavior and labelled Today, Activity and Plan navigation.
+- Keep wallet identity sign-in, personal finance release gate, demo, public evidence, exact financial arithmetic and memory confirmation states unchanged.
+- Use clear labels, right-aligned tabular amounts, contrast-safe text, visible focus and reduced-motion support.
+- Keep synthetic demo facts labelled and actual integration state tied to recorded evidence.
 
-## Representative composition
+## Verification
 
-```text
-Desktop: sidebar | page title + current mode
-                 | planning amount       | observed wallet / Tatum
-                 | exact inputs          | remembered context / Walrus
-                 | upcoming commitments  | activity
-
-Mobile: menu + page identity
-        explicit demo or account state
-        planning amount / source
-        observed wallet
-        inputs and remembered context
-        commitments, activity
-```
-
-## Verification contract
-
-Inspect 390, 768 and 1440px; keyboard drawer open/close/Escape and focus return; meaningful action/error/disabled states; real font/image loading; no horizontal overflow at normal and 200% zoom; serious/critical axe checks. Run the current source detector once after the pass, the appropriate application suite and production build, then independent finish review and current token documentation. Do not bypass the Slush warning, enable personal access, publish external materials or claim genuine learning.
+Inspect `/`, `/today`, `/demo`, `/demo/activity` and `/demo/plan` at desktop and phone widths. Confirm the custom fonts and Walrus/Tatum assets load, no horizontal overflow appears, navigation remains labelled, focus is visible and all synthetic values keep their provenance. Run the taste app linter, existing app checks and production build. A browser automation/CDP capture that cannot attach to Chrome may be replaced with the available browser and Playwright captures; report the limitation plainly.

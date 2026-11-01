@@ -10,7 +10,7 @@ The exact tested implementation, CI, runtime, deployment and mandatory acceptanc
 
 ## Actions still needed
 
-1. Confirm the exact hostname that displayed the Slush warning. Chrome and extension version 26.21.6 (e2be7f2) are already recorded. Use the prepared [Slush review request](SLUSH_REVIEW_REQUEST.md) through official support. Do not bypass the warning or sign on the flagged origin. No support request has been sent for you.
+1. The user reports contacting Slush about the warning in Chrome extension version 26.21.6 (e2be7f2). The exact hostname remains unknown. Slush review is separate from the Suiet identity-only pilot; do not treat Suiet as clearance for Slush.
 2. Obtain Tatum's supported atomic balance/checkpoint contract using the [prepared provider question](TATUM_CONTRACT_QUESTION.md). The current response does not prove that a balance contains a matched payment. Reservations remain pending until implementation and verification of a supported contract. No test transfers are needed.
 3. After those gates clear, complete [genuine wallet acceptance](PERSONAL_ACCEPTANCE.md). The separate [reserve-preference guide](REAL_PREFERENCE_GUIDE.md) covers a real preference and later recall/correction. The brief's genuine recurring confirmation/correction still needs actual sessions. Review exact new Mainnet memory payloads before authorizing them; the completed synthetic batch approval covers no extra records. The unconfirmed input `10000` remains unassigned.
 4. Confirm eligibility, one-entry status and Tatum's actual free quota/charge settings. Enter contact details and public account identifiers privately using [prepared form answers](SUBMISSION_FORM_PREPARED.md). Never paste credentials into chat.

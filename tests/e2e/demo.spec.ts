@@ -26,7 +26,9 @@ test('390px and 1440px have no horizontal page overflow, keyboard focus and acce
 });
 test('demo never accepts writes and every personal endpoint requires a session',async({request})=>{
   for(const path of ['/api/demo','/api/demo/state','/api/demo/memories']){const response=await request.post(path,{data:{}});expect(response.status()).toBe(405);}
-  for(const path of ['/api/account','/api/state','/api/plan','/api/activity','/api/balances','/api/today','/api/memories','/api/memory-jobs/00000000-0000-0000-0000-000000000000','/api/export']){const response=await request.get(path);expect(response.status()).toBe(401);}
+  expect(await (await request.get('/api/health')).json()).toMatchObject({walletSignInEnabled:false,personalAccessEnabled:false});
+  expect((await request.get('/api/account')).status()).toBe(401);
+  for(const path of ['/api/state','/api/plan','/api/activity','/api/balances','/api/today','/api/memories','/api/memory-jobs/00000000-0000-0000-0000-000000000000','/api/export']){const response=await request.get(path);expect(response.status()).toBe(503);expect((await response.json()).error.code).toBe('RELEASE_GATE');}
 });
 test('accessible demo has no serious/critical WCAG violations',async({page})=>{
   await page.goto('/demo');const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();

@@ -1,246 +1,98 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-29T19:33:58.754Z",
-  "title": "Design System: Sui Money",
+  "generatedAt": "2026-10-31T13:30:22.844Z",
+  "title": "Design System: Sui Money — Cool Blue",
   "extensions": {
     "colorMeta": {
       "ink": {
         "role": "neutral",
         "displayName": "Ink",
-        "tonalRamp": [
-          "oklch(0.15 0.0045 174.96)",
-          "oklch(0.26 0.0078 174.96)",
-          "oklch(0.38 0.0114 174.96)",
-          "oklch(0.50 0.0150 174.96)",
-          "oklch(0.62 0.0150 174.96)",
-          "oklch(0.74 0.0130 174.96)",
-          "oklch(0.85 0.0075 174.96)",
-          "oklch(0.95 0.0025 174.96)"
-        ]
+        "hex": "#15243b"
       },
       "muted": {
         "role": "neutral",
-        "displayName": "Muted Olive",
-        "tonalRamp": [
-          "oklch(0.15 0.0130 134.41)",
-          "oklch(0.26 0.0225 134.41)",
-          "oklch(0.38 0.0329 134.41)",
-          "oklch(0.50 0.0432 134.41)",
-          "oklch(0.62 0.0432 134.41)",
-          "oklch(0.74 0.0375 134.41)",
-          "oklch(0.85 0.0216 134.41)",
-          "oklch(0.95 0.0072 134.41)"
-        ]
-      },
-      "line": {
-        "role": "neutral",
-        "displayName": "Line",
-        "tonalRamp": [
-          "oklch(0.15 0.0024 139.44)",
-          "oklch(0.26 0.0041 139.44)",
-          "oklch(0.38 0.0060 139.44)",
-          "oklch(0.50 0.0079 139.44)",
-          "oklch(0.62 0.0079 139.44)",
-          "oklch(0.74 0.0068 139.44)",
-          "oklch(0.85 0.0039 139.44)",
-          "oklch(0.95 0.0013 139.44)"
-        ]
-      },
-      "paper": {
-        "role": "neutral",
-        "displayName": "Paper",
-        "tonalRamp": [
-          "oklch(0.15 0.0000 89.88)",
-          "oklch(0.26 0.0000 89.88)",
-          "oklch(0.38 0.0000 89.88)",
-          "oklch(0.50 0.0000 89.88)",
-          "oklch(0.62 0.0000 89.88)",
-          "oklch(0.74 0.0000 89.88)",
-          "oklch(0.85 0.0000 89.88)",
-          "oklch(0.95 0.0000 89.88)"
-        ]
+        "displayName": "Muted blue-gray",
+        "hex": "#53627a"
       },
       "canvas": {
         "role": "neutral",
-        "displayName": "Canvas",
-        "tonalRamp": [
-          "oklch(0.15 0.0017 128.52)",
-          "oklch(0.26 0.0029 128.52)",
-          "oklch(0.38 0.0043 128.52)",
-          "oklch(0.50 0.0057 128.52)",
-          "oklch(0.62 0.0057 128.52)",
-          "oklch(0.74 0.0049 128.52)",
-          "oklch(0.85 0.0028 128.52)",
-          "oklch(0.95 0.0009 128.52)"
-        ]
+        "displayName": "Ice-blue canvas",
+        "hex": "#f4f7ff"
       },
-      "green": {
-        "role": "primary",
-        "displayName": "Deep Green",
-        "tonalRamp": [
-          "oklch(0.15 0.0171 163.72)",
-          "oklch(0.26 0.0296 163.72)",
-          "oklch(0.38 0.0432 163.72)",
-          "oklch(0.50 0.0569 163.72)",
-          "oklch(0.62 0.0569 163.72)",
-          "oklch(0.74 0.0493 163.72)",
-          "oklch(0.85 0.0284 163.72)",
-          "oklch(0.95 0.0095 163.72)"
-        ]
+      "paper": {
+        "role": "neutral",
+        "displayName": "White surface",
+        "hex": "#ffffff"
       },
-      "green-hover": {
-        "role": "primary",
-        "displayName": "Deep Green Hover",
-        "tonalRamp": [
-          "oklch(0.15 0.0202 158.03)",
-          "oklch(0.26 0.0351 158.03)",
-          "oklch(0.38 0.0513 158.03)",
-          "oklch(0.50 0.0675 158.03)",
-          "oklch(0.62 0.0675 158.03)",
-          "oklch(0.74 0.0585 158.03)",
-          "oklch(0.85 0.0337 158.03)",
-          "oklch(0.95 0.0112 158.03)"
-        ]
+      "line": {
+        "role": "neutral",
+        "displayName": "Blue-gray border",
+        "hex": "#dfe7f3"
       },
-      "selection": {
+      "blue": {
         "role": "primary",
-        "displayName": "Selection Green",
-        "tonalRamp": [
-          "oklch(0.15 0.0149 151.55)",
-          "oklch(0.26 0.0257 151.55)",
-          "oklch(0.38 0.0376 151.55)",
-          "oklch(0.50 0.0495 151.55)",
-          "oklch(0.62 0.0495 151.55)",
-          "oklch(0.74 0.0429 151.55)",
-          "oklch(0.85 0.0248 151.55)",
-          "oklch(0.95 0.0083 151.55)"
-        ]
+        "displayName": "Cobalt blue",
+        "hex": "#2863e8"
       },
-      "remainder": {
+      "blueHover": {
         "role": "primary",
-        "displayName": "Remainder Green",
-        "tonalRamp": [
-          "oklch(0.15 0.0156 162.70)",
-          "oklch(0.26 0.0271 162.70)",
-          "oklch(0.38 0.0396 162.70)",
-          "oklch(0.50 0.0521 162.70)",
-          "oklch(0.62 0.0521 162.70)",
-          "oklch(0.74 0.0452 162.70)",
-          "oklch(0.85 0.0261 162.70)",
-          "oklch(0.95 0.0087 162.70)"
-        ]
+        "displayName": "Cobalt hover",
+        "hex": "#1f53cf"
+      },
+      "bluePressed": {
+        "role": "primary",
+        "displayName": "Cobalt pressed",
+        "hex": "#1945ad"
+      },
+      "blueTint": {
+        "role": "secondary",
+        "displayName": "Pale blue tint",
+        "hex": "#eaf1ff"
       },
       "memory": {
         "role": "secondary",
-        "displayName": "Memory Mint",
-        "tonalRamp": [
-          "oklch(0.15 0.0060 164.58)",
-          "oklch(0.26 0.0104 164.58)",
-          "oklch(0.38 0.0151 164.58)",
-          "oklch(0.50 0.0199 164.58)",
-          "oklch(0.62 0.0199 164.58)",
-          "oklch(0.74 0.0173 164.58)",
-          "oklch(0.85 0.0100 164.58)",
-          "oklch(0.95 0.0033 164.58)"
-        ]
+        "displayName": "Walrus context surface",
+        "hex": "#eaf3ff"
       },
-      "memory-border": {
+      "memoryBorder": {
         "role": "secondary",
-        "displayName": "Memory Border",
-        "tonalRamp": [
-          "oklch(0.15 0.0088 163.17)",
-          "oklch(0.26 0.0152 163.17)",
-          "oklch(0.38 0.0222 163.17)",
-          "oklch(0.50 0.0293 163.17)",
-          "oklch(0.62 0.0293 163.17)",
-          "oklch(0.74 0.0254 163.17)",
-          "oklch(0.85 0.0146 163.17)",
-          "oklch(0.95 0.0049 163.17)"
-        ]
+        "displayName": "Walrus context edge",
+        "hex": "#d5e5f7"
       },
-      "pill": {
-        "role": "neutral",
-        "displayName": "Pill",
-        "tonalRamp": [
-          "oklch(0.15 0.0029 125.68)",
-          "oklch(0.26 0.0051 125.68)",
-          "oklch(0.38 0.0074 125.68)",
-          "oklch(0.50 0.0098 125.68)",
-          "oklch(0.62 0.0098 125.68)",
-          "oklch(0.74 0.0085 125.68)",
-          "oklch(0.85 0.0049 125.68)",
-          "oklch(0.95 0.0016 125.68)"
-        ]
+      "positive": {
+        "role": "status",
+        "displayName": "Incoming money",
+        "hex": "#216a43"
       },
-      "warning-bg": {
-        "role": "neutral",
-        "displayName": "Warning Background",
-        "tonalRamp": [
-          "oklch(0.15 0.0053 39.40)",
-          "oklch(0.26 0.0092 39.40)",
-          "oklch(0.38 0.0134 39.40)",
-          "oklch(0.50 0.0176 39.40)",
-          "oklch(0.62 0.0176 39.40)",
-          "oklch(0.74 0.0153 39.40)",
-          "oklch(0.85 0.0088 39.40)",
-          "oklch(0.95 0.0029 39.40)"
-        ]
+      "positiveSoft": {
+        "role": "status",
+        "displayName": "Incoming money tint",
+        "hex": "#e8f5ed"
       },
-      "warning-border": {
-        "role": "neutral",
-        "displayName": "Warning Border",
-        "tonalRamp": [
-          "oklch(0.15 0.0093 43.11)",
-          "oklch(0.26 0.0162 43.11)",
-          "oklch(0.38 0.0236 43.11)",
-          "oklch(0.50 0.0311 43.11)",
-          "oklch(0.62 0.0311 43.11)",
-          "oklch(0.74 0.0270 43.11)",
-          "oklch(0.85 0.0156 43.11)",
-          "oklch(0.95 0.0052 43.11)"
-        ]
+      "warning": {
+        "role": "status",
+        "displayName": "Warning",
+        "hex": "#8a5a12"
       },
-      "warning-text": {
-        "role": "neutral",
-        "displayName": "Warning Text",
-        "tonalRamp": [
-          "oklch(0.15 0.0293 33.23)",
-          "oklch(0.26 0.0508 33.23)",
-          "oklch(0.38 0.0742 33.23)",
-          "oklch(0.50 0.0976 33.23)",
-          "oklch(0.62 0.0976 33.23)",
-          "oklch(0.74 0.0846 33.23)",
-          "oklch(0.85 0.0488 33.23)",
-          "oklch(0.95 0.0163 33.23)"
-        ]
+      "warningSoft": {
+        "role": "status",
+        "displayName": "Warning tint",
+        "hex": "#fff7e8"
+      },
+      "negative": {
+        "role": "status",
+        "displayName": "Error",
+        "hex": "#934d3e"
+      },
+      "negativeSoft": {
+        "role": "status",
+        "displayName": "Error tint",
+        "hex": "#fff0eb"
       },
       "focus": {
         "role": "primary",
-        "displayName": "Keyboard Focus",
-        "tonalRamp": [
-          "oklch(0.15 0.0299 155.70)",
-          "oklch(0.26 0.0518 155.70)",
-          "oklch(0.38 0.0757 155.70)",
-          "oklch(0.50 0.0996 155.70)",
-          "oklch(0.62 0.0996 155.70)",
-          "oklch(0.74 0.0863 155.70)",
-          "oklch(0.85 0.0498 155.70)",
-          "oklch(0.95 0.0166 155.70)"
-        ]
-      },
-      "green-active": {
-        "role": "primary",
-        "displayName": "Deep Green Active",
-        "tonalRamp": [
-          "oklch(.15 .014 161)",
-          "oklch(.26 .024 161)",
-          "oklch(.38 .035 161)",
-          "oklch(.50 .046 161)",
-          "oklch(.62 .046 161)",
-          "oklch(.74 .040 161)",
-          "oklch(.85 .023 161)",
-          "oklch(.95 .008 161)"
-        ]
+        "displayName": "Keyboard focus",
+        "hex": "#2863e8"
       }
     },
     "typographyMeta": {
@@ -400,13 +252,13 @@
     }
   ],
   "narrative": {
-    "northStar": "Wallet facts. Remembered context.",
-    "overview": "This phrase comes from the implemented landing illustration caption. It describes the established identity: pale cream-green canvas, white working surfaces, deep-green financial emphasis, and a mint memory surface. A spacious landing introduces a denser account workspace. Self-hosted Figtree supports everyday tasks; Bricolage Grotesque gives the landing and wordmark a distinct voice.\n\nOfficial event artwork adds personality without competing with amounts or warnings. Tatum identifies wallet observations; Walrus identifies confirmed context. Provider marks communicate provenance, not endorsement or live verification of the fictional demo. Asset provenance and ownership are recorded in `docs/BRAND_ASSETS.md`.",
+    "northStar": "A clear view of what moved, what remains, and what comes next.",
+    "overview": "The user supplied a cool blue-and-white SaaS reference. Sui Money applies its ice-blue canvas, clean white surfaces and cobalt actions to a wallet product whose facts and context have distinct sources. Tatum identifies verified wallet observations; Walrus Memory identifies confirmed context and corrections. The real Walrus mascot holding the Tatum mark is used as the product illustration. The fictional demo remains clearly labelled.",
     "keyCharacteristics": [
-      "Pale tonal surfaces and fine borders establish grouping.",
-      "Large amounts lead; their units and source remain adjacent.",
-      "Dark backings preserve the unchanged white provider wordmarks.",
-      "The mascot accompanies explanations and leaves controls clear."
+      "Cool blue-white surfaces, dark readable ink and cobalt for primary actions.",
+      "The labelled navigation keeps Today, Activity and Plan discoverable.",
+      "Tatum is the source label for wallet facts; Walrus is the source label for confirmed context.",
+      "Financial units, status, provenance and uncertainty stay beside every amount."
     ],
     "rules": [
       {
@@ -420,22 +272,63 @@
         "section": "typography"
       },
       {
-        "name": "The Tonal Surface Rule",
-        "body": "Use tonal grouping and fine borders for ordinary cards. Preserve elevated treatment for overlays.",
-        "section": "elevation"
+        "name": "The Two-Source Rule",
+        "body": "Tatum labels onchain observations. Walrus labels confirmed context. Neither integration changes custody, payments, or financial release gates.",
+        "section": "components"
       }
     ],
     "dos": [
-      "Do use tonal surfaces and fine borders for ordinary cards.",
-      "Do retain adjacent units, source labels, and planning qualifiers around financial amounts.",
-      "Do use the existing local provider assets with their unchanged proportions and readable dark backing.",
-      "Do preserve keyboard focus, reduced-motion behavior, and mascot clearance at mobile widths."
+      "Use the cool blue palette with flat, readable surfaces and one primary action.",
+      "Retain adjacent units, source labels, and planning qualifiers around financial amounts.",
+      "Use official local provider assets with their proportions and a readable dark backing.",
+      "Preserve labelled navigation, keyboard focus, reduced motion, and mobile mascot clearance."
     ],
     "donts": [
-      "Don't imply sponsor endorsement or give synthetic finance a live-verification badge.",
-      "Don't let artwork obscure amounts, controls, provenance, or security warnings.",
-      "Don't reproduce legacy eyebrows or substitute text glyphs for interface icons on new surfaces.",
-      "Don't extend compact 11px metadata styling into financial explanations, forms, or general prose."
+      "Do not imply sponsor endorsement or give synthetic finance a live-verification badge.",
+      "Do not let artwork obscure amounts, controls, provenance, or security warnings.",
+      "Do not use decorative blur, glass, gradients, or glowing cards.",
+      "Do not extend compact metadata styling into financial explanations, forms, or general prose."
     ]
+  },
+  "tokens": {
+    "colors": {
+      "ink": "#15243b",
+      "muted": "#53627a",
+      "canvas": "#f4f7ff",
+      "paper": "#ffffff",
+      "line": "#dfe7f3",
+      "blue": "#2863e8",
+      "blueHover": "#1f53cf",
+      "bluePressed": "#1945ad",
+      "blueTint": "#eaf1ff",
+      "memory": "#eaf3ff",
+      "memoryBorder": "#d5e5f7",
+      "positive": "#216a43",
+      "positiveSoft": "#e8f5ed",
+      "warning": "#8a5a12",
+      "warningSoft": "#fff7e8",
+      "negative": "#934d3e",
+      "negativeSoft": "#fff0eb",
+      "focus": "#2863e8"
+    },
+    "typography": {
+      "body": "Figtree, sans-serif",
+      "display": "Bricolage Grotesque, sans-serif"
+    },
+    "radius": {
+      "card": "16px",
+      "input": "8px",
+      "button": "9px",
+      "pill": "6px"
+    },
+    "spacing": {
+      "base": "4px",
+      "cardGap": "20px",
+      "cardPadding": "24px"
+    },
+    "navigation": {
+      "desktop": "labelled sidebar",
+      "mobile": "native dialog drawer"
+    }
   }
 }

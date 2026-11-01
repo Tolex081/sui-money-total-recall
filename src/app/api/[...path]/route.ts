@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { database,transaction } from '@/adapters/postgres/client';
 import { authenticate,issueChallenge,verifyChallenge,revoke,sessionCookie,CONSENT_VERSION } from '@/application/auth';
+import { acceptReadOnlyWalletConsent,acceptMemoryConsent } from '@/application/consent';
 import { accountState,summarize } from '@/application/state';
 import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,rememberManualRecurrence,reverseCommitmentAllocation } from '@/application/commands';
 import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
@@ -14,6 +15,7 @@ import { appMode,configurationStatus } from '@/lib/config';
 import { safeText } from '@/domain/learning';
 import { weeklySuggestions } from '@/domain/recurrence';
 import { demoState,demoComparison } from '@/adapters/mock/demo';
+import { READ_ONLY_WALLET_CONSENT_VERSION } from '@/domain/consent';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -33,7 +35,7 @@ async function proof() {
 async function handle(request:Request) {
   const path=new URL(request.url).pathname.replace(/^\/api\//,'');const method=request.method;
   appMode();
-  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED!=='false',liveIntegrationVerified:false});
+  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED==='true',personalReadEnabled:process.env.PERSONAL_READ_ENABLED==='true',personalAccessEnabled:process.env.PERSONAL_ACCESS_ENABLED==='true',personalLabelsEnabled:process.env.PERSONAL_LABELS_ENABLED==='true',liveIntegrationVerified:false});
   if(method==='GET'&&path==='proof')return json(await proof());
   if(path==='demo'||path.startsWith('demo/')){
     if(method!=='GET')throw new AppError('READ_ONLY',405,'The public demo is read-only.');
@@ -49,9 +51,15 @@ async function handle(request:Request) {
     return json(demoState());
   }
   const identityOnly=['auth/challenge','auth/verify','auth/logout','account'].includes(path);
-  if(process.env.PERSONAL_ACCESS_ENABLED==='false'&&!identityOnly)throw new AppError('RELEASE_GATE',503,'Personal financial screens are gated while mandatory verification is completed. The read-only demo and proof remain available.');
+  const personalReadEnabled=process.env.PERSONAL_READ_ENABLED==='true';
+  const personalReadGet=new Set(['state']);
+  // Labels are the one write allowed in the read-only pilot: payment explanations and their memory jobs.
+  const labelsEnabled=personalReadEnabled&&process.env.PERSONAL_LABELS_ENABLED==='true';
+  const labelRequest=labelsEnabled&&method==='POST'&&(['consent/memory','memory-jobs/advance'].includes(path)||/^activity\/[^/]+\/annotation$/.test(path));
+  const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||labelRequest);
+  if(process.env.PERSONAL_ACCESS_ENABLED!=='true'&&!identityOnly&&!allowedReadOnlyRequest)throw new AppError('RELEASE_GATE',503,'Personal changes and budgeting are gated. Read-only wallet access may be enabled separately; the public demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
-  if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED==='false')throw new AppError('WALLET_REVIEW_GATE',503,'Wallet sign-in is paused while the reported Slush security warning is reviewed. Do not bypass the warning.');
+  if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED!=='true')throw new AppError('WALLET_SIGNIN_DISABLED',503,'Wallet sign-in is disabled until explicit release configuration enables it.');
   if(method==='POST'&&path==='auth/challenge'){
     const data=z.object({wallet:z.string().max(80)}).strict().parse(await body(request));
     await consumeLimits([{key:'auth:global',max:40,seconds:60},{key:'auth:wallet:'+hash(data.wallet),max:5,seconds:60}]);
@@ -69,12 +77,24 @@ async function handle(request:Request) {
   if(method==='POST'&&path==='auth/logout'){await revoke(request);const response=json({signedOut:true});response.cookies.delete('sm_session');response.cookies.delete('sm_csrf');return response;}
   if(method==='GET'&&path==='account')return json({wallet:profile.wallet,timezone:profile.timezone,consentVersion:profile.consent_version});
   if(method==='POST'&&path==='plan')return json(await savePlan(profile,await body(request)));
-  if(method==='POST'&&profile.consent_version!==CONSENT_VERSION)throw new AppError('CONSENT_REQUIRED',409,'Review the operator-managed memory terms and save your plan to continue.');
+  if(method==='POST'&&path==='consent'){
+    z.object({accepted:z.literal(true)}).strict().parse(await body(request));
+    return json(await acceptReadOnlyWalletConsent(profile));
+  }
+  if(method==='POST'&&path==='consent/memory'){
+    z.object({accepted:z.literal(true)}).strict().parse(await body(request));
+    return json(await acceptMemoryConsent(profile));
+  }
+  if(method==='POST'&&path==='sync'){
+    const input=z.object({kind:z.enum(['balances','history'])}).strict().parse(await body(request));
+    if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept the read-only wallet data terms before importing balance or activity.');
+    return json(await syncWallet(profile,input.kind));
+  }
+  if(method==='POST'&&profile.consent_version!==CONSENT_VERSION)throw new AppError('CONSENT_REQUIRED',409,'Review the operator-managed memory terms before changing your plan or confirmed context.');
   if(method==='POST'&&path==='commitments')return json(await saveCommitment(profile,await body(request)));
   if(method==='POST'&&path==='preferences/reserve')return json(await rememberReserve(profile,await body(request)));
   if(method==='POST'&&path==='recurrences/manual')return json(await rememberManualRecurrence(profile,await body(request)));
   if(method==='POST'&&/^commitment-allocations\/[^/]+\/reverse$/.test(path))return json(await reverseCommitmentAllocation(profile,decodeURIComponent(path.split('/')[1])));
-  if(method==='POST'&&path==='sync'){const input=z.object({kind:z.enum(['balances','history'])}).strict().parse(await body(request));return json(await syncWallet(profile,input.kind));}
   if(method==='POST'&&/^activity\/[^/]+\/annotation$/.test(path))return json(await annotate(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&path==='destination-rules')return json(await destinationRule(profile,await body(request)));
   if(method==='POST'&&path==='reimbursements')return json(await reimbursement(profile,await body(request)));
@@ -101,6 +121,10 @@ async function handle(request:Request) {
     if(path==='suggestions'){const reviewed=new Set(state.memories.filter(m=>m.state==='recall_confirmed').map(m=>m.envelope.logicalKey));return json({suggestions:weeklySuggestions(state.movements,state.annotations,profile.timezone).filter(s=>!reviewed.has('suggestion:'+s.id.slice(0,100)))});}
     if(path==='learning-comparison'){const learned=state.memories.filter(m=>m.state==='recall_confirmed').map(m=>m.envelope.eventId);return json({hypothetical:true,withMemory:summarize(state),withoutSelectedLearnedRules:summarize(state,learned),observedAt:state.balance?.observedAt,eventIds:learned});}
     if(path==='export')return json({schemaVersion:1,exportedAt:new Date().toISOString(),...state});
+    if(path==='state'&&personalReadEnabled&&process.env.PERSONAL_ACCESS_ENABLED!=='true'){
+      const readConsent=[CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??'');
+      return json({...state,balance:readConsent?state.balance:null,movements:readConsent?state.movements:[],coverage:readConsent?state.coverage:{state:'not_synced',from:null,to:null,reason:'Accept read-only wallet access before reading or saving onchain data.'},plan:{endDate:null,endKind:'income',reserve:'0',expectedIncome:null,timezone:profile.timezone,version:0},annotations:labelsEnabled?state.annotations:[],reimbursements:[],commitmentAllocations:[],rules:[],occurrences:[],memories:labelsEnabled?state.memories.filter(m=>m.envelope.kind==='payment_explanation'):[],memoryStatus:labelsEnabled?'Payment labels are saved to Walrus Memory after you agree to the memory terms.':'Memory reads are disabled in the read-only pilot.'});
+    }
     return json(state);
   }
   throw new AppError('NOT_FOUND',404,'Route not found.');
