@@ -146,13 +146,13 @@ export function ReadOnlyWallet({ screen, state, busy, error, onSync, onAcceptCon
     <span className="read-only-label">Personal planning is paused</span>
     <h2>Wallet facts are available. Budget changes are still locked.</h2>
     <p>The balance read has no checkpoint that proves it includes a matched payment. Until Tatum supplies that consistency evidence, this screen won’t calculate a personal spending allowance or release bill reservations.</p>
-    <p>Your current balance and imported payments are available in <Link className="text-link" href="/today">Today</Link> and <Link className="text-link" href="/activity">Activity</Link>. No budget edits or memory writes are enabled in this read-only pilot.</p>
+    <p>Your current balance and imported payments are available in <Link className="text-link" href="/today">Today</Link> and <Link className="text-link" href="/activity">Activity</Link>. {labels ? 'Budget edits stay off in this read-only pilot; payment labels are the only thing it saves.' : 'No budget edits or memory writes are enabled in this read-only pilot.'}</p>
   </section>;
 
   if (screen === 'memories' || screen === 'learning') return <section className="card read-release-card">
-    <span className="read-only-label">Walrus Memory · no new writes</span>
-    <h2>{screen === 'memories' ? 'Memory changes are paused.' : 'Learning updates are paused.'}</h2>
-    <p>This live pilot is currently read-only. It does not create or correct Walrus memories. Your onchain balance and activity remain available from Today and Activity.</p>
+    <span className="read-only-label">{labels ? 'Walrus Memory · payment labels only' : 'Walrus Memory · no new writes'}</span>
+    <h2>{screen === 'memories' ? (labels ? 'Your labels live with your payments.' : 'Memory changes are paused.') : 'Learning updates are paused.'}</h2>
+    <p>{labels ? <>In this pilot, the only memories Sui Money saves are the payment labels you confirm. You’ll find each one under its payment in <Link className="text-link" href="/activity">Activity</Link>. Other memory changes and learned budget rules stay paused.</> : 'This live pilot is currently read-only. It does not create or correct Walrus memories. Your onchain balance and activity remain available from Today and Activity.'}</p>
   </section>;
 
   const balance = state.balance;
