@@ -20,6 +20,10 @@ colors:
   negative: "#934d3e"
   negative-soft: "#fff0eb"
   focus: "#2863e8"
+  link: "#2456b6"
+  link-hover: "#173f90"
+  border-strong: "#b8cae9"
+  control-border: "#d7e1f0"
 typography:
   body:
     fontFamily: "Figtree, sans-serif"
@@ -46,10 +50,44 @@ typography:
     fontFamily: "Figtree, sans-serif"
     fontSize: "12px–14px"
     lineHeight: 1.5
+  caption:
+    fontFamily: "Figtree, sans-serif"
+    fontSize: "12px"
+    lineHeight: 1.6
+  small:
+    fontFamily: "Figtree, sans-serif"
+    fontSize: "13px"
+    lineHeight: 1.6
+  body-large:
+    fontFamily: "Figtree, sans-serif"
+    fontSize: "15px"
+    lineHeight: 1.5
+  subhead:
+    fontFamily: "Figtree, sans-serif"
+    fontSize: "16px"
+    fontWeight: 600
+    lineHeight: 1.35
+  subhead-large:
+    fontFamily: "Figtree, sans-serif"
+    fontSize: "17px"
+    fontWeight: 600
+    lineHeight: 1.35
+  card-title:
+    fontFamily: "Figtree, sans-serif"
+    fontSize: "19px"
+    fontWeight: 600
+    lineHeight: 1.3
+  section-title:
+    fontFamily: "Figtree, sans-serif"
+    fontSize: "22px"
+    fontWeight: 600
+    lineHeight: 1.25
 rounded:
   card: "16px"
-  input: "8px"
+  inner-panel: "12px"
+  tile: "10px"
   button: "9px"
+  input: "8px"
   pill: "6px"
 spacing:
   "8": "8px"
