@@ -47,7 +47,7 @@ export async function authenticate(request: Request, mutating=false, allowWallet
   if (!raw || raw.length>100) throw new AppError('UNAUTHORIZED',401,'Connect your wallet and sign in to open your account.');
   const {rows} = await database().query<Profile & {csrf_hash:string}>(`SELECT p.*,s.csrf_hash FROM sessions s JOIN profiles p ON p.id=s.profile_id WHERE s.token_hash=$1 AND s.expires_at>now() AND s.revoked_at IS NULL`,[hash(raw)]);
   const profile = rows[0];
-  if (!profile) throw new AppError('UNAUTHORIZED',401,'Your session has expired. Sign in again.');
+  if (!profile) throw new AppError('SESSION_EXPIRED',401,'Your session has ended. Connect your wallet and sign again to continue.');
   const connected=request.headers.get('x-wallet-address');
   if(!allowWalletMismatch&&connected&&canonicalAddress(connected)!==profile.wallet)throw new AppError('WALLET_CHANGED',401,'Your connected wallet changed. Sign in again for the selected wallet.');
   if (mutating && (!request.headers.get('x-csrf-token') || !equalSecret(hash(request.headers.get('x-csrf-token')!),profile.csrf_hash))) throw new AppError('CSRF_REJECTED',403,'Refresh this page and try again.');

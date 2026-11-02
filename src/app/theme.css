@@ -322,3 +322,27 @@ input, select { caret-color: var(--blue); }
   .stat strong { white-space: normal; }
 }
 .pay-memory.pending { border-style: dashed; background: var(--paper); }
+
+/* Sign-in: the wallet connect control is the one primary action, drawn from the design tokens. */
+.connect-state > p { max-width: 60ch; }
+.connect-state .connect-expired { margin: 16px 0 0; }
+.connect-state .wallet-control { margin-top: 22px; }
+.connect-help { margin-top: 14px; color: var(--muted); font-size: 13px; }
+.connect-help .text-link { gap: 4px; color: var(--blue); }
+.connect-state .account-gate-actions { align-items: center; gap: 18px; padding-top: 22px; border-top: 1px solid var(--line); }
+.connect-state .account-gate-actions .text-link { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+/* dapp-kit's nested components rebuild their --dapp-kit-* tokens from these base names, so theme the base names. */
+mysten-dapp-kit-connect-button, mysten-dapp-kit-connect-modal {
+  --primary: var(--blue);
+  --primary-foreground: #ffffff;
+  --foreground: var(--ink);
+  --popover-foreground: var(--ink);
+  --muted-foreground: var(--muted);
+  --border: var(--line);
+  --ring: var(--blue);
+  /* The trigger uses --radius minus 2px; 11px lands on DESIGN.md's 9px button radius. */
+  --radius: 11px;
+  font-family: var(--font-body), sans-serif;
+}
+mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline: 20px; font-family: var(--font-body), sans-serif; font-size: 14px; font-weight: 600; }
+.read-label-actions { display: flex; flex-wrap: wrap; gap: 10px; }
