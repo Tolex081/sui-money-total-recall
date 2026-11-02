@@ -1,25 +1,60 @@
 # What a wallet balance cannot tell you
 
-Article draft — not published. The public app and repository links are current; preserve the stated limitations before publication. No real personal cross-session story is claimed yet.
+> **Article draft — not published.** Before publishing, replace every `[FILL IN: …]` with what actually happened in your own session (real dates, real labels), or delete that paragraph. Do not publish a placeholder or describe a session that did not happen. Keep the limits section unless new evidence replaces it.
 
-A wallet can tell you how much native USDC it holds. It cannot tell you whether an outgoing transfer was lunch, a move to another wallet you own, or a shared expense someone later reimbursed. It also cannot tell you how much of the balance you have already mentally committed to next week's bills.
+A wallet can tell you how much native USDC it holds. It cannot tell you that the 18.50 you sent this morning was lunch, that last Tuesday's 120 went to another wallet you own, or that the 600 that arrived yesterday was a freelance invoice. That meaning lives in your head, and it is gone the next time you look.
 
-Sui Money brings those questions together. Today shows the current wallet observation alongside an estimate of what remains after entered obligations and a virtual reserve. Activity keeps immutable onchain facts next to explanations the user confirms. Plan looks forward to a selected income date or planning end date. SUI stays separate for network costs; there is no fiat conversion, bank connection, custody or payment execution.
+Sui Money is a small bet that a money app should remember what you tell it.
 
-Tatum supplies the Sui Mainnet facts through native gRPC. The build verifies exact coin types and metadata rather than trusting token symbols. A zero balance is distinct from an unavailable read. History uses an affected-address filter because an incoming payment can matter even when the tracked wallet did not submit the transaction. Bounded streams return progress cursors and termination reasons; an empty page is not automatically the end of a scan. Public reference transactions are kept separate from fictional demo finances and the builder's wallet.
+## What it does
 
-Walrus Memory supplies confirmed context. A short explanation or recurring rule first becomes a versioned event with a durable job. It does not change the active interpretation while the write is merely pending or accepted. After storage completes, the application checks a matching signed recall against the expected event, profile and revision. PostgreSQL retains the complete ledger and validated projections; a semantic top-K search is never used as a financial total.
+Connect a Sui wallet and sign a readable message: no gas, no approval. Sui Money reads your native-USDC and SUI balances from Sui Mainnet, imports the last 30 days of payments, and puts each one in a two-layer row. On top is the fact the chain recorded: sent or received, to or from which address, when, and the exact amount. Underneath is what it was for, in your words.
 
-The first actual integration spike completed a synthetic Mainnet write and matching recall. A separately reviewed batch of 24 useful synthetic events illustrates explanations, destination rules, reimbursements, preferences, recurrences, corrections and deactivations. All 24 were independently confirmed stored and retrieved; the read-only audit verified active metadata and expiry covering 30 November 2026. Those real Mainnet writes establish transport and persistence. Their fictional content is not a personal learning history.
+The first time you answer "What was this for?", Sui Money tells you exactly what will be remembered and asks for consent. After that, labelling a payment takes a note and a category. Today shows the payments still waiting for a label; Activity has the full list with filters, search and a "Label next" button for working through a backlog.
 
-The public replay makes the arithmetic visible. Its fixed fictional wallet holds 1,240.50 USDC. Explicit rent and internet total 328; the virtual reserve is 180. Without selected learned obligations, 732.50 remains. Remembered groceries and transport add 134 of future commitments, leaving 598.50. The wallet observation is identical in both views. Reclassifying a fictional 120-USDC own transfer lowers consumption spending but does not put that money back into the tracked wallet.
+There is no custody and no sending. You pay from your own wallet, then come back and explain the payment.
 
-That distinction matters. Subtracting old expenses from the current balance would count them twice. Adding a settled reimbursement again would invent money. Matching a bill payment cannot release its reservation while the app still uses a pre-payment balance. BigInt amounts, local calendar dates, database locks and explicit provenance enforce those boundaries.
+## How it uses Tatum
 
-The current memory ownership model is operator-managed. One shared account owns the blobs; each signed-in user receives an opaque namespace, with authorization enforced by the server. The managed relayer processes context plaintext before encryption. Users should enter short non-identifying aliases, and export is available for their structured records. Hiding a rule is not a promise of immediate erasure from storage or backups. Actual storage expiry and judging-period retention must be checked.
+Every fact on screen comes from Tatum's Sui Mainnet gRPC service. Sui Money matches coin types exactly instead of trusting token symbols, checks coin metadata, and keeps a zero balance distinct from a failed read. History is imported with an affected-address filter, because an incoming payment matters even when your wallet did not submit the transaction, and resumes from durable cursors, because an empty page is not proof that a scan is finished.
 
-Tatum now verifies a public reference wallet with successful incoming and outgoing native-USDC transfers, including an incoming transfer sent by someone else. The outgoing amount is 60 USDC; the small incoming amount is 50 base units, or 0.000050 USDC. Two resumed history pages and direct transaction reads establish the result independently of explorer labels. The deployed Node 24 runtime also passed Tatum, authenticated MemWal recall and a durable PostgreSQL write/read. These public references are separate from the builder's wallet and all demo finances.
+The balance refreshes automatically when the saved reading is more than two minutes old and always shows when it was checked. A payment you just sent can take a moment to appear, and the screen says so.
 
-One financial integration gate remains unresolved: the current balance response has no proven atomic checkpoint. A latest-checkpoint response header is not a snapshot contract. The app therefore refuses to release a matched commitment reservation against an unproven balance. Final CI passed 38 unit/adapter/property tests, 18 real database tests, seven public browser tests and 13 authenticated browser checks, including the recorded failure/recovery scenarios. Actual bounded history resume/repeat and local pruning/throttling/interruption fixtures are verified; genuine installed-wallet sign-in and one real recurring confirmation/correction across actual sessions still remain required. The user reported contacting Slush about its PC extension 26.21.6 (e2be7f2) warning and selected Suiet for a separate identity-only pilot. The warning remains unverified, personal finance stays gated, and a successful personal-message signature must not be described as financial acceptance. The published article must retain these limits or replace them only with actual new evidence, including real session dates.
+Tatum was verified against a public reference wallet with real incoming and outgoing native-USDC transfers, including an incoming transfer sent by someone else: 60 USDC out and 50 base units (0.000050 USDC) in, confirmed by two resumed history pages and direct transaction reads rather than explorer labels.
 
-Public app: https://sui-money.vercel.app/demo. Public repository: https://github.com/Tolex081/sui-money-total-recall . A local captioned draft exists; final recording and public upload remain pending. See the verification report for implemented, tested, deployed and blocked status. This draft has not been published.
+## How it uses Walrus Memory
+
+A label is not just a database row. It becomes a versioned event with a durable job:
+
+1. **Saved.** The label form closes at once and the payment shows "Saved. Waiting for Walrus to confirm."
+2. **Stored.** The event is submitted through the Walrus Memory relayer to Mainnet.
+3. **Confirmed.** Sui Money asks Walrus to recall the event and checks that the same event, profile and revision come back. Only then does the label become active on the payment.
+
+If storage fails, the payment says so ("Walrus didn't store 'Bus pass'") and offers to try again with the same note. If the outcome of a submission is unknown, Sui Money reconciles it by recall instead of writing twice. A correction is a new revision; earlier ones stay stored. PostgreSQL keeps the complete, structured ledger; semantic recall is never used to total money.
+
+Each label stores the note, its category and whether it was a transfer to your own wallet, linked to the payment's transaction ID and your wallet address. Walrus storage cannot be erased on request, so the consent screen asks for short aliases like "Rent" or "Landlord" and never names, phone numbers or keys. The operator runs one shared Walrus account; every profile has its own namespace and the server enforces access.
+
+## How it learned over time
+
+Twenty-four reviewed, synthetic demo memories were written to Walrus Mainnet and each one was confirmed by recall, with storage expiry covering 30 November 2026. They power the public demo, where you can see the same fixed, fictional wallet with and without remembered rules: 1,240.50 USDC held, 328 of explicit bills and a 180 reserve leave 732.50; adding remembered weekly groceries and transport (134) leaves 598.50. The wallet observation is identical in both views; only the remembered context changes the plan.
+
+[FILL IN: your real session. On <date>, I connected my own wallet with Suiet, imported my last 30 days and labelled <n> payments, for example "<label>" on a <amount> USDC payment. The label showed "Waiting for Walrus to confirm" for about <time>, then settled. On <later date>, I signed in again from a fresh session and the labels were back on the same payments. Include one screenshot of a confirmed label before and after signing back in.]
+
+[FILL IN, optional: anything you corrected, such as relabelling a payment, and what the app showed while the new revision was confirmed.]
+
+## What is deliberately paused
+
+Sui Money was designed to turn those remembered explanations into a forward budget: commitments, a virtual reserve, reimbursements and weekly recurring suggestions that only count once you confirm them. All of that is built and tested, and the demo shows it. For real wallets it is switched off, for one reason: Tatum's balance response has no proven checkpoint telling us whether it already includes a payment you just matched to a bill. Releasing a reservation against a balance that might not include the payment would count money twice, so the app refuses to calculate a personal budget until that can be proven.
+
+Building it this way meant BigInt amounts, local calendar dates, database row locks and explicit provenance on every number, and a test suite that covers the failure paths as well as the happy ones: unit and property tests, real-database tests in disposable schemas, and public and signed-in browser tests on every push.
+
+## Try it
+
+- Live app: https://sui-money.vercel.app (connect with Suiet)
+- Fictional demo, no wallet needed: https://sui-money.vercel.app/demo
+- Integration proof: https://sui-money.vercel.app/proof
+- Source: https://github.com/Tolex081/sui-money-total-recall
+
+[FILL IN: link to the demo video once it is uploaded.]
+
+Built for Total Recall, the Tatum × Walrus Memory hackathon, in the Consumer Finance Apps track.
