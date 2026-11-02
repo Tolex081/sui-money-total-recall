@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { ArrowUpRight,ArrowRight,ShieldCheck,Wallet,Layers3 } from 'lucide-react';
 import { IntegrationSources,MemoryMascot } from '@/components/integration-brand';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function Home(){
   return <main className="landing">
     <header className="landing-header">
       <Link className="brand" href="/"><span className="brand-mark">s</span>sui money<span className="brand-dot">.</span></Link>
-      <div className="landing-links"><Link href="/about">About</Link><Link href="/proof">Integration proof <ArrowUpRight size={14}/></Link><Link className="button" href="/today">Your account <Wallet size={16}/></Link></div>
+      <div className="landing-links"><Link href="/about">About</Link><Link href="/proof">Integration proof <ArrowUpRight size={14}/></Link><Link className="button" href="/today">Your account <Wallet size={16}/></Link><ThemeToggle/></div>
     </header>
     <section className="landing-hero">
       <div className="landing-intro">

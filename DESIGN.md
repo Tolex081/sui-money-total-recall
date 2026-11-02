@@ -125,6 +125,12 @@ The background stays predominantly pale blue-white. White panels use a light blu
 
 Do not add decorative gradients, glows, blurred glass, or fake financial data. Pale blue surfaces group related information; they never imply that an amount is verified. Demo labels and source status stay visible next to the values they describe.
 
+## Dark theme
+
+The dark theme is the same world at night: a deep navy canvas (`#0b1220`), navy paper panels (`#131c2e`), cool light ink (`#e3e9f4`) and muted text (`#9eabc2`). Cobalt fills (`#3d6fe6`) keep white text at AA; wherever blue is used as text or an icon it switches to the lighter link blue (`#8fb1ff`). Green, warning and negative colours lighten and their soft surfaces darken. Every token's dark value lives in `scripts/generate-dark-theme.mjs`.
+
+The theme follows the system setting until the person chooses one with the sun/moon toggle; the choice is stored in `localStorage` (`sm-theme`) and applied by an inline script before first paint, so there is no flash. `src/app/theme-dark.css` is generated: after changing a colour in `globals.css` or `theme.css`, run `npm run theme:dark`. The generator remaps only hard-coded colours that win the cascade, wraps its selectors in `:where()` so light-theme precedence still holds, and leaves component-scoped custom properties alone.
+
 ## Typography and data
 
 Figtree is self-hosted and used for navigation, forms, amounts, labels and body copy. Bricolage Grotesque is used for the wordmark and large landing headline only. Amounts use tabular figures and remain with their unit, source, time window and estimate qualifier. App headings stay in the 24–28px range; account values stay below 48px. The font files and OFL licences remain in `public/fonts`.

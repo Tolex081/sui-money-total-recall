@@ -346,6 +346,14 @@ mysten-dapp-kit-connect-button, mysten-dapp-kit-connect-modal {
   --ring: var(--blue);
   /* The trigger uses --radius minus 2px; 11px lands on DESIGN.md's 9px button radius. */
   --radius: 11px;
+  /* dapp-kit reads --muted, --accent and --secondary as surfaces; inside its components they must not inherit the app's grey text token. */
+  --muted: var(--blue-soft);
+  --accent: var(--blue-soft);
+  --secondary: var(--blue-soft);
+  --secondary-foreground: var(--ink);
+  --popover: var(--paper);
+  --background: var(--paper);
+  --input: var(--control-border);
   font-family: var(--font-body), sans-serif;
 }
 mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline: 20px; font-family: var(--font-body), sans-serif; font-size: 14px; font-weight: 600; }
@@ -379,3 +387,8 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
   .read-tools { flex-direction: column; align-items: stretch; }
   .read-search { min-width: 0; }
 }
+
+/* Theme toggle: a 40px icon control that sits with the top-bar actions. */
+.theme-toggle { min-width: 40px; min-height: 40px; color: var(--ink); }
+.theme-toggle:hover { background: var(--blue-soft); }
+.theme-toggle-placeholder { display: block; width: 18px; height: 18px; }
