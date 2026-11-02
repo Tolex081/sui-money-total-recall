@@ -350,3 +350,32 @@ mysten-dapp-kit-connect-button, mysten-dapp-kit-connect-modal {
 }
 mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline: 20px; font-family: var(--font-body), sans-serif; font-size: 14px; font-weight: 600; }
 .read-label-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.pay-memory.stalled span { color: var(--ink); }
+.pay-memory.failed { border: 1px solid #efd6cc; background: var(--negative-soft); color: var(--ink); }
+.pay-memory.failed svg { color: var(--negative); }
+.pay-memory:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.read-consent-facts { display: grid; gap: 8px; margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
+.read-consent-facts b { color: var(--ink); font-weight: 600; }
+
+/* Today is a label queue plus the latest payments; Activity is the full, filterable list under a one-line balance. */
+.read-balance-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.read-balance-strip > span:first-child { color: var(--muted); font-size: 13px; }
+.read-balance-strip strong { font-size: 17px; font-variant-numeric: tabular-nums; }
+.read-balance-strip strong small { color: var(--muted); font-size: 12px; font-weight: 500; }
+.read-balance-strip .balance-fresh { margin-left: auto; }
+.read-count { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-left: 6px; padding: 0 7px; border-radius: 6px; color: var(--link); background: var(--blue-tint); font-size: 13px; font-variant-numeric: tabular-nums; vertical-align: 2px; }
+.read-import { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 4px 0 12px; }
+.read-import .read-coverage-line { margin: 0; }
+.read-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 6px; }
+.read-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.read-filter { min-height: 40px; padding: 0 14px; border: 1px solid var(--control-border); border-radius: 9px; color: var(--ink); background: var(--paper); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.read-filter:hover { border-color: var(--border-strong); background: var(--blue-soft); }
+.read-filter.active { border-color: var(--blue); color: #ffffff; background: var(--blue); }
+.read-search { display: flex; align-items: center; gap: 8px; min-width: min(100%, 260px); min-height: 40px; padding: 0 12px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--paper); color: var(--muted); }
+.read-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 13px; }
+.read-search:focus-within { outline: 3px solid var(--blue); outline-offset: 2px; }
+.read-list-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+@media (max-width: 600px) {
+  .read-tools { flex-direction: column; align-items: stretch; }
+  .read-search { min-width: 0; }
+}

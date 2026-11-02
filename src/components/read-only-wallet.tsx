@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowDownLeft, ArrowUpRight, RefreshCw, ShieldCheck, Sparkles, Tag } from 'lucide-react';
+import { AlertCircle, ArrowDownLeft, ArrowUpRight, RefreshCw, Search, ShieldCheck, Sparkles, Tag } from 'lucide-react';
 import { api } from './http';
 import type { AccountState } from '@/domain/state';
 import { READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
@@ -44,19 +44,28 @@ const labelable = (m: MovementRecord) => m.coinType === USDC_TYPE && m.operation
 // Exact amounts without padding: at least two decimals, more only when the value needs them.
 const exact = (value: string | bigint, decimals: number) => amount(value, decimals, decimals).replace(/(\.\d{2}\d*?)0+$/, '$1');
 type MemoryRecord = AccountState['memories'][number];
-const isPendingLabel = (m: MemoryRecord) => m.envelope.logicalKey.startsWith('annotation:') && !['recall_confirmed', 'failed'].includes(m.state);
-const noteOf = (m: MemoryRecord) => typeof m.envelope.payload === 'object' && m.envelope.payload && 'note' in m.envelope.payload ? String(m.envelope.payload.note) : 'your label';
+const UNSETTLED = ['queued', 'submitting', 'accepted', 'saved'];
+const labelPayload = (m: MemoryRecord) => {
+  const p = (typeof m.envelope.payload === 'object' && m.envelope.payload ? m.envelope.payload : {}) as { note?: unknown; category?: unknown; ownTransfer?: unknown };
+  return { note: typeof p.note === 'string' ? p.note : 'your label', category: typeof p.category === 'string' ? p.category : 'Other', ownTransfer: p.ownTransfer === true };
+};
+// The newest label event for a payment decides what its row shows: confirmed, waiting, unknown outcome or failed.
+const latestLabel = (state: AccountState, movementId: string) => state.memories.filter(m => m.envelope.logicalKey === 'annotation:' + movementId).sort((a, b) => b.envelope.revision - a.envelope.revision)[0];
 
 // No background worker exists, so the page drives pending label jobs: submit, wait for storage, then confirm by recall.
-// It runs at list level so the label form can close as soon as the label is saved.
+// It runs at list level so the label form can close as soon as the label is saved. Stalls are tracked per label event,
+// so a label saved after an earlier one stalled still shows as waiting.
 function useLabelConfirmation(state: AccountState, enabled: boolean, onLabeled: () => void) {
-  const pending = state.memories.filter(isPendingLabel).sort((a, b) => a.envelope.recordedAt.localeCompare(b.envelope.recordedAt));
-  const signature = pending.map(m => m.envelope.eventId).join(','), oldestNote = pending[0] ? noteOf(pending[0]) : '';
-  const [stalled, setStalled] = useState(''), [announcement, setAnnouncement] = useState('');
+  const pending = state.memories.filter(m => m.envelope.logicalKey.startsWith('annotation:') && UNSETTLED.includes(m.state)).sort((a, b) => a.envelope.recordedAt.localeCompare(b.envelope.recordedAt));
+  const [stalled, setStalled] = useState<Record<string, string>>({}), [announcement, setAnnouncement] = useState('');
+  const active = pending.filter(m => !stalled[m.envelope.eventId]);
+  const signature = active.map(m => m.envelope.eventId).join(','), oldestNote = active[0] ? labelPayload(active[0]).note : '';
   const reload = useRef(onLabeled);
   useEffect(() => { reload.current = onLabeled; }, [onLabeled]);
   useEffect(() => {
-    if (!enabled || !signature || stalled) return;
+    if (!enabled || !signature) return;
+    const waiting = signature.split(',');
+    const stall = (reason: string) => setStalled(current => ({ ...current, ...Object.fromEntries(waiting.map(id => [id, reason])) }));
     let cancelled = false;
     (async () => {
       for (let attempt = 0; attempt < 12; attempt++) {
@@ -65,37 +74,50 @@ function useLabelConfirmation(state: AccountState, enabled: boolean, onLabeled: 
           if (cancelled) return;
           // The server advances the oldest pending job first, so a confirmation belongs to the oldest pending label.
           if (job.state === 'recall_confirmed') { setAnnouncement(`Remembered: ${oldestNote}`); reload.current(); return; }
-          if (job.state === 'idle') { reload.current(); return; }
-          if (job.state === 'failed') { setAnnouncement(`Walrus could not store “${oldestNote}”. Label the payment again to retry.`); reload.current(); return; }
-          if (job.state === 'submission_outcome_unknown') { setStalled(job.error ?? 'Walrus has not confirmed this label yet.'); return; }
-        } catch (e) { if (!cancelled) setStalled((e as Error).message); return; }
+          if (job.state === 'idle' || job.state === 'submission_outcome_unknown') { reload.current(); return; }
+          if (job.state === 'failed') { setAnnouncement(`Walrus didn’t store “${oldestNote}”.`); reload.current(); return; }
+        } catch (e) { if (!cancelled) stall((e as Error).message); return; }
         await new Promise(resolve => setTimeout(resolve, 7000));
         if (cancelled) return;
       }
-      setStalled('Walrus is taking longer than usual to confirm.');
+      stall('Walrus is taking longer than usual. Your label is saved and still waiting to be confirmed.');
     })();
     return () => { cancelled = true; };
-  }, [enabled, signature, stalled, oldestNote]);
-  return { stalled, announcement, retry: () => setStalled('') };
+  }, [enabled, signature, oldestNote]);
+  // Check again clears this label's stall (restarting the loop) and runs one check now, which also reconciles an unknown outcome by recall.
+  const retry = (eventId: string) => {
+    setStalled(current => { const next = { ...current }; delete next[eventId]; return next; });
+    api('/memory-jobs/advance', {}).then(() => reload.current()).catch(e => setStalled(current => ({ ...current, [eventId]: (e as Error).message })));
+  };
+  return { stalled, announcement, retry };
 }
 
-function MemoryConsent({ onAccepted }: { onAccepted: () => void }) {
+function MemoryConsent({ movement, summary, onAccepted, onCancel }: { movement: MovementRecord; summary: string; onAccepted: () => void; onCancel: () => void }) {
   const [accepted, setAccepted] = useState(false), [saving, setSaving] = useState(false), [failure, setFailure] = useState('');
   async function accept() { setSaving(true); setFailure(''); try { await api('/consent/memory', { accepted: true }); onAccepted(); } catch (e) { setFailure((e as Error).message); } finally { setSaving(false); } }
-  return <div className="read-label-panel">
-    <strong>Remember your labels with Walrus Memory</strong>
-    <p>Each label is stored on Walrus Mainnet in an account the operator manages, so Sui Money can recall it next time. Walrus storage can’t be erased on request. Use short aliases like “Rent” or “Landlord”, never names, phone numbers or keys.</p>
+  return <div className="read-label-panel" role="group" aria-labelledby={`memory-consent-${movement.id}`} onKeyDown={event => { if (event.key === 'Escape' && !saving) { event.preventDefault(); onCancel(); } }}>
+    <strong id={`memory-consent-${movement.id}`}>Before you label {summary}</strong>
+    <p>Sui Money remembers labels with Walrus Memory, so they’re there next time you sign in.</p>
+    <ul className="read-consent-facts">
+      <li><b>What’s stored:</b> your note, its category, and whether it was a transfer to your own wallet, linked to this payment’s transaction ID and your wallet address.</li>
+      <li><b>What isn’t:</b> your balance, your other payments, or anything you don’t type into a label.</li>
+      <li><b>For how long:</b> Walrus storage can’t be erased on request. You can replace a label, but earlier versions stay stored.</li>
+    </ul>
+    <p>The operator runs the Walrus account, so use short aliases like “Rent” or “Landlord”, never names, phone numbers or keys.</p>
     <label className="read-consent-check"><input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)}/><span>I agree to store my payment labels in operator-managed Walrus Memory.</span></label>
     {failure && <p className="read-inline-error" role="alert">{failure}</p>}
-    <button className="button primary small" disabled={!accepted || saving} onClick={accept}>{saving ? 'Saving your choice…' : 'Agree and label payments'}</button>
-    <p className="micro">Consent version {OPERATOR_MANAGED_CONSENT_VERSION}. Budgeting stays paused.</p>
+    <div className="read-label-actions">
+      <button className="button primary small" disabled={!accepted || saving} onClick={accept}>{saving ? 'Saving your choice…' : 'Agree and label this payment'}</button>
+      <button type="button" className="button small" onClick={onCancel} disabled={saving}>Not now</button>
+    </div>
+    <Link className="text-link" href="/about">How Sui Money handles your data</Link>
   </div>;
 }
 
 function LabelForm({ movement, state, onSaved, onCancel }: { movement: MovementRecord; state: AccountState; onSaved: () => void; onCancel: () => void }) {
   const existing = state.annotations.find(a => a.movementId === movement.id);
-  const prior = state.memories.filter(m => m.envelope.logicalKey === 'annotation:' + movement.id).sort((a, b) => b.envelope.revision - a.envelope.revision)[0];
-  const [category, setCategory] = useState(existing?.category ?? 'Other'), [note, setNote] = useState(existing?.note ?? ''), [own, setOwn] = useState(existing?.ownTransfer ?? false);
+  const prior = latestLabel(state, movement.id), draft = prior?.state === 'failed' ? labelPayload(prior) : null;
+  const [category, setCategory] = useState(draft?.category ?? existing?.category ?? 'Other'), [note, setNote] = useState(draft?.note ?? existing?.note ?? ''), [own, setOwn] = useState(draft?.ownTransfer ?? existing?.ownTransfer ?? false);
   const [failure, setFailure] = useState(''), [saving, setSaving] = useState(false);
   const noteField = useRef<HTMLInputElement>(null);
   useEffect(() => { noteField.current?.focus(); }, []);
@@ -114,16 +136,15 @@ function LabelForm({ movement, state, onSaved, onCancel }: { movement: MovementR
     {failure && <p className="read-inline-error" role="alert">{failure}</p>}
     <p className="micro" id={`permanence-${movement.id}`}>Saved permanently to Walrus Memory. Use a short alias, not a person’s name.</p>
     <div className="read-label-actions">
-      <button className="button primary small" disabled={saving}>{saving ? 'Saving…' : existing ? 'Update label' : 'Save label'}</button>
+      <button className="button primary small" disabled={saving}>{saving ? 'Saving…' : existing || draft ? 'Save label again' : 'Save label'}</button>
       <button type="button" className="button small" onClick={onCancel} disabled={saving}>Cancel</button>
     </div>
   </form>;
 }
 
-function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { movement: MovementRecord; state: AccountState; labels: boolean; onLabeled: () => void; stalled: string; onRetry: () => void }) {
-  const [open, setOpen] = useState(false);
-  const opener = useRef<HTMLButtonElement>(null);
-  const close = () => { setOpen(false); requestAnimationFrame(() => opener.current?.focus()); };
+function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { movement: MovementRecord; state: AccountState; labels: boolean; onLabeled: () => void; stalled: Record<string, string>; onRetry: (eventId: string) => void }) {
+  const [open, setOpen] = useState(false), [retrying, setRetrying] = useState(false), [retryError, setRetryError] = useState('');
+  const opener = useRef<HTMLButtonElement>(null), chip = useRef<HTMLDivElement>(null), focusChip = useRef(false);
   const timezone = state.plan.timezone, annotation = state.annotations.find(a => a.movementId === movement.id);
   const delta = integer(movement.delta), incoming = delta > 0n;
   const asset = movement.coinType === USDC_TYPE ? 'native USDC' : movement.coinType === SUI_TYPE ? 'SUI' : 'other asset';
@@ -133,8 +154,19 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
   const party = movement.counterparty ? `${movement.counterparty.slice(0, 6)}…${movement.counterparty.slice(-4)}` : null;
   const time = new Intl.DateTimeFormat('en-GB', { timeStyle: 'short', timeZone: timezone }).format(new Date(movement.timestamp));
   const canLabel = labels && labelable(movement);
-  const pending = state.memories.filter(m => m.envelope.logicalKey === 'annotation:' + movement.id && !['recall_confirmed', 'failed'].includes(m.state)).sort((a, b) => b.envelope.revision - a.envelope.revision)[0];
-  const pendingNote = pending && typeof pending.envelope.payload === 'object' && pending.envelope.payload && 'note' in pending.envelope.payload ? String(pending.envelope.payload.note) : null;
+  const summary = `the ${shownAmount} USDC you ${incoming ? 'received' : 'sent'}${party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}`;
+  const latest = latestLabel(state, movement.id), latestNote = latest ? labelPayload(latest).note : '';
+  const status = !latest ? null : UNSETTLED.includes(latest.state) ? (stalled[latest.envelope.eventId] ? 'stalled' : 'waiting') : latest.state === 'submission_outcome_unknown' ? 'unknown' : latest.state === 'failed' ? 'failed' : null;
+  // After a save, focus moves to the chip that replaced the prompt, so keyboard users land on the new status.
+  useEffect(() => { if (focusChip.current && status && chip.current) { chip.current.focus(); focusChip.current = false; } }, [status]);
+  const close = () => { setOpen(false); requestAnimationFrame(() => opener.current?.focus()); };
+  async function saveAgain() {
+    if (!latest) return;
+    setRetrying(true); setRetryError('');
+    const payload = labelPayload(latest);
+    try { await api('/activity/' + encodeURIComponent(movement.id) + '/annotation', { ...payload, rememberDestination: false, expectedRevision: latest.envelope.revision, supersedesEventId: latest.envelope.eventId }); focusChip.current = true; onLabeled(); }
+    catch (e) { setRetryError((e as Error).message); } finally { setRetrying(false); }
+  }
   // Two layers per payment: the Tatum fact on top, the Walrus-remembered label (or the prompt for one) beneath it.
   return <li className="pay-row">
     <div className="pay-fact">
@@ -145,16 +177,23 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
       </div>
       <div className={'pay-value ' + (incoming ? 'incoming' : '')}><strong>{incoming ? '+' : '−'}{shownAmount}</strong><small>{asset === 'native USDC' ? 'USDC' : asset}</small></div>
     </div>
-    {pendingNote ? <div className="pay-memory pending">
+    {status === 'waiting' ? <div ref={chip} tabIndex={-1} className="pay-memory pending">
       <RefreshCw size={14} aria-hidden="true"/>
-      <span><b>{pendingNote}</b> {stalled ? 'Not confirmed yet' : 'Waiting for Walrus to confirm'}</span>
-      {stalled && <button className="pay-memory-edit" onClick={onRetry} title={stalled}>Check again</button>}
+      <span><b>{latestNote}</b> Saved. Waiting for Walrus to confirm.</span>
+    </div> : status === 'stalled' || status === 'unknown' ? <div ref={chip} tabIndex={-1} className="pay-memory pending stalled">
+      <RefreshCw size={14} aria-hidden="true"/>
+      <span><b>{latestNote}</b> {status === 'unknown' ? 'Walrus hasn’t confirmed whether this was stored. It won’t be sent twice.' : stalled[latest!.envelope.eventId]}</span>
+      <button className="pay-memory-edit" onClick={() => onRetry(latest!.envelope.eventId)}>Check again<span className="sr-only"> for “{latestNote}”</span></button>
+    </div> : status === 'failed' ? <div ref={chip} tabIndex={-1} className="pay-memory failed">
+      <AlertCircle size={14} aria-hidden="true"/>
+      <span><b>Walrus didn’t store “{latestNote}”.</b> {annotation ? `Your earlier label “${annotation.note}” still applies.` : 'This payment has no label yet.'}{retryError && <> {retryError}</>}</span>
+      {canLabel && <button className="pay-memory-edit" disabled={retrying} onClick={() => memoryAgreed ? void saveAgain() : setOpen(true)}>{retrying ? 'Saving…' : 'Try again'}<span className="sr-only"> to save “{latestNote}”</span></button>}
     </div> : annotation ? <div className="pay-memory">
       <Sparkles size={14} aria-hidden="true"/>
       <span><b>{annotation.note}</b> {annotation.ownTransfer ? 'Own transfer' : annotation.category}</span>
       {canLabel && <button ref={opener} className="pay-memory-edit" aria-expanded={open} onClick={() => setOpen(!open)}>Edit<span className="sr-only"> label “{annotation.note}”</span></button>}
     </div> : canLabel && <button ref={opener} className="pay-prompt" aria-expanded={open} onClick={() => setOpen(!open)}><Tag size={14} aria-hidden="true"/>What was this for?<span className="sr-only"> {incoming ? 'Received' : 'Sent'} {shownAmount} USDC{party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}</span></button>}
-    {open && !pendingNote && (memoryAgreed ? <LabelForm movement={movement} state={state} onSaved={() => { close(); onLabeled(); }} onCancel={close}/> : <MemoryConsent onAccepted={onLabeled}/>)}
+    {open && (status === null || status === 'failed') && (memoryAgreed ? <LabelForm movement={movement} state={state} onSaved={() => { setOpen(false); focusChip.current = true; onLabeled(); }} onCancel={close}/> : <MemoryConsent movement={movement} summary={summary} onAccepted={onLabeled} onCancel={close}/>)}
   </li>;
 }
 
@@ -192,26 +231,35 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
 
   const balance = state.balance;
   const rows = [...state.movements].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  const shown = screen === 'activity' ? rows.slice(0, 25) : rows.slice(0, 5);
   const historyComplete = state.coverage.state === 'complete';
-  const unlabeled = rows.filter(m => labelable(m) && !state.annotations.some(a => a.movementId === m.id) && !state.memories.some(e => e.envelope.logicalKey === 'annotation:' + m.id && e.state !== 'failed')).length;
-  const timezone = state.plan.timezone, dayKey = (instant: string) => new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date(instant));
-  const today = dayKey(state.now), yesterday = dayKey(new Date(Date.parse(state.now) - 86400000).toISOString());
-  const days = shown.reduce<{ key: string; items: MovementRecord[] }[]>((groups, movement) => {
-    const key = dayKey(movement.timestamp), last = groups[groups.length - 1];
-    if (last?.key === key) last.items.push(movement); else groups.push({ key, items: [movement] });
-    return groups;
-  }, []);
+  // A payment stays in the queue until Walrus confirms its label, so pending and failed saves remain visible there.
+  const needsLabel = (m: MovementRecord) => labelable(m) && !state.annotations.some(a => a.movementId === m.id);
+  const unlabeled = labels ? rows.filter(needsLabel) : [];
+  const list = { state, labels, onLabeled, confirmation };
+  const importPrompt = !historyComplete && <div className="read-import">
+    <p className="read-coverage-line">{state.coverage.reason}</p>
+    <button className="button small" onClick={() => onSync('history')} disabled={busy}><RefreshCw size={14} className={busy ? 'spin' : ''}/>{state.coverage.state === 'not_synced' ? 'Import last 30 days' : 'Continue import'}</button>
+  </div>;
+  const fresh = busy ? 'Refreshing from Tatum…' : balance ? freshness(balance.observedAt, state.now) : 'Not read yet';
+  const refresh = <button className="icon-button" onClick={() => onSync('balances')} disabled={busy} aria-label={balance ? 'Refresh balance' : 'Read balance'}><RefreshCw size={17} className={busy ? 'spin' : ''}/></button>;
+
+  if (screen === 'activity') return <div className="read-only-wallet">
+    <p className="sr-only" role="status">{confirmation.announcement}</p>
+    <div className="read-balance-strip"><span>Balance</span><strong>{balance ? exact(balance.usdc, 6) : '—'} <small>USDC</small></strong><span className="balance-fresh">{fresh}</span>{refresh}</div>
+    <ActivityPayments rows={rows} unlabeled={unlabeled} list={list} importPrompt={importPrompt} historyComplete={historyComplete}/>
+  </div>;
+
   return <div className="read-only-wallet">
+    <p className="sr-only" role="status">{confirmation.announcement}</p>
     <section className="card read-balance-card" aria-label="Wallet balance from Tatum">
       <div className="balance-head">
         <h2>Your balance</h2>
-        <span className={'balance-fresh' + (busy ? ' busy' : '')}>{busy ? 'Refreshing from Tatum…' : balance ? freshness(balance.observedAt, state.now) : 'Not read yet'}</span>
-        <button className="icon-button" onClick={() => onSync('balances')} disabled={busy} aria-label={balance ? 'Refresh balance' : 'Read balance'}><RefreshCw size={17} className={busy ? 'spin' : ''}/></button>
+        <span className={'balance-fresh' + (busy ? ' busy' : '')}>{fresh}</span>
+        {refresh}
       </div>
       <strong className="read-balance-amount">{balance ? exact(balance.usdc, 6) : '—'} <small>USDC</small></strong>
       <div className="read-sui-row"><span>SUI for network fees</span><strong>{balance ? exact(balance.sui, 9) : '—'} <small>SUI</small></strong></div>
-      <p className="micro balance-note">{balance ? `Read from Sui Mainnet through Tatum at ${clockLabel(balance.observedAt, timezone)}. A payment you just sent can take a moment to show.` : 'Your balance is read from Sui Mainnet through Tatum as soon as this screen opens.'}</p>
+      <p className="micro balance-note">{balance ? `Read from Sui Mainnet through Tatum at ${clockLabel(balance.observedAt, state.plan.timezone)}. A payment you just sent can take a moment to show.` : 'Your balance is read from Sui Mainnet through Tatum as soon as this screen opens.'}</p>
       <details className="read-evidence-details"><summary>How Tatum checked these values</summary>
         <p>The server queried the signed-in address through Tatum’s Sui Mainnet gRPC service. It checked the network identity, exact coin type and metadata before saving the result.</p>
         <p>USDC coin type · 6 decimals</p><code>{USDC_TYPE}</code>
@@ -220,20 +268,71 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
       </details>
     </section>
 
+    {unlabeled.length > 0 && <section className="card read-activity-card read-queue" aria-labelledby="read-queue-title">
+      <div className="section-title"><div><h2 id="read-queue-title">Waiting for a label <span className="read-count">{unlabeled.length}</span></h2><p className="muted small-text">What moved is read from the chain. What it was for comes from you.</p></div></div>
+      <PaymentDays rows={unlabeled.slice(0, 5)} {...list}/>
+      {unlabeled.length > 5 && <Link className="text-link" href="/activity">See all {unlabeled.length} in Activity</Link>}
+    </section>}
+
     <section className="card read-activity-card" aria-labelledby="read-activity-title">
-      <div className="section-title"><div><h2 id="read-activity-title">{screen === 'activity' ? 'Payments' : 'Recent payments'}</h2><p className="muted small-text">What moved is read from the chain. What it was for comes from you.</p></div>
-        {!historyComplete && <button className="button small" onClick={() => onSync('history')} disabled={busy}><RefreshCw size={14} className={busy ? 'spin' : ''}/>{state.coverage.state === 'not_synced' ? 'Import last 30 days' : 'Continue import'}</button>}
-      </div>
-      {!historyComplete && <p className="read-coverage-line">{state.coverage.reason}</p>}
-      <p className="sr-only" role="status">{confirmation.announcement}</p>
-      {labels && unlabeled > 0 && <p className="read-needs-label"><Tag size={14} aria-hidden="true"/>{unlabeled} {unlabeled === 1 ? 'payment is' : 'payments are'} waiting for a label. Sui Money remembers what you tell it.</p>}
-      {shown.length ? days.map(day => <section className="pay-day" key={day.key} aria-label={dayHeading(day.key, today, yesterday)}>
-        <h3>{dayHeading(day.key, today, yesterday)}</h3>
-        <ul>{day.items.map(movement => <Movement key={movement.id} movement={movement} state={state} labels={labels} onLabeled={onLabeled} stalled={confirmation.stalled} onRetry={confirmation.retry}/>)}</ul>
-      </section>) : <p className="read-empty">{historyComplete ? 'No USDC or SUI payments in the last 30 days.' : 'Import your last 30 days of payments to see them here.'}</p>}
-      {screen !== 'activity' && rows.length > shown.length && <Link className="text-link" href="/activity">View all imported activity</Link>}
-      {historyComplete && <p className="micro">The imported window is bounded to the provider’s available history. This is not a lifetime wallet export.</p>}
+      <div className="section-title"><div><h2 id="read-activity-title">Latest payments</h2>{unlabeled.length === 0 && <p className="muted small-text">What moved is read from the chain. What it was for comes from you.</p>}</div></div>
+      {importPrompt}
+      {rows.length ? <PaymentDays rows={rows.slice(0, 3)} {...list}/> : <p className="read-empty">{historyComplete ? 'No USDC or SUI payments in the last 30 days.' : 'Import your last 30 days of payments to see them here.'}</p>}
+      {rows.length > 3 && <Link className="text-link" href="/activity">View all {rows.length} payments</Link>}
     </section>
-    {screen === 'activity' && rows.length > 25 && <p className="micro">Showing the latest 25 imported movements. The full saved list remains profile-scoped.</p>}
   </div>;
+}
+
+type ListProps = { state: AccountState; labels: boolean; onLabeled: () => void; confirmation: ReturnType<typeof useLabelConfirmation> };
+
+function PaymentDays({ rows, state, labels, onLabeled, confirmation }: ListProps & { rows: MovementRecord[] }) {
+  const timezone = state.plan.timezone, dayKey = (instant: string) => new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date(instant));
+  const today = dayKey(state.now), yesterday = dayKey(new Date(Date.parse(state.now) - 86400000).toISOString());
+  const days = rows.reduce<{ key: string; items: MovementRecord[] }[]>((groups, movement) => {
+    const key = dayKey(movement.timestamp), last = groups[groups.length - 1];
+    if (last?.key === key) last.items.push(movement); else groups.push({ key, items: [movement] });
+    return groups;
+  }, []);
+  return <>{days.map(day => <div className="pay-day" key={day.key}>
+    <h3>{dayHeading(day.key, today, yesterday)}</h3>
+    <ul>{day.items.map(movement => <Movement key={movement.id} movement={movement} state={state} labels={labels} onLabeled={onLabeled} stalled={confirmation.stalled} onRetry={confirmation.retry}/>)}</ul>
+  </div>)}</>;
+}
+
+const PAGE = 25;
+type Filter = 'all' | 'unlabeled' | 'received' | 'sent';
+function ActivityPayments({ rows, unlabeled, list, importPrompt, historyComplete }: { rows: MovementRecord[]; unlabeled: MovementRecord[]; list: ListProps; importPrompt: ReactNode; historyComplete: boolean }) {
+  const [filter, setFilter] = useState<Filter>('all'), [query, setQuery] = useState(''), [limit, setLimit] = useState(PAGE);
+  const listRef = useRef<HTMLDivElement>(null);
+  const q = query.trim().toLowerCase();
+  const matches = (m: MovementRecord) => {
+    if (!q) return true;
+    const a = list.state.annotations.find(x => x.movementId === m.id);
+    return [a?.note, a?.category, m.counterparty, m.digest].some(v => v?.toLowerCase().includes(q));
+  };
+  const filtered = rows.filter(m => (filter === 'all' || (filter === 'unlabeled' ? unlabeled.includes(m) : filter === 'received' ? integer(m.delta) > 0n : integer(m.delta) < 0n)) && matches(m));
+  const shown = filtered.slice(0, limit);
+  const filters: [Filter, string][] = [['all', 'All'], ...(list.labels ? [['unlabeled', `Needs a label (${unlabeled.length})`] as [Filter, string]] : []), ['received', 'Received'], ['sent', 'Sent']];
+  // Label next opens the first payment still waiting for a label, wherever it sits in the list.
+  function labelNext() {
+    setFilter('unlabeled'); setQuery(''); setLimit(PAGE);
+    requestAnimationFrame(() => { const prompt = listRef.current?.querySelector<HTMLButtonElement>('.pay-prompt'); prompt?.scrollIntoView({ block: 'center' }); prompt?.click(); });
+  }
+  return <section className="card read-activity-card" aria-labelledby="read-activity-title">
+    <div className="section-title"><div><h2 id="read-activity-title">Payments</h2><p className="muted small-text">What moved is read from the chain. What it was for comes from you.</p></div>
+      {list.labels && unlabeled.length > 0 && <button className="button primary small" onClick={labelNext}><Tag size={14} aria-hidden="true"/>Label next</button>}
+    </div>
+    {importPrompt}
+    <div className="read-tools">
+      <div className="read-filters" role="group" aria-label="Show payments">{filters.map(([value, label]) => <button key={value} className={'read-filter' + (filter === value ? ' active' : '')} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(PAGE); }}>{label}</button>)}</div>
+      <label className="read-search"><Search size={15} aria-hidden="true"/><span className="sr-only">Search payments</span><input type="search" value={query} onChange={event => { setQuery(event.target.value); setLimit(PAGE); }} placeholder="Search labels or addresses"/></label>
+    </div>
+    <div ref={listRef}>
+      {shown.length ? <PaymentDays rows={shown} {...list}/> : <p className="read-empty">{rows.length === 0 ? (historyComplete ? 'No USDC or SUI payments in the last 30 days.' : 'Import your last 30 days of payments to see them here.') : filter === 'unlabeled' && !q ? 'Every payment has a label.' : 'No payments match. Try another filter or search.'}</p>}
+    </div>
+    <div className="read-list-foot">
+      <span className="micro">Showing {shown.length} of {filtered.length}</span>
+      {filtered.length > shown.length && <button className="button small" onClick={() => setLimit(limit + PAGE)}>Show {Math.min(PAGE, filtered.length - shown.length)} more</button>}
+    </div>
+  </section>;
 }
