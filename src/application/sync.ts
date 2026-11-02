@@ -4,12 +4,36 @@ import { chainReadBudget, consumeLimits } from '@/lib/rate-limit';
 import { recordBalance } from './state';
 import type { Profile } from './auth';
 import { AppError } from '@/lib/security';
+import type { Movement } from '@/domain/types';
+type Queryable={query:(sql:string,values?:unknown[])=>Promise<unknown>};
+export async function saveMovements(profileId:string,movements:Movement[],db:Queryable=database()) {
+  for(const movement of movements) await db.query(`INSERT INTO chain_movements(profile_id,id,digest,coin_type,delta,checkpoint,event_time,execution_status,operation,counterparty,facts,source) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'tatum') ON CONFLICT(profile_id,id) DO NOTHING`,[profileId,movement.id,movement.digest,movement.coinType,movement.delta,movement.checkpoint,movement.timestamp,movement.status,movement.operation,movement.counterparty,movement]);
+}
+// Live updates after the 30-day import: one page of anything newer than the imported range, newest first.
+// The range only advances when the page reaches its checkpoint bound, so nothing between is skipped.
+async function syncRecent(profile:Profile,chain:TatumChain) {
+  const saved=(await database().query('SELECT * FROM sync_progress WHERE profile_id=$1',[profile.id])).rows[0];
+  // A retention gap leaves coverage partial for good, but the import itself is finished once no page remains.
+  const finished=saved&&saved.to_checkpoint&&!saved.coverage.search&&(saved.coverage.state==='complete'||(saved.coverage.retentionGap&&!saved.cursor&&saved.scanned_checkpoint!==null));
+  if(!finished)return {state:'needs_import',imported:0};
+  const service=await chain.serviceStatus(),tip=(BigInt(service.checkpoint)+1n).toString();
+  if(BigInt(tip)<=BigInt(saved.to_checkpoint))return {state:'current',imported:0};
+  const page=await chain.historyPage({address:profile.wallet,fromCheckpoint:String(saved.to_checkpoint),toCheckpoint:tip,cursor:null});
+  await saveMovements(profile.id,page.movements);
+  if(page.complete){
+    const toTime=new Date(Date.parse(await chain.checkpointTime(service.checkpoint))+1).toISOString();
+    await database().query('UPDATE sync_progress SET to_checkpoint=$3,coverage=$4,version=version+1,updated_at=now() WHERE profile_id=$1 AND version=$2',[profile.id,saved.version,tip,{...saved.coverage,to:toTime}]);
+  }
+  return {state:page.complete?'current':'catching_up',imported:page.movements.length,movementIds:page.movements.map(m=>m.id)};
+}
 type BoundsSearch={lo:string;hi:string;target:string;tip:string;fromTime:string;toTime:string;floor:string};
 // One request performs at most two binary-search probes or one stream page. Progress survives process restart.
-export async function syncWallet(profile:Profile,kind:'balances'|'history') {
+export async function syncWallet(profile:Profile,kind:'balances'|'history'|'recent') {
   await consumeLimits([{key:`sync:${profile.id}`,max:1,seconds:4}]);
   const chain=new TatumChain(async()=>{await new Promise(resolve=>setTimeout(resolve,550));await chainReadBudget(profile.id);});
   try {
+    // Checking for news costs two Tatum reads; the balance (five more) is re-read only when something moved.
+    if(kind==='recent'){const recent=await syncRecent(profile,chain);if(!recent.imported)return recent;const balance=await chain.balances(profile.wallet);await recordBalance(profile.id,balance);return {...recent,balance};}
     if(kind==='balances'){const balance=await chain.balances(profile.wallet);await recordBalance(profile.id,balance);return {balance,saved:true};}
     const saved=(await database().query('SELECT * FROM sync_progress WHERE profile_id=$1',[profile.id])).rows[0];
     if(!saved || saved.coverage.state==='complete'||saved.filter_version!==2) {
@@ -40,7 +64,7 @@ export async function syncWallet(profile:Profile,kind:'balances'|'history') {
     return transaction(async db=>{
       const current=(await db.query('SELECT version FROM sync_progress WHERE profile_id=$1 FOR UPDATE',[profile.id])).rows[0];
       if(current.version!==saved.version)throw new AppError('SYNC_CONFLICT',409,'Another tab advanced the import.');
-      for(const movement of page.movements) await db.query(`INSERT INTO chain_movements(profile_id,id,digest,coin_type,delta,checkpoint,event_time,execution_status,operation,counterparty,facts,source) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'tatum') ON CONFLICT(profile_id,id) DO NOTHING`,[profile.id,movement.id,movement.digest,movement.coinType,movement.delta,movement.checkpoint,movement.timestamp,movement.status,movement.operation,movement.counterparty,movement]);
+      await saveMovements(profile.id,page.movements,db);
       const coverage={...page.coverage,from:saved.coverage.from,to:saved.coverage.to,state:page.complete&&!saved.coverage.retentionGap?'complete':'partial',retentionGap:saved.coverage.retentionGap,reason:saved.coverage.retentionGap?'Imported available range; requested period has a retention gap.':page.reason};
       await db.query('UPDATE sync_progress SET cursor=$2,scanned_checkpoint=$3,coverage=$4,version=version+1,updated_at=now() WHERE profile_id=$1',[profile.id,page.continuation,page.coverage.scannedCheckpoint,coverage]);
       return {coverage,imported:page.movements.length,hasMore:!!page.continuation};

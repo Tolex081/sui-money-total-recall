@@ -12,3 +12,9 @@ The actual Tatum service identified Sui server `1.82.4-485613f749ed`. Official S
 These are source observations, not an assertion of undocumented hosted-index guarantees. Resolution requires a documented and actually tested Tatum snapshot/index-watermark contract, or another supported Tatum read proving the owner/token balance at a specified checkpoint. Verify installed types and real responses; then test delayed indexing, pre-payment observations, failed refresh and concurrent matching.
 
 Do not infer correctness from wall-clock time, transaction finality alone, two equal balance reads, explorer labels or the latest-checkpoint header. No funds should be moved merely to investigate this. The read-only synthetic demo uses labelled fixture checkpoints and does not close the live contract gap. Personal accounts remain release-gated.
+
+## 2 November 2026: planning enabled with a lower bound
+
+At the owner's request, Plan is now available to real wallets behind `PERSONAL_PLAN_ENABLED`. Each balance observation records the Tatum service checkpoint read immediately *before* the GetBalance calls, as `Balance.checkpoint`. A matched payment at or below that checkpoint is treated as included and its reservation is released.
+
+This is a lower bound, not the atomic snapshot described above. If the owner-balance index lagged behind the reported checkpoint at read time, a just-matched payment could be released against a balance that does not yet include it, overstating the remaining amount until the next refresh. The window is the indexing lag; refreshing the balance closes it. The original gate (a documented Tatum snapshot contract) is still the proper fix.

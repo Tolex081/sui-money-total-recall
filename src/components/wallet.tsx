@@ -7,8 +7,8 @@ import { api,setCurrentWalletAddress } from './http';
 // This client is used for wallet selection/signing only. Any accidental read fails locally:
 // the app has no browser RPC proxy and no public-node fallback.
 const noChainFetch:typeof fetch=async()=>{throw new Error('Application chain reads must use the authenticated Tatum server adapter.');};
-const dAppKit=createDAppKit({networks:['mainnet'],createClient:()=>new SuiGrpcClient({network:'mainnet',baseUrl:'https://sui-mainnet-grpc.gateway.tatum.io',fetch:noChainFetch}),slushWalletConfig:null,enableBurnerWallet:false,autoConnect:true});
-const prioritizeSuiet=(a:{name:string},b:{name:string})=>{
+export const dAppKit=createDAppKit({networks:['mainnet'],createClient:()=>new SuiGrpcClient({network:'mainnet',baseUrl:'https://sui-mainnet-grpc.gateway.tatum.io',fetch:noChainFetch}),slushWalletConfig:null,enableBurnerWallet:false,autoConnect:true});
+export const prioritizeSuiet=(a:{name:string},b:{name:string})=>{
   const aPriority=/suiet/i.test(a.name)?0:1,bPriority=/suiet/i.test(b.name)?0:1;
   return aPriority-bPriority||a.name.localeCompare(b.name);
 };

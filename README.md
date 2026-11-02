@@ -2,7 +2,7 @@
 
 Understand what you spent. Make room for what is coming.
 
-Sui Money reads a Sui Mainnet wallet through Tatum and lets you say what each native-USDC payment was for. Those labels are stored with Walrus Memory, confirmed by recall, and come back the next time you sign in. SUI is shown separately for network fees. There is no custody, no sending, no bank connection, no token pricing and only one chain.
+Sui Money reads a Sui Mainnet wallet through Tatum and lets you say what each native-USDC payment was for. Those labels are stored with Walrus Memory, confirmed by recall, and come back the next time you sign in. SUI is shown separately for network fees. You can also send native USDC from the same wallet: Sui Money prepares the transfer through Tatum, your own wallet approves it, and it lands in your history. There is no custody, no bank connection, no token pricing and only one chain.
 
 Built for **Total Recall (Tatum × Walrus Memory)**, Consumer Finance Apps track, 20 October to 10 November 2026.
 
@@ -17,9 +17,10 @@ Built for **Total Recall (Tatum × Walrus Memory)**, Consumer Finance Apps track
 | Payment history | **Live, read-only.** The last 30 days of native-USDC and SUI movements, imported through Tatum with resumable cursors. |
 | Payment labels | **Live, after a separate consent.** Answer "What was this for?" on any settled native-USDC transfer. The label is written to Walrus Mainnet and only shows as remembered after a matching recall confirms it. Pending, unconfirmed and failed saves stay visible on the payment, with a retry. |
 | Today and Activity | **Live.** Today is your balance, the payments still waiting for a label, and the latest three. Activity is the full list with filters, search, "Label next" and paging. |
-| Budgeting (Plan, commitments, reserve, reimbursements, recurring suggestions) | **Paused for real wallets.** Built, tested and shown in the demo, but switched off because Tatum's balance response has no proven checkpoint that says whether it already includes a given payment. See [balance consistency](docs/BALANCE_CONSISTENCY.md). |
+| Send and Receive | **Built, behind `PERSONAL_SEND_ENABLED`.** Send builds a native-USDC transfer through Tatum, your wallet signs it (no key reaches the server), the server submits it through Tatum and confirms it by reading the digest back into Activity. An optional "What's it for?" label is saved the same way as any other label. Receive shows your address and QR code and watches for incoming payments for ten minutes while open. Tested against Tatum with an empty throwaway wallet only; no real send has been made yet. |
+| Budgeting (Plan, commitments, reserve, reimbursements, recurring suggestions) | **Built for real wallets, behind `PERSONAL_PLAN_ENABLED`.** Uses the memory consent labels use. Balance reads now carry the service checkpoint read just before them as a lower bound; see [balance consistency](docs/BALANCE_CONSISTENCY.md) for the remaining risk. |
 
-Production flags: `WALLET_SIGNIN_ENABLED`, `PERSONAL_READ_ENABLED` and `PERSONAL_LABELS_ENABLED` are on; `PERSONAL_ACCESS_ENABLED` (budgeting) is off.
+Production flags: `WALLET_SIGNIN_ENABLED`, `PERSONAL_READ_ENABLED` and `PERSONAL_LABELS_ENABLED` are on. `PERSONAL_SEND_ENABLED` (send/receive) and `PERSONAL_PLAN_ENABLED` (Plan) are new and must be turned on, and migration 004 applied, before they work in production. `PERSONAL_ACCESS_ENABLED` (the older all-in-one access mode) stays off.
 
 ## Try it
 
@@ -77,7 +78,8 @@ Cool-blue workspace, self-hosted Figtree and Bricolage Grotesque, flat panels, a
 
 ## Known limits
 
-- **Budgeting stays paused** for real wallets until a balance can be tied to a checkpoint ([open item O04](docs/OPEN_ITEMS.md)).
+- **Plan uses a checkpoint lower bound,** not a proven balance snapshot ([open item O04](docs/OPEN_ITEMS.md)).
+- **Live updates are polled, not pushed.** Receive checks every 15 seconds for ten minutes; Today and Activity check once per visit. Each check costs two Tatum reads against the shared daily budget.
 - **No recorded real-wallet session yet.** The Suiet sign-in, label and recall path is live and tested with fixtures and real-database tests, but has not yet been exercised end to end by the builder's own wallet (O05).
 - **Slush extension warning.** Slush extension 26.21.6 (e2be7f2) showed the builder a malicious-site warning for this origin. It is unresolved and not declared a false positive: do not bypass it or sign on a flagged origin. Use Suiet. See [review request](docs/SLUSH_REVIEW_REQUEST.md).
 

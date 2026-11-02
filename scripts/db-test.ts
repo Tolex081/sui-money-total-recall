@@ -18,7 +18,7 @@ const usdc='0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::
 let applicationDb:Pool|undefined;
 try{
   await admin.query('CREATE SCHEMA "'+schema+'"');
-  await test('Empty PostgreSQL migrations through version 3',async()=>{for(const file of (await readdir(new URL('../db/migrations/',import.meta.url))).filter(f=>/^\d+.*\.sql$/.test(f)).sort())await pool.query(await readFile(new URL('../db/migrations/'+file,import.meta.url),'utf8'));assert.equal((await pool.query('SELECT max(version) AS version FROM schema_migrations')).rows[0].version,3);});
+  await test('Empty PostgreSQL migrations through version 4',async()=>{for(const file of (await readdir(new URL('../db/migrations/',import.meta.url))).filter(f=>/^\d+.*\.sql$/.test(f)).sort())await pool.query(await readFile(new URL('../db/migrations/'+file,import.meta.url),'utf8'));assert.equal((await pool.query('SELECT max(version) AS version FROM schema_migrations')).rows[0].version,4);});
   await pool.query('INSERT INTO profiles(id,wallet,namespace) VALUES($1,$2,$3),($4,$5,$6)',[a,walletA.toSuiAddress(),'test-a-'+a,b,walletB.toSuiAddress(),'test-b-'+b]);
   async function movement(id:string,delta:string,owner=a){await pool.query("INSERT INTO chain_movements(profile_id,id,digest,coin_type,delta,checkpoint,event_time,execution_status,operation,facts,source) VALUES($1,$2,$3,$4,$5,100,now(),'success','simple_transfer','{}','tatum')",[owner,id,'synthetic-database-test',usdc,delta]);}
   await movement('expense','-40000000');await movement('refund','15000000');await movement('other-expense','-40000000',b);

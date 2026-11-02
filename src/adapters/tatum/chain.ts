@@ -2,6 +2,7 @@ import { credentials } from '@grpc/grpc-js';
 import { GrpcTransport } from '@protobuf-ts/grpc-transport';
 import { GrpcTypes, SuiGrpcClient } from '@mysten/sui/grpc';
 import { isValidSuiAddress, normalizeSuiAddress, normalizeStructTag } from '@mysten/sui/utils';
+import { Transaction, coinWithBalance } from '@mysten/sui/transactions';
 import { normalize } from '@/domain/normalize';
 import { integer, SUI_TYPE, USDC_TYPE } from '@/domain/money';
 import type { ChainPort, HistoryRequest, HistoryPage, ServiceObservation } from '@/ports/chain';
@@ -73,7 +74,7 @@ export class TatumChain implements ChainPort {
   }
   async balances(address: string): Promise<Balance> {
     const owner = canonicalAddress(address);
-    await this.serviceStatus();
+    const service = await this.serviceStatus();
     await this.coinMetadata(USDC_TYPE); await this.coinMetadata(SUI_TYPE);
     const values: string[] = [];
     for (const coinType of [USDC_TYPE, SUI_TYPE]) {
@@ -81,8 +82,27 @@ export class TatumChain implements ChainPort {
       if (!response.balance?.coinType || normalizeStructTag(response.balance.coinType) !== coinType || response.balance.balance === undefined) throw new Error('TATUM_SHAPE: Missing balance is unknown, never zero.');
       values.push(response.balance.balance.toString());
     }
-    // GetBalance's installed response has no snapshot checkpoint. A separate service read is not evidence of snapshot consistency.
-    return { usdc: values[0], sui: values[1], checkpoint: null, observedAt: new Date().toISOString(), source: 'tatum', stale: false };
+    // GetBalance has no snapshot checkpoint of its own. The service checkpoint read *before* the balance is used as a
+    // lower bound: payments at or below it are treated as included. See docs/BALANCE_CONSISTENCY.md for the residual risk.
+    return { usdc: values[0], sui: values[1], checkpoint: service.checkpoint, observedAt: new Date().toISOString(), source: 'tatum', stale: false };
+  }
+  // Builds an unsigned native-USDC transfer from the sender's own funds; gas is paid in SUI by the sender.
+  // The result goes to the user's wallet for signing. Nothing here holds or uses a key.
+  async buildUsdcTransfer(sender: string, recipient: string, amount: bigint) {
+    const tx = new Transaction();
+    tx.setSender(canonicalAddress(sender));
+    tx.transferObjects([coinWithBalance({ type: USDC_TYPE, balance: amount })], canonicalAddress(recipient));
+    await this.beforeRead();
+    const bytes = await tx.build({ client: this.client });
+    const built = Transaction.from(bytes);
+    return { bytes, json: await built.toJSON(), sender: built.getData().sender, gasBudget: built.getData().gasData.budget?.toString() ?? null };
+  }
+  // Submits bytes the user's wallet already signed. Never retried here: a lost response is reconciled
+  // by reading the digest later, never by sending again.
+  async execute(bytes: Uint8Array, signature: string) {
+    const result = await this.client.core.executeTransaction({ transaction: bytes, signatures: [signature], include: { effects: true } });
+    const executed = result.Transaction ?? result.FailedTransaction;
+    return { digest: executed.digest, success: result.$kind === 'Transaction' && executed.status.success };
   }
   async transaction(digest: string, owner: string) {
     const { response } = await readTatum(async()=>await this.client.ledgerService.getTransaction({ digest, readMask: MASK }),this.beforeRead);

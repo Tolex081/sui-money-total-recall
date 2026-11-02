@@ -9,6 +9,7 @@ import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,rememberMan
 import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
 import { advanceMemoryJob,refreshRecall } from '@/application/memory-jobs';
 import { syncWallet } from '@/application/sync';
+import { prepareTransfer,submitTransfer,confirmTransfer,recentTransfers } from '@/application/transfers';
 import { consumeLimits } from '@/lib/rate-limit';
 import { AppError,assertSameOrigin,hash } from '@/lib/security';
 import { appMode,configurationStatus } from '@/lib/config';
@@ -35,7 +36,7 @@ async function proof() {
 async function handle(request:Request) {
   const path=new URL(request.url).pathname.replace(/^\/api\//,'');const method=request.method;
   appMode();
-  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED==='true',personalReadEnabled:process.env.PERSONAL_READ_ENABLED==='true',personalAccessEnabled:process.env.PERSONAL_ACCESS_ENABLED==='true',personalLabelsEnabled:process.env.PERSONAL_LABELS_ENABLED==='true',liveIntegrationVerified:false});
+  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED==='true',personalReadEnabled:process.env.PERSONAL_READ_ENABLED==='true',personalAccessEnabled:process.env.PERSONAL_ACCESS_ENABLED==='true',personalLabelsEnabled:process.env.PERSONAL_LABELS_ENABLED==='true',personalSendEnabled:process.env.PERSONAL_SEND_ENABLED==='true',personalPlanEnabled:process.env.PERSONAL_PLAN_ENABLED==='true',liveIntegrationVerified:false});
   if(method==='GET'&&path==='proof')return json(await proof());
   if(path==='demo'||path.startsWith('demo/')){
     if(method!=='GET')throw new AppError('READ_ONLY',405,'The public demo is read-only.');
@@ -56,7 +57,12 @@ async function handle(request:Request) {
   // Labels are the one write allowed in the read-only pilot: payment explanations and their memory jobs.
   const labelsEnabled=personalReadEnabled&&process.env.PERSONAL_LABELS_ENABLED==='true';
   const labelRequest=labelsEnabled&&method==='POST'&&(['consent/memory','memory-jobs/advance'].includes(path)||/^activity\/[^/]+\/annotation$/.test(path));
-  const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||labelRequest);
+  // Sending signs with the user's own wallet; the server only builds and relays. Planning adds the budget writes on top of labels.
+  const sendEnabled=personalReadEnabled&&process.env.PERSONAL_SEND_ENABLED==='true';
+  const sendRequest=sendEnabled&&((method==='GET'&&path==='transfers')||(method==='POST'&&(path==='transfers'||/^transfers\/[^/]+\/(submit|confirm)$/.test(path))));
+  const planEnabled=labelsEnabled&&process.env.PERSONAL_PLAN_ENABLED==='true';
+  const planRequest=planEnabled&&((method==='GET'&&['plan','suggestions'].includes(path))||(method==='POST'&&(['plan','commitments','preferences/reserve','recurrences/manual','reimbursements'].includes(path)||/^(commitment-allocations\/[^/]+\/reverse|commitments\/[^/]+\/allocate|suggestions\/[^/]+\/decision)$/.test(path))));
+  const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||labelRequest||sendRequest||planRequest);
   if(process.env.PERSONAL_ACCESS_ENABLED!=='true'&&!identityOnly&&!allowedReadOnlyRequest)throw new AppError('RELEASE_GATE',503,'Personal changes and budgeting are gated. Read-only wallet access may be enabled separately; the public demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
   if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED!=='true')throw new AppError('WALLET_SIGNIN_DISABLED',503,'Wallet sign-in is disabled until explicit release configuration enables it.');
@@ -86,9 +92,16 @@ async function handle(request:Request) {
     return json(await acceptMemoryConsent(profile));
   }
   if(method==='POST'&&path==='sync'){
-    const input=z.object({kind:z.enum(['balances','history'])}).strict().parse(await body(request));
+    const input=z.object({kind:z.enum(['balances','history','recent'])}).strict().parse(await body(request));
     if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept the read-only wallet data terms before importing balance or activity.');
     return json(await syncWallet(profile,input.kind));
+  }
+  if(path==='transfers'||path.startsWith('transfers/')){
+    if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept wallet access before sending.');
+    if(method==='GET')return json({transfers:await recentTransfers(profile)});
+    if(path==='transfers')return json(await prepareTransfer(profile,await body(request)));
+    const [,id,action]=path.split('/');
+    return json(action==='submit'?await submitTransfer(profile,decodeURIComponent(id),await body(request)):await confirmTransfer(profile,decodeURIComponent(id)));
   }
   if(method==='POST'&&profile.consent_version!==CONSENT_VERSION)throw new AppError('CONSENT_REQUIRED',409,'Review the operator-managed memory terms before changing your plan or confirmed context.');
   if(method==='POST'&&path==='commitments')return json(await saveCommitment(profile,await body(request)));
@@ -123,7 +136,8 @@ async function handle(request:Request) {
     if(path==='export')return json({schemaVersion:1,exportedAt:new Date().toISOString(),...state});
     if(path==='state'&&personalReadEnabled&&process.env.PERSONAL_ACCESS_ENABLED!=='true'){
       const readConsent=[CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??'');
-      return json({...state,balance:readConsent?state.balance:null,movements:readConsent?state.movements:[],coverage:readConsent?state.coverage:{state:'not_synced',from:null,to:null,reason:'Accept read-only wallet access before reading or saving onchain data.'},plan:{endDate:null,endKind:'income',reserve:'0',expectedIncome:null,timezone:profile.timezone,version:0},annotations:labelsEnabled?state.annotations:[],reimbursements:[],commitmentAllocations:[],rules:[],occurrences:[],memories:labelsEnabled?state.memories.filter(m=>m.envelope.kind==='payment_explanation'):[],memoryStatus:labelsEnabled?'Payment labels are saved to Walrus Memory after you agree to the memory terms.':'Memory reads are disabled in the read-only pilot.'});
+      const planning=planEnabled&&readConsent;
+      return json({...state,balance:readConsent?state.balance:null,movements:readConsent?state.movements:[],coverage:readConsent?state.coverage:{state:'not_synced',from:null,to:null,reason:'Accept read-only wallet access before reading or saving onchain data.'},plan:planning?state.plan:{endDate:null,endKind:'income',reserve:'0',expectedIncome:null,timezone:profile.timezone,version:0},annotations:labelsEnabled?state.annotations:[],reimbursements:planning?state.reimbursements:[],commitmentAllocations:planning?state.commitmentAllocations:[],rules:planning?state.rules:[],occurrences:planning?state.occurrences:[],memories:planning?state.memories:labelsEnabled?state.memories.filter(m=>m.envelope.kind==='payment_explanation'):[],memoryStatus:labelsEnabled?'Payment labels are saved to Walrus Memory after you agree to the memory terms.':'Memory reads are disabled in the read-only pilot.'});
     }
     return json(state);
   }

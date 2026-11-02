@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
-import { AlertCircle, ArrowDownLeft, ArrowUpRight, RefreshCw, Search, ShieldCheck, Sparkles, Tag } from 'lucide-react';
+import { AlertCircle, ArrowDownLeft, ArrowRight, ArrowUpRight, RefreshCw, Search, Send, ShieldCheck, Sparkles, Tag } from 'lucide-react';
 import { api } from './http';
 import type { AccountState } from '@/domain/state';
+import type { planning } from '@/domain/planning';
 import { READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
 import { amount, integer, SUI_TYPE, USDC_TYPE } from '@/domain/money';
 
@@ -17,8 +18,11 @@ type Props = {
   onAcceptConsent: () => void;
   labels: boolean;
   onLabeled: () => void;
+  // Sending and planning are separate releases on top of the read-only pilot.
+  moves?: boolean;
+  plan?: ReturnType<typeof planning> | null;
 };
-const labelCategories = ['Food', 'Groceries', 'Transport', 'Home', 'Internet', 'Learning', 'Health', 'Family', 'Work', 'Other'];
+export const labelCategories = ['Food', 'Groceries', 'Transport', 'Home', 'Internet', 'Learning', 'Health', 'Family', 'Work', 'Other'];
 
 function ConsentCard({ busy, onAccept }: { busy: boolean; onAccept: () => void }) {
   const [accepted, setAccepted] = useState(false);
@@ -211,7 +215,21 @@ function freshness(observedAt: string, now: string) {
   return hours < 24 ? `Checked ${hours} h ago` : `Checked ${Math.round(hours / 24)} d ago`;
 }
 
-export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, labels, onLabeled }: Props) {
+function PlanGlance({ plan }: { plan: ReturnType<typeof planning> }) {
+  if (plan.state !== 'ready') return <section className="card read-plan-glance" aria-labelledby="plan-glance-title">
+    <h2 id="plan-glance-title">Your plan</h2>
+    <p>{plan.state === 'incomplete' ? 'Set an end date and a reserve to see what’s left to spend each day.' : plan.reason}</p>
+    <Link className="button small" href="/plan">{plan.state === 'incomplete' ? 'Start a plan' : 'Open Plan'} <ArrowRight size={14} aria-hidden="true"/></Link>
+  </section>;
+  return <section className="card read-plan-glance" aria-labelledby="plan-glance-title">
+    <h2 id="plan-glance-title">Left to spend</h2>
+    <strong className="plan-glance-amount">{exact(plan.discretionary, 6)} <small>USDC</small></strong>
+    <p className="muted small-text">{plan.shortfall > 0n ? `Your bills and reserve are ${exact(plan.shortfall, 6)} USDC more than you hold.` : `About ${exact(plan.daily, 6)} USDC a day for the next ${plan.days} days, after ${exact(plan.commitments, 6)} USDC of bills and a ${exact(plan.reserve, 6)} USDC reserve.`}</p>
+    <Link className="text-link" href="/plan">Open Plan</Link>
+  </section>;
+}
+
+export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, labels, onLabeled, moves = false, plan = null }: Props) {
   const confirmation = useLabelConfirmation(state, labels, onLabeled);
   const consented = [READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION].includes(state.profile.consentVersion ?? '');
   if (!consented) return <ConsentCard busy={busy} onAccept={onAcceptConsent}/>;
@@ -221,6 +239,12 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
     <h2>Wallet facts are available. Budget changes are still locked.</h2>
     <p>The balance read has no checkpoint that proves it includes a matched payment. Until Tatum supplies that consistency evidence, this screen won’t calculate a personal spending allowance or release bill reservations.</p>
     <p>Your current balance and imported payments are available in <Link className="text-link" href="/today">Today</Link> and <Link className="text-link" href="/activity">Activity</Link>. {labels ? 'Budget edits stay off in this read-only pilot; payment labels are the only thing it saves.' : 'No budget edits or memory writes are enabled in this read-only pilot.'}</p>
+  </section>;
+
+  if (screen === 'send' || screen === 'receive') return <section className="card read-release-card">
+    <span className="read-only-label">Sending isn’t switched on yet</span>
+    <h2>This wallet is read-only for now.</h2>
+    <p>Your balance and payments are in <Link className="text-link" href="/today">Today</Link> and <Link className="text-link" href="/activity">Activity</Link>. To receive, share your address: <code className="read-address">{state.profile.wallet}</code></p>
   </section>;
 
   if (screen === 'memories' || screen === 'learning') return <section className="card read-release-card">
@@ -259,6 +283,10 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
       </div>
       <strong className="read-balance-amount">{balance ? exact(balance.usdc, 6) : '—'} <small>USDC</small></strong>
       <div className="read-sui-row"><span>SUI for network fees</span><strong>{balance ? exact(balance.sui, 9) : '—'} <small>SUI</small></strong></div>
+      {moves && <div className="balance-actions">
+        <Link className="button primary" href="/send"><Send size={16} aria-hidden="true"/>Send</Link>
+        <Link className="button" href="/receive"><ArrowDownLeft size={16} aria-hidden="true"/>Receive</Link>
+      </div>}
       <p className="micro balance-note">{balance ? `Read from Sui Mainnet through Tatum at ${clockLabel(balance.observedAt, state.plan.timezone)}. A payment you just sent can take a moment to show.` : 'Your balance is read from Sui Mainnet through Tatum as soon as this screen opens.'}</p>
       <details className="read-evidence-details"><summary>How Tatum checked these values</summary>
         <p>The server queried the signed-in address through Tatum’s Sui Mainnet gRPC service. It checked the network identity, exact coin type and metadata before saving the result.</p>
@@ -267,6 +295,8 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
         <p className="micro">Tatum does not attach a checkpoint to this balance response. The latest service checkpoint is separate and is not treated as the balance’s checkpoint.</p>
       </details>
     </section>
+
+    {plan && <PlanGlance plan={plan}/>}
 
     {unlabeled.length > 0 && <section className="card read-activity-card read-queue" aria-labelledby="read-queue-title">
       <div className="section-title"><div><h2 id="read-queue-title">Waiting for a label <span className="read-count">{unlabeled.length}</span></h2><p className="muted small-text">What moved is read from the chain. What it was for comes from you.</p></div></div>
