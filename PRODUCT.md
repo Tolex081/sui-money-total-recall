@@ -26,7 +26,7 @@ Responsive browser application with Today, Activity and Plan as primary navigati
 
 - Sui Mainnet only; exact native-USDC coin identity and six-decimal budget arithmetic.
 - SUI remains separate for balances and network costs.
-- No custody, transfers, payment execution, token approvals, banks, other chains, paid LLMs or unapproved charges.
+- No custody, token approvals, banks, other chains, paid LLMs or unapproved charges. Native-USDC sends are built server-side through Tatum and signed only by the user's own wallet; the server never holds a key.
 - Only storage-confirmed, matching-recall-verified memories affect results. Corrections retain earlier revisions.
 - Missing balances, partial history, pending saves and dependency failures remain explicit.
 - Production identity-only wallet sign-in is enabled through the Wallet Standard picker, with Suiet preferred when installed; the signed-out screen and health flags are verified, but no genuine installed-wallet signature has been tested. Personal finance stays gated pending the atomic balance consistency contract and genuine acceptance checks. The user reports contacting Slush; the separate Slush warning remains unresolved and is not bypassed.

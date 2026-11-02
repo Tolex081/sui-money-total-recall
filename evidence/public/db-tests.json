@@ -1,9 +1,9 @@
 {
-  "checkedAt": "2026-11-01T18:15:34.853Z",
+  "checkedAt": "2026-11-02T16:16:28.010Z",
   "environment": "authenticated-hosted-postgresql-isolated-schema",
   "tests": [
     {
-      "test": "Empty PostgreSQL migrations through version 3",
+      "test": "Empty PostgreSQL migrations through version 4",
       "passed": true
     },
     {
