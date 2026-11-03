@@ -470,6 +470,43 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 .read-plan-glance p { margin: 0; max-width: 62ch; }
 .plan-glance-amount { font-size: 32px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .plan-glance-amount small { color: var(--muted); font-size: 13px; letter-spacing: 0; }
+/* Plan editor: the inputs stay in the open and the result beside them recalculates as they change. */
+.plan-live { align-items: start; }
+.plan-editor { display: grid; gap: 20px; padding: 24px; }
+.plan-editor h2 { margin: 0; font-size: 18px; }
+.plan-field { display: grid; gap: 8px; }
+.plan-field > label, .plan-more label { color: var(--ink); font-size: 14px; font-weight: 500; }
+.plan-field .micro, .plan-field .read-inline-error { margin: 0; }
+.plan-date { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 14px; border: 1px solid var(--control-border); border-radius: 10px; background: var(--paper); cursor: pointer; }
+.plan-date:hover { border-color: var(--border-strong); }
+.plan-date:focus-within { outline: 3px solid var(--blue); outline-offset: 2px; }
+.plan-date svg { color: var(--blue); flex: 0 0 auto; }
+.plan-date input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 17px; font-weight: 600; cursor: pointer; }
+.plan-date input:focus-visible { outline: none; }
+.plan-date-days { flex: 0 0 auto; padding: 4px 9px; border-radius: 6px; color: var(--blue); background: var(--blue-tint); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.plan-quick, .plan-kind { flex-wrap: wrap; }
+.plan-reserve-input { min-height: 48px; padding: 8px 12px; border: 1px solid var(--control-border); border-radius: 10px; color: var(--ink); background: var(--paper); font: inherit; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.plan-reserve-input[aria-invalid=true] { border-color: var(--negative); }
+.plan-more { display: grid; gap: 12px; }
+.plan-more[open] { padding-bottom: 4px; }
+.plan-more label { display: grid; gap: 6px; }
+.plan-more select { min-height: 44px; padding: 8px 10px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--paper); color: var(--ink); font: inherit; }
+.plan-more .checkbox-label { display: flex; gap: 9px; font-weight: 400; font-size: 13px; }
+.plan-editor .move-actions .button { display: inline-flex; align-items: center; gap: 6px; }
+.plan-preview-label { color: var(--muted); font-size: 13px; font-weight: 600; }
+.plan-saved { align-self: center; }
+/* The row's own calendar icon opens the picker, so the browser's second icon is hidden. */
+.plan-date input::-webkit-calendar-picker-indicator { display: none; }
+.plan-preview-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.plan-math { display: grid; margin: 8px 0 0; }
+.plan-math > div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--memory-border); font-size: 14px; font-variant-numeric: tabular-nums; }
+.plan-math dt { color: var(--muted); }
+.plan-math dd { margin: 0; font-weight: 600; }
+.plan-math .total { border-top: 2px solid var(--border-strong); }
+.plan-math .total dt { color: var(--ink); font-weight: 600; }
+@media (max-width: 600px) {
+  .plan-editor { padding: 19px; }
+}
 /* Settings: a label column beside each panel, stacked on a phone. */
 .settings { display: grid; gap: 32px; max-width: 1080px; }
 .settings-row { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr); gap: 24px; align-items: start; }
