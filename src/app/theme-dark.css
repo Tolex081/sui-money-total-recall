@@ -197,6 +197,8 @@
 :where(:root[data-theme="dark"]) .read-filter.active{color:#ffffff}
 :where(:root[data-theme="dark"]) .move-qr{background:var(--paper)}
 :where(:root[data-theme="dark"]) .move-warning{border:1px solid #231b08}
+:where(:root[data-theme="dark"]) .plan-date svg{color:var(--link)}
+:where(:root[data-theme="dark"]) .plan-date-days{color:var(--link)}
 @media (max-width:760px){
 :where(:root[data-theme="dark"]) .topbar{background:#131315}
 }
