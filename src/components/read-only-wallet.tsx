@@ -21,6 +21,7 @@ type Props = {
   // Sending and planning are separate releases on top of the read-only pilot.
   moves?: boolean;
   plan?: ReturnType<typeof planning> | null;
+  suiPlan?: ReturnType<typeof planning> | null;
 };
 export const labelCategories = ['Food', 'Groceries', 'Transport', 'Home', 'Internet', 'Learning', 'Health', 'Family', 'Work', 'Other'];
 
@@ -43,8 +44,9 @@ function clockLabel(instant: string, timezone: string) {
 }
 
 type MovementRecord = AccountState['movements'][number];
-// Matches the server's annotate() eligibility: only settled native-USDC simple transfers can be labeled.
-const labelable = (m: MovementRecord) => m.coinType === USDC_TYPE && m.operation === 'simple_transfer' && m.status === 'success';
+// Matches the server's annotate() eligibility: settled native-USDC or SUI simple transfers can be labeled.
+// A SUI row that is only the gas for a USDC payment is not a payment of its own, so it never asks for a label.
+const labelable = (m: MovementRecord, all: MovementRecord[] = []) => (m.coinType === USDC_TYPE || (m.coinType === SUI_TYPE && !all.some(o => o.digest === m.digest && o.coinType === USDC_TYPE))) && m.operation === 'simple_transfer' && m.status === 'success';
 // Exact amounts without padding: at least two decimals, more only when the value needs them.
 const exact = (value: string | bigint, decimals: number) => amount(value, decimals, decimals).replace(/(\.\d{2}\d*?)0+$/, '$1');
 type MemoryRecord = AccountState['memories'][number];
@@ -151,14 +153,15 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
   const opener = useRef<HTMLButtonElement>(null), chip = useRef<HTMLDivElement>(null), focusChip = useRef(false);
   const timezone = state.plan.timezone, annotation = state.annotations.find(a => a.movementId === movement.id);
   const delta = integer(movement.delta), incoming = delta > 0n;
+  const unit = movement.coinType === SUI_TYPE ? 'SUI' : 'USDC';
   const asset = movement.coinType === USDC_TYPE ? 'native USDC' : movement.coinType === SUI_TYPE ? 'SUI' : 'other asset';
   const decimals = movement.coinType === SUI_TYPE ? 9 : 6;
   const shownAmount = exact(delta < 0n ? -delta : delta, decimals);
   const memoryAgreed = state.profile.consentVersion === OPERATOR_MANAGED_CONSENT_VERSION;
   const party = movement.counterparty ? `${movement.counterparty.slice(0, 6)}…${movement.counterparty.slice(-4)}` : null;
   const time = new Intl.DateTimeFormat('en-GB', { timeStyle: 'short', timeZone: timezone }).format(new Date(movement.timestamp));
-  const canLabel = labels && labelable(movement);
-  const summary = `the ${shownAmount} USDC you ${incoming ? 'received' : 'sent'}${party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}`;
+  const canLabel = labels && labelable(movement, state.movements);
+  const summary = `the ${shownAmount} ${unit} you ${incoming ? 'received' : 'sent'}${party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}`;
   const latest = latestLabel(state, movement.id), latestNote = latest ? labelPayload(latest).note : '';
   const status = !latest ? null : UNSETTLED.includes(latest.state) ? (stalled[latest.envelope.eventId] ? 'stalled' : 'waiting') : latest.state === 'submission_outcome_unknown' ? 'unknown' : latest.state === 'failed' ? 'failed' : null;
   // After a save, focus moves to the chip that replaced the prompt, so keyboard users land on the new status.
@@ -177,7 +180,7 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
       <span className={'read-direction ' + (incoming ? 'incoming' : 'outgoing')} aria-hidden="true">{incoming ? <ArrowDownLeft size={17}/> : <ArrowUpRight size={17}/>}</span>
       <div className="pay-main">
         <strong>{incoming ? 'Received' : 'Sent'}{party ? <> {incoming ? 'from' : 'to'} <span className="pay-party" title={movement.counterparty ?? undefined}>{party}</span></> : ''}</strong>
-        <span>{time}{movement.status === 'failed' ? ', failed' : ''}{movement.digest && <> · <a className="pay-digest" href={`https://suiscan.xyz/mainnet/tx/${movement.digest}`} target="_blank" rel="noreferrer">View transaction<span className="sr-only"> of {shownAmount} USDC on Suiscan (opens in a new tab)</span></a></>}</span>
+        <span>{time}{movement.status === 'failed' ? ', failed' : ''}{movement.digest && <> · <a className="pay-digest" href={`https://suiscan.xyz/mainnet/tx/${movement.digest}`} target="_blank" rel="noreferrer">View transaction<span className="sr-only"> of {shownAmount} {unit} on Suiscan (opens in a new tab)</span></a></>}</span>
       </div>
       <div className={'pay-value ' + (incoming ? 'incoming' : '')}><strong>{incoming ? '+' : '−'}{shownAmount}</strong><small>{asset === 'native USDC' ? 'USDC' : asset}</small></div>
     </div>
@@ -196,7 +199,7 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
       <Sparkles size={14} aria-hidden="true"/>
       <span><b>{annotation.note}</b> {annotation.ownTransfer ? 'Own transfer' : annotation.category}</span>
       {canLabel && <button ref={opener} className="pay-memory-edit" aria-expanded={open} onClick={() => setOpen(!open)}>Edit<span className="sr-only"> label “{annotation.note}”</span></button>}
-    </div> : canLabel && <button ref={opener} className="pay-prompt" aria-expanded={open} onClick={() => setOpen(!open)}><Tag size={14} aria-hidden="true"/>What was this for?<span className="sr-only"> {incoming ? 'Received' : 'Sent'} {shownAmount} USDC{party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}</span></button>}
+    </div> : canLabel && <button ref={opener} className="pay-prompt" aria-expanded={open} onClick={() => setOpen(!open)}><Tag size={14} aria-hidden="true"/>What was this for?<span className="sr-only"> {incoming ? 'Received' : 'Sent'} {shownAmount} {unit}{party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}</span></button>}
     {open && (status === null || status === 'failed') && (memoryAgreed ? <LabelForm movement={movement} state={state} onSaved={() => { setOpen(false); focusChip.current = true; onLabeled(); }} onCancel={close}/> : <MemoryConsent movement={movement} summary={summary} onAccepted={onLabeled} onCancel={close}/>)}
   </li>;
 }
@@ -215,7 +218,7 @@ function freshness(observedAt: string, now: string) {
   return hours < 24 ? `Checked ${hours} h ago` : `Checked ${Math.round(hours / 24)} d ago`;
 }
 
-function PlanGlance({ plan }: { plan: ReturnType<typeof planning> }) {
+function PlanGlance({ plan, suiPlan }: { plan: ReturnType<typeof planning>; suiPlan: ReturnType<typeof planning> | null }) {
   if (plan.state !== 'ready') return <section className="card read-plan-glance" aria-labelledby="plan-glance-title">
     <h2 id="plan-glance-title">Your plan</h2>
     <p>{plan.state === 'incomplete' ? 'Set an end date and a reserve to see what’s left to spend each day.' : plan.reason}</p>
@@ -225,11 +228,12 @@ function PlanGlance({ plan }: { plan: ReturnType<typeof planning> }) {
     <h2 id="plan-glance-title">Left to spend</h2>
     <strong className="plan-glance-amount">{exact(plan.discretionary, 6)} <small>USDC</small></strong>
     <p className="muted small-text">{plan.shortfall > 0n ? `Your bills and reserve are ${exact(plan.shortfall, 6)} USDC more than you hold.` : `About ${exact(plan.daily, 6)} USDC a day for the next ${plan.days} days, after ${exact(plan.commitments, 6)} USDC of bills and a ${exact(plan.reserve, 6)} USDC reserve.`}</p>
+    {suiPlan?.state === 'ready' && <p className="plan-glance-sui"><span>SUI left to spend</span><strong>{exact(suiPlan.discretionary, 9)} <small>SUI</small></strong></p>}
     <Link className="text-link" href="/plan">Open Plan</Link>
   </section>;
 }
 
-export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, labels, onLabeled, moves = false, plan = null }: Props) {
+export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, labels, onLabeled, moves = false, plan = null, suiPlan = null }: Props) {
   const confirmation = useLabelConfirmation(state, labels, onLabeled);
   const consented = [READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION].includes(state.profile.consentVersion ?? '');
   if (!consented) return <ConsentCard busy={busy} onAccept={onAcceptConsent}/>;
@@ -257,7 +261,7 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
   const rows = [...state.movements].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   const historyComplete = state.coverage.state === 'complete';
   // A payment stays in the queue until Walrus confirms its label, so pending and failed saves remain visible there.
-  const needsLabel = (m: MovementRecord) => labelable(m) && !state.annotations.some(a => a.movementId === m.id);
+  const needsLabel = (m: MovementRecord) => labelable(m, state.movements) && !state.annotations.some(a => a.movementId === m.id);
   const unlabeled = labels ? rows.filter(needsLabel) : [];
   const list = { state, labels, onLabeled, confirmation };
   const importPrompt = !historyComplete && <div className="read-import">
@@ -296,7 +300,7 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
       </details>
     </section>
 
-    {plan && <PlanGlance plan={plan}/>}
+    {plan && <PlanGlance plan={plan} suiPlan={suiPlan}/>}
 
     {unlabeled.length > 0 && <section className="card read-activity-card read-queue" aria-labelledby="read-queue-title">
       <div className="section-title"><div><h2 id="read-queue-title">Waiting for a label <span className="read-count">{unlabeled.length}</span></h2><p className="muted small-text">What moved is read from the chain. What it was for comes from you.</p></div></div>

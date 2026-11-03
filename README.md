@@ -2,7 +2,7 @@
 
 Understand what you spent. Make room for what is coming.
 
-Sui Money reads a Sui Mainnet wallet through Tatum and lets you say what each native-USDC payment was for. Those labels are stored with Walrus Memory, confirmed by recall, and come back the next time you sign in. SUI is shown separately for network fees. You can also send native USDC from the same wallet: Sui Money prepares the transfer through Tatum, your own wallet approves it, and it lands in your history. There is no custody, no bank connection, no token pricing and only one chain.
+Sui Money reads a Sui Mainnet wallet through Tatum and lets you say what each native-USDC payment was for. Those labels are stored with Walrus Memory, confirmed by recall, and come back the next time you sign in. SUI is shown separately for network fees. You can also send native USDC or SUI from the same wallet: Sui Money prepares the transfer through Tatum, your own wallet approves it, and it lands in your history. There is no custody, no bank connection, no token pricing and only one chain.
 
 Built for **Total Recall (Tatum × Walrus Memory)**, Consumer Finance Apps track, 20 October to 10 November 2026.
 
@@ -18,9 +18,11 @@ Built for **Total Recall (Tatum × Walrus Memory)**, Consumer Finance Apps track
 | Payment labels | **Live, after a separate consent.** Answer "What was this for?" on any settled native-USDC transfer. The label is written to Walrus Mainnet and only shows as remembered after a matching recall confirms it. Pending, unconfirmed and failed saves stay visible on the payment, with a retry. |
 | Today and Activity | **Live.** Today is your balance, the payments still waiting for a label, and the latest three. Activity is the full list with filters, search, "Label next" and paging. |
 | Send and Receive | **Built, behind `PERSONAL_SEND_ENABLED`.** Send builds a native-USDC transfer through Tatum, your wallet signs it (no key reaches the server), the server submits it through Tatum and confirms it by reading the digest back into Activity. An optional "What's it for?" label is saved the same way as any other label. Receive shows your address and QR code and watches for incoming payments for ten minutes while open. Tested against Tatum with an empty throwaway wallet only; no real send has been made yet. |
+| SUI budget | **Built, behind `PERSONAL_PLAN_ENABLED`.** A separate budget in SUI's own units on the Plan screen: SUI reserve, SUI bills (once, weekly or monthly, marked paid), SUI left to spend over the plan's dates and SUI spent in the last 30 days (network fees excluded). SUI and USDC are never converted or added together. Stored in the profile database, not Walrus. |
+| Settings and sessions | **Live.** Settings shows the wallet, auto-lock time (5, 15, 30 or 60 minutes without activity), theme, consents and a data download. Sign-ins end when the browser closes, after 60 idle minutes on the server and after 24 hours at most; "Sign out on every device" revokes them all. |
 | Budgeting (Plan, commitments, reserve, reimbursements, recurring suggestions) | **Built for real wallets, behind `PERSONAL_PLAN_ENABLED`.** Uses the memory consent labels use. Balance reads now carry the service checkpoint read just before them as a lower bound; see [balance consistency](docs/BALANCE_CONSISTENCY.md) for the remaining risk. |
 
-Production flags: `WALLET_SIGNIN_ENABLED`, `PERSONAL_READ_ENABLED` and `PERSONAL_LABELS_ENABLED` are on. `PERSONAL_SEND_ENABLED` (send/receive) and `PERSONAL_PLAN_ENABLED` (Plan) are new and must be turned on, and migration 004 applied, before they work in production. `PERSONAL_ACCESS_ENABLED` (the older all-in-one access mode) stays off.
+Production flags: `WALLET_SIGNIN_ENABLED`, `PERSONAL_READ_ENABLED` and `PERSONAL_LABELS_ENABLED` are on. `PERSONAL_SEND_ENABLED` (send/receive) and `PERSONAL_PLAN_ENABLED` (Plan) are on. Migration 005 (SUI budget and session idle tracking) must be applied before the SUI budget and the new sign-in rules work in production. `PERSONAL_ACCESS_ENABLED` (the older all-in-one access mode) stays off.
 
 ## Try it
 
