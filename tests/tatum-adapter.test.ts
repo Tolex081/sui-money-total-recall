@@ -50,3 +50,14 @@ it('F13 a terminal frame cannot override a failed final transport status or a st
   await expect(collectHistoryPage(historyRequest,frames(GrpcTypes.ListTransactionsResponse.create({transaction:fixture(),end:{reason:GrpcTypes.QueryEndReason.CHECKPOINT_BOUND}})),Promise.resolve({code:'UNAVAILABLE'}))).rejects.toMatchObject({code:'UNAVAILABLE'});
   await expect(collectHistoryPage(historyRequest,frames(GrpcTypes.ListTransactionsResponse.create({end:{reason:GrpcTypes.QueryEndReason.SCAN_LIMIT}})),Promise.resolve({code:'OK'}))).rejects.toMatchObject({code:'TATUM_CURSOR_STALLED'});
 });
+function suiFixture(){const tx=fixture();tx.balanceChanges=[GrpcTypes.BalanceChange.create({address:owner,coinType:SUI_TYPE,amount:'-2000000100'}),GrpcTypes.BalanceChange.create({address:destination,coinType:SUI_TYPE,amount:'2000000000'})];return tx;}
+it('plain SUI payments are simple transfers with a counterparty, from either side',()=>{
+  const sent=extractTransaction(suiFixture(),owner);expect(sent).toHaveLength(1);expect(sent[0].operation).toBe('simple_transfer');expect(sent[0].counterparty).toBe(destination);expect(sent[0].delta).toBe('-2000000100');
+  const received=extractTransaction(suiFixture(),destination);expect(received[0].operation).toBe('simple_transfer');expect(received[0].counterparty).toBe(owner);expect(received[0].delta).toBe('2000000000');
+});
+it('SUI movements stay review-only when the payer is not the gas owner, a third party gains, or the receiver gains more than was paid',()=>{
+  const sponsored=suiFixture();sponsored.transaction!.gasPayment!.owner=third;expect(extractTransaction(sponsored,owner).every(m=>m.operation==='complex')).toBe(true);
+  const split=suiFixture();split.balanceChanges[1].amount='1000000000';split.balanceChanges.push(GrpcTypes.BalanceChange.create({address:third,coinType:SUI_TYPE,amount:'1000000000'}));expect(extractTransaction(split,owner).every(m=>m.operation==='complex')).toBe(true);
+  const minted=suiFixture();minted.balanceChanges[1].amount='3000000000';expect(extractTransaction(minted,owner).every(m=>m.operation==='complex')).toBe(true);
+  const swap=suiFixture();const data=swap.transaction!.kind!.data;if(data?.oneofKind!=='programmableTransaction')throw Error('Fixture kind');data.programmableTransaction.commands=[GrpcTypes.Command.create({command:{oneofKind:'moveCall',moveCall:{package:third,module:'pool',function:'swap',typeArguments:[SUI_TYPE],arguments:[]}}})];expect(extractTransaction(swap,owner).every(m=>m.operation==='complex')).toBe(true);
+});

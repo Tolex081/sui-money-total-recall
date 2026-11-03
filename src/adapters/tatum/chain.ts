@@ -38,18 +38,26 @@ export function extractTransaction(tx: GrpcTypes.ExecutedTransaction, owner: str
   const changes=[...uniqueChanges.values()];
   const usdcOwners = [...new Set(changes.filter(c => c.coinType === USDC_TYPE && integer(c.amount) !== 0n).map(c => c.owner))];
   const allowedStablecoinCalls = new Set(['balance::send_funds','balance::redeem_funds','coin::send_funds','coin::into_balance','funds_accumulator::withdrawal_split']);
-  const supportedCommand = (c: GrpcTypes.Command) => {
+  const supportedCommand = (coinType: string) => (c: GrpcTypes.Command) => {
     if(['transferObjects','splitCoins','mergeCoins'].includes(c.command.oneofKind ?? ''))return true;
     if(c.command.oneofKind!=='moveCall')return false;
     const call=c.command.moveCall;
-    return !!call.package && normalizeSuiAddress(call.package)===normalizeSuiAddress('0x2') && allowedStablecoinCalls.has(call.module+'::'+call.function) && call.typeArguments.length===1 && normalizeStructTag(call.typeArguments[0])===USDC_TYPE;
+    return !!call.package && normalizeSuiAddress(call.package)===normalizeSuiAddress('0x2') && allowedStablecoinCalls.has(call.module+'::'+call.function) && call.typeArguments.length===1 && normalizeStructTag(call.typeArguments[0])===coinType;
   };
   const transfersValue=commands.some(c=>c.command.oneofKind==='transferObjects'||(c.command.oneofKind==='moveCall'&&c.command.moveCall.function==='send_funds'));
   const usdcConserved=changes.filter(c=>c.coinType===USDC_TYPE).reduce((n,c)=>n+integer(c.amount),0n)===0n;
-  const simple = commands.length > 0 && commands.every(supportedCommand) && transfersValue && usdcOwners.length === 2 && usdcConserved && !changes.some(c => c.coinType !== SUI_TYPE && c.coinType !== USDC_TYPE);
+  const simpleUsdc = commands.length > 0 && commands.every(supportedCommand(USDC_TYPE)) && transfersValue && usdcOwners.length === 2 && usdcConserved && !changes.some(c => c.coinType !== SUI_TYPE && c.coinType !== USDC_TYPE);
+  // A plain SUI payment: only SUI moves, between exactly two owners. SUI is not conserved because the payer also
+  // pays gas, so the payer must be the gas owner, lose at least what the receiver gains, and be the only loser.
+  const suiChanges=changes.filter(c=>c.coinType===SUI_TYPE&&integer(c.amount)!==0n);
+  const payer=suiChanges.find(c=>integer(c.amount)<0n),receiver=suiChanges.find(c=>integer(c.amount)>0n);
+  const gasOwner=tx.transaction?.gasPayment?.owner ? canonicalAddress(tx.transaction.gasPayment.owner) : null;
+  const simpleSui = !simpleUsdc && usdcOwners.length === 0 && commands.length > 0 && commands.every(supportedCommand(SUI_TYPE)) && transfersValue && suiChanges.length === 2 && !!payer && !!receiver && payer.owner === gasOwner && -integer(payer.amount) >= integer(receiver.amount) && !changes.some(c => c.coinType !== SUI_TYPE && integer(c.amount) !== 0n);
+  const simple = simpleUsdc || simpleSui;
+  const parties = simpleUsdc ? usdcOwners : simpleSui ? [payer!.owner, receiver!.owner] : [];
   const gas = tx.effects.gasUsed;
   const cost = gas ? (gas.computationCost ?? 0n) + (gas.storageCost ?? 0n) - (gas.storageRebate ?? 0n) : 0n;
-  return normalize({ digest: tx.digest, checkpoint: tx.checkpoint.toString(), timestamp: timestamp(tx.timestamp), success: tx.effects.status.success, simple, changes, counterparty: simple ? usdcOwners.find(a => a !== owner) ?? null : null, gasOwner: tx.transaction?.gasPayment?.owner ? canonicalAddress(tx.transaction.gasPayment.owner) : null, gasCost: cost.toString() }, owner).map(m => ({...m,id:'mov_'+createHash('sha256').update(m.id).digest('hex').slice(0,40)}));
+  return normalize({ digest: tx.digest, checkpoint: tx.checkpoint.toString(), timestamp: timestamp(tx.timestamp), success: tx.effects.status.success, simple, changes, counterparty: simple ? parties.find(a => a !== owner) ?? null : null, gasOwner, gasCost: cost.toString() }, owner).map(m => ({...m,id:'mov_'+createHash('sha256').update(m.id).digest('hex').slice(0,40)}));
 }
 export class TatumChain implements ChainPort {
   readonly client: SuiGrpcClient;
@@ -86,12 +94,12 @@ export class TatumChain implements ChainPort {
     // lower bound: payments at or below it are treated as included. See docs/BALANCE_CONSISTENCY.md for the residual risk.
     return { usdc: values[0], sui: values[1], checkpoint: service.checkpoint, observedAt: new Date().toISOString(), source: 'tatum', stale: false };
   }
-  // Builds an unsigned native-USDC transfer from the sender's own funds; gas is paid in SUI by the sender.
-  // The result goes to the user's wallet for signing. Nothing here holds or uses a key.
-  async buildUsdcTransfer(sender: string, recipient: string, amount: bigint) {
+  // Builds an unsigned native-USDC or SUI transfer from the sender's own funds; gas is paid in SUI by the sender
+  // (for SUI, from the same balance). The result goes to the user's wallet for signing. Nothing here holds a key.
+  async buildTransfer(sender: string, recipient: string, coinType: typeof USDC_TYPE | typeof SUI_TYPE, amount: bigint) {
     const tx = new Transaction();
     tx.setSender(canonicalAddress(sender));
-    tx.transferObjects([coinWithBalance({ type: USDC_TYPE, balance: amount })], canonicalAddress(recipient));
+    tx.transferObjects([coinWithBalance({ type: coinType, balance: amount })], canonicalAddress(recipient));
     await this.beforeRead();
     const bytes = await tx.build({ client: this.client });
     const built = Transaction.from(bytes);

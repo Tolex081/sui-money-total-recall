@@ -409,6 +409,8 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 .move-form .micro, .move-form .read-inline-error { margin: 0; }
 .text-button { padding: 0; border: 0; color: var(--link); background: none; font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 .text-button:hover { color: var(--link-hover); }
+.move-coin { margin: 0; padding: 0; border: 0; }
+.move-coin legend { margin-bottom: 8px; color: var(--ink); font-size: 14px; font-weight: 500; }
 .move-label { display: grid; gap: 8px; margin: 8px 0 0; padding: 16px 0 0; border: 0; border-top: 1px solid var(--line); }
 .move-label legend { float: left; width: 100%; margin: 0 0 8px; }
 .move-label legend .muted { font-weight: 400; font-size: 13px; }
@@ -468,7 +470,53 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 .read-plan-glance p { margin: 0; max-width: 62ch; }
 .plan-glance-amount { font-size: 32px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .plan-glance-amount small { color: var(--muted); font-size: 13px; letter-spacing: 0; }
+/* Settings: a label column beside each panel, stacked on a phone. */
+.settings { display: grid; gap: 32px; max-width: 1080px; }
+.settings-row { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr); gap: 24px; align-items: start; }
+.settings-label h2 { margin: 0 0 6px; font-size: 16px; }
+.settings-label p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.settings-panel { display: grid; gap: 16px; padding: 20px; }
+.settings-choice { margin: 0; padding: 0; border: 0; }
+.settings-choice legend { margin-bottom: 8px; font-size: 14px; font-weight: 500; }
+.settings-facts { display: grid; margin: 0; }
+.settings-facts > div { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.settings-facts > div:first-child { border-top: 0; }
+.settings-facts dt { color: var(--muted); }
+.settings-facts dd { margin: 0; text-align: right; }
+.settings-facts dd .text-link { margin-left: 8px; }
+.settings-notes { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.settings .move-actions .button { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 760px) {
+  .settings-row { grid-template-columns: 1fr; gap: 10px; }
+  .settings-facts > div { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .settings-facts dd { text-align: left; }
+}
+/* SUI budget: the same figures as the USDC plan, in SUI, beside it. */
+.sui-budget { display: grid; gap: 12px; padding: 24px; }
+.sui-budget .section-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.sui-budget .section-title .button { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.sui-budget-figures { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 16px; margin: 0; }
+.sui-budget-figures > div { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 0; border-top: 1px solid var(--line); }
+.sui-budget-figures > .lead { grid-column: 1 / -1; border-top: 0; padding-top: 0; }
+.sui-budget-figures dt { color: var(--muted); font-size: 13px; }
+.sui-budget-figures dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sui-budget-figures .lead dd { font-size: 32px; letter-spacing: -0.03em; }
+.sui-budget-figures small { color: var(--muted); font-size: 12px; font-weight: 500; letter-spacing: 0; }
+.sui-budget-figures dd.micro { color: var(--muted); font-size: 13px; font-weight: 400; letter-spacing: 0; }
+.sui-budget-subhead { margin: 8px 0 0; font-size: 14px; }
+.sui-bills { display: grid; margin: 0; padding: 0; list-style: none; }
+.sui-bills li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.sui-bill-amount { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.sui-bill-amount small { color: var(--muted); font-weight: 500; }
+.sui-bill-actions { display: flex; gap: 12px; }
+.sui-bill-actions .text-button { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; font-size: 13px; }
+.sui-inline-form { margin: 0; }
+.plan-glance-sui { display: flex; align-items: baseline; gap: 10px; }
+.plan-glance-sui span { color: var(--muted); font-size: 13px; }
+.plan-glance-sui strong { font-variant-numeric: tabular-nums; }
+.plan-glance-sui small { color: var(--muted); font-size: 12px; font-weight: 500; }
 @media (max-width: 900px) {
+  .sui-budget-figures { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .move-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
@@ -480,4 +528,8 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
   .move-copy { flex-direction: column; }
   .move-copy .button { border-left: 0; border-top: 1px solid var(--control-border); justify-content: center; }
   .balance-actions .button { flex: 1; }
+  .sui-budget { padding: 19px; }
+  .sui-budget .section-title { flex-direction: column; }
+  .sui-bills li { grid-template-columns: minmax(0, 1fr) auto; }
+  .sui-bill-actions { grid-column: 1 / -1; }
 }

@@ -34,7 +34,7 @@ export async function verifyChallenge(input: { id: string; wallet: string; signa
     if (!profile) { const profileId=randomUUID(); profile=(await db.query<Profile>('INSERT INTO profiles(id,wallet,namespace) VALUES($1,$2,$3) ON CONFLICT(wallet) DO UPDATE SET wallet=EXCLUDED.wallet RETURNING *',[profileId,wallet,namespaceFor(profileId)])).rows[0]; }
     if (oldToken) await db.query('UPDATE sessions SET revoked_at=now() WHERE token_hash=$1',[hash(oldToken)]);
     const sessionToken = token(), csrf = token();
-    await db.query('INSERT INTO sessions(token_hash,profile_id,csrf_hash,expires_at) VALUES($1,$2,$3,now()+interval \'7 days\')',[hash(sessionToken),profile.id,hash(csrf)]);
+    await db.query('INSERT INTO sessions(token_hash,profile_id,csrf_hash,expires_at) VALUES($1,$2,$3,now()+interval \'24 hours\')',[hash(sessionToken),profile.id,hash(csrf)]);
     return { profile, sessionToken, csrf };
   });
 }
@@ -45,12 +45,17 @@ export const sessionCookie = (request: Request) => cookie(request,'sm_session');
 export async function authenticate(request: Request, mutating=false, allowWalletMismatch=false) {
   const raw = sessionCookie(request);
   if (!raw || raw.length>100) throw new AppError('UNAUTHORIZED',401,'Connect your wallet and sign in to open your account.');
-  const {rows} = await database().query<Profile & {csrf_hash:string}>(`SELECT p.*,s.csrf_hash FROM sessions s JOIN profiles p ON p.id=s.profile_id WHERE s.token_hash=$1 AND s.expires_at>now() AND s.revoked_at IS NULL`,[hash(raw)]);
+  const {rows} = await database().query<Profile & {csrf_hash:string}>(`SELECT p.*,s.csrf_hash FROM sessions s JOIN profiles p ON p.id=s.profile_id WHERE s.token_hash=$1 AND s.expires_at>now() AND s.revoked_at IS NULL AND s.last_seen_at>now()-make_interval(mins=>$2)`,[hash(raw),SESSION_IDLE_MINUTES]);
   const profile = rows[0];
   if (!profile) throw new AppError('SESSION_EXPIRED',401,'Your session has ended. Connect your wallet and sign again to continue.');
+  // Activity keeps the session open; the write is skipped when it was refreshed in the last minute.
+  await database().query('UPDATE sessions SET last_seen_at=now() WHERE token_hash=$1 AND last_seen_at<now()-interval \'1 minute\'',[hash(raw)]);
   const connected=request.headers.get('x-wallet-address');
   if(!allowWalletMismatch&&connected&&canonicalAddress(connected)!==profile.wallet)throw new AppError('WALLET_CHANGED',401,'Your connected wallet changed. Sign in again for the selected wallet.');
   if (mutating && (!request.headers.get('x-csrf-token') || !equalSecret(hash(request.headers.get('x-csrf-token')!),profile.csrf_hash))) throw new AppError('CSRF_REJECTED',403,'Refresh this page and try again.');
   return profile;
 }
+// A session also ends after this long without a request, whatever the browser's own lock setting is.
+export const SESSION_IDLE_MINUTES = 60;
+export async function revokeAll(profileId: string) { await database().query('UPDATE sessions SET revoked_at=now() WHERE profile_id=$1 AND revoked_at IS NULL',[profileId]); }
 export async function revoke(request: Request) { const raw = sessionCookie(request); if(raw) await database().query('UPDATE sessions SET revoked_at=now() WHERE token_hash=$1',[hash(raw)]); }

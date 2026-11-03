@@ -6,7 +6,7 @@ import { database, transaction } from '@/adapters/postgres/client';
 import { TatumChain, canonicalAddress } from '@/adapters/tatum/chain';
 import { chainReadBudget, consumeLimits } from '@/lib/rate-limit';
 import { AppError, hash } from '@/lib/security';
-import { units, USDC_TYPE } from '@/domain/money';
+import { units, SUI_TYPE, USDC_TYPE } from '@/domain/money';
 import { saveMovements } from './sync';
 import type { Profile } from './auth';
 
@@ -14,19 +14,22 @@ import type { Profile } from './auth';
 // to Sui), confirmed (read back from the chain and added to history) or failed. The server never holds a key:
 // it builds through Tatum, the user's wallet signs, and the server submits the signed bytes through Tatum.
 const PREPARED_TTL_MS = 10 * 60 * 1000;
-const prepareInput = z.object({ recipient: z.string().trim().max(80), amount: z.string().trim().max(40) }).strict();
+const prepareInput = z.object({ recipient: z.string().trim().max(80), amount: z.string().trim().max(40), coin: z.enum(['USDC', 'SUI']).default('USDC') }).strict();
+const COINS = { USDC: { type: USDC_TYPE, decimals: 6 }, SUI: { type: SUI_TYPE, decimals: 9 } } as const;
+const coinName = (coinType: string) => coinType === SUI_TYPE ? 'SUI' : 'USDC';
 const submitInput = z.object({ bytes: z.string().max(20000), signature: z.string().max(12000) }).strict();
-export type TransferView = { id: string; recipient: string; amount: string; state: string; digest: string | null; errorCode: string | null; createdAt: string };
-const view = (r: Record<string, unknown>): TransferView => ({ id: r.id as string, recipient: r.recipient as string, amount: String(r.amount), state: r.state as string, digest: (r.digest as string | null) ?? null, errorCode: (r.error_code as string | null) ?? null, createdAt: new Date(r.created_at as string).toISOString() });
+export type TransferView = { id: string; recipient: string; amount: string; coin: 'USDC' | 'SUI'; state: string; digest: string | null; errorCode: string | null; createdAt: string };
+const view = (r: Record<string, unknown>): TransferView => ({ id: r.id as string, recipient: r.recipient as string, amount: String(r.amount), coin: coinName(r.coin_type as string), state: r.state as string, digest: (r.digest as string | null) ?? null, errorCode: (r.error_code as string | null) ?? null, createdAt: new Date(r.created_at as string).toISOString() });
 const chainFor = (profile: Profile) => new TatumChain(async () => { await chainReadBudget(profile.id); });
 
-function friendlyBuildError(error: unknown): never {
+function friendlyBuildError(coin: 'USDC' | 'SUI') { return (error: unknown): never => {
   if (error instanceof AppError) throw error;
   const text = error instanceof Error ? error.message : String(error);
+  if (/insufficient|not enough|balance/i.test(text) && coin === 'SUI') throw new AppError('INSUFFICIENT_FUNDS', 400, 'This wallet doesn’t hold enough SUI for that amount plus the network fee.');
   if (/insufficient|not enough|balance/i.test(text) && /gas|sui/i.test(text)) throw new AppError('INSUFFICIENT_GAS', 400, 'You need a little SUI in this wallet to pay the network fee.');
   if (/insufficient|not enough|balance/i.test(text)) throw new AppError('INSUFFICIENT_FUNDS', 400, 'This wallet doesn’t hold enough USDC for that amount.');
   throw new AppError('TRANSFER_BUILD_FAILED', 503, 'Sui Money couldn’t prepare this send right now. Nothing was sent; try again shortly.', true);
-}
+}; }
 
 export async function prepareTransfer(profile: Profile, input: unknown) {
   const data = prepareInput.parse(input);
@@ -34,15 +37,16 @@ export async function prepareTransfer(profile: Profile, input: unknown) {
   try { recipient = canonicalAddress(data.recipient); } catch { throw new AppError('RECIPIENT_INVALID', 400, 'That isn’t a valid Sui address. Check it and paste it again.'); }
   if (recipient === profile.wallet) throw new AppError('RECIPIENT_SELF', 400, 'That’s this wallet’s own address. Enter the address you want to pay.');
   let amount: bigint;
-  try { amount = units(data.amount); } catch (e) { throw new AppError('AMOUNT_INVALID', 400, (e as Error).message); }
+  const coin = COINS[data.coin];
+  try { amount = units(data.amount, coin.decimals); } catch (e) { throw new AppError('AMOUNT_INVALID', 400, (e as Error).message); }
   if (amount <= 0n) throw new AppError('AMOUNT_INVALID', 400, 'Enter an amount above zero.');
   await consumeLimits([{ key: `transfer:prepare:${profile.id}`, max: 6, seconds: 60 }]);
   const chain = chainFor(profile);
   try {
-    const built = await chain.buildUsdcTransfer(profile.wallet, recipient, amount).catch(friendlyBuildError);
+    const built = await chain.buildTransfer(profile.wallet, recipient, coin.type, amount).catch(friendlyBuildError(data.coin));
     const id = randomUUID();
-    await database().query('INSERT INTO transfers(profile_id,id,recipient,amount,coin_type,tx_bytes_hash,tx_json,state) VALUES($1,$2,$3,$4,$5,$6,$7,\'prepared\')', [profile.id, id, recipient, amount.toString(), USDC_TYPE, hash(toBase64(built.bytes)), built.json]);
-    return { id, recipient, amount: amount.toString(), transaction: built.json, gasBudget: built.gasBudget };
+    await database().query('INSERT INTO transfers(profile_id,id,recipient,amount,coin_type,tx_bytes_hash,tx_json,state) VALUES($1,$2,$3,$4,$5,$6,$7,\'prepared\')', [profile.id, id, recipient, amount.toString(), coin.type, hash(toBase64(built.bytes)), built.json]);
+    return { id, recipient, amount: amount.toString(), coin: data.coin, transaction: built.json, gasBudget: built.gasBudget };
   } finally { chain.close(); }
 }
 
@@ -96,8 +100,8 @@ export async function confirmTransfer(profile: Profile, id: string) {
     await saveMovements(profile.id, movements);
     const failed = movements.some(m => m.status === 'failed');
     const updated = (await database().query('UPDATE transfers SET state=$3,error_code=$4,updated_at=now() WHERE profile_id=$1 AND id=$2 RETURNING *', [profile.id, row.id, failed ? 'failed' : 'confirmed', failed ? 'EXECUTION_FAILED' : null])).rows[0];
-    const usdc = movements.find(m => m.coinType === USDC_TYPE);
-    return { ...view(updated), movementId: usdc?.id ?? null };
+    const sent = movements.find(m => m.coinType === row.coin_type);
+    return { ...view(updated), movementId: sent?.id ?? null };
   } finally { chain.close(); }
 }
 

@@ -30,30 +30,36 @@ function BalanceAside({ state }: { state: AccountState }) {
   </dl>;
 }
 
-type Prepared = { id: string; recipient: string; amount: string; transaction: string; gasBudget: string | null };
+type Coin = 'USDC' | 'SUI';
+const DECIMALS: Record<Coin, number> = { USDC: 6, SUI: 9 };
+// Sending all of a wallet's SUI would leave nothing for the network fee, so Send all keeps this much back.
+const SUI_FEE_RESERVE = 10_000_000n;
+type Prepared = { id: string; recipient: string; amount: string; coin: Coin; transaction: string; gasBudget: string | null };
 type Phase = 'form' | 'review' | 'signing' | 'submitting' | 'confirming' | 'done' | 'failed';
 
 function Send({ state, labels, onChanged }: Props) {
   const account = useCurrentAccount(), kit = useDAppKit(dAppKit);
   const [recipient, setRecipient] = useState(''), [value, setValue] = useState(''), [note, setNote] = useState(''), [category, setCategory] = useState('Other');
-  const [memoryOk, setMemoryOk] = useState(false);
+  const [coin, setCoin] = useState<Coin>('USDC'), [memoryOk, setMemoryOk] = useState(false);
   const [phase, setPhase] = useState<Phase>('form'), [prepared, setPrepared] = useState<Prepared | null>(null), [digest, setDigest] = useState(''), [failure, setFailure] = useState(''), [outcome, setOutcome] = useState('');
   const [busy, setBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const memoryAgreed = state.profile.consentVersion === OPERATOR_MANAGED_CONSENT_VERSION;
-  const balance = state.balance, usdc = balance ? integer(balance.usdc) : null;
+  const balance = state.balance, held = balance ? integer(coin === 'SUI' ? balance.sui : balance.usdc) : null, decimals = DECIMALS[coin];
+  const sendable = held === null ? null : coin === 'SUI' ? (held > SUI_FEE_RESERVE ? held - SUI_FEE_RESERVE : 0n) : held;
   const wrongWallet = account && account.address !== state.profile.wallet;
   useEffect(() => { if (phase !== 'form') heading.current?.focus(); }, [phase]);
 
   let requested: bigint | null = null, valueError = '';
-  if (value.trim()) { try { requested = units(value.trim()); } catch (e) { valueError = (e as Error).message; } }
-  if (requested !== null && usdc !== null && requested > usdc) valueError = `That’s more than the ${exact(usdc)} USDC in this wallet.`;
+  if (value.trim()) { try { requested = units(value.trim(), decimals); } catch (e) { valueError = (e as Error).message; } }
+  if (requested !== null && held !== null && requested > held) valueError = `That’s more than the ${exact(held, decimals)} ${coin} in this wallet.`;
+  else if (requested !== null && sendable !== null && coin === 'SUI' && requested > sendable) valueError = `Leave about ${exact(SUI_FEE_RESERVE, 9)} SUI for the network fee. You can send up to ${exact(sendable, 9)} SUI.`;
   if (requested === 0n) valueError = 'Enter an amount above zero.';
 
   async function review(event: FormEvent) {
     event.preventDefault(); if (valueError) return;
     setBusy(true); setFailure('');
-    try { setPrepared(await api<Prepared>('/transfers', { recipient: recipient.trim(), amount: value.trim() })); setPhase('review'); }
+    try { setPrepared(await api<Prepared>('/transfers', { recipient: recipient.trim(), amount: value.trim(), coin })); setPhase('review'); }
     catch (e) { setFailure((e as Error).message); } finally { setBusy(false); }
   }
 
@@ -68,14 +74,14 @@ function Send({ state, labels, onChanged }: Props) {
     try { submitted = await api('/transfers/' + prepared.id + '/submit', signed); }
     catch (e) { setFailure((e as Error).message); setPhase(e instanceof ApiError && e.code === 'TRANSFER_EXPIRED' ? 'form' : 'failed'); return; }
     setDigest(submitted.digest);
-    if (submitted.state === 'failed') { setFailure('Sui rejected this transaction, so no USDC moved. The network fee may still have been charged.'); setPhase('failed'); onChanged(); return; }
+    if (submitted.state === 'failed') { setFailure(`Sui rejected this transaction, so no ${prepared.coin} moved. The network fee may still have been charged.`); setPhase('failed'); onChanged(); return; }
     setPhase('confirming');
     for (let attempt = 0; attempt < 20; attempt++) {
       await wait(attempt === 0 ? 1500 : 3000);
       try {
         const result = await api<{ state: string; movementId?: string | null }>('/transfers/' + prepared.id + '/confirm', {});
         if (result.state === 'confirmed') { await saveLabel(result.movementId ?? null); setPhase('done'); onChanged(); return; }
-        if (result.state === 'failed') { setFailure('Sui recorded this transaction as failed, so no USDC moved. The network fee may still have been charged.'); setPhase('failed'); onChanged(); return; }
+        if (result.state === 'failed') { setFailure(`Sui recorded this transaction as failed, so no ${prepared.coin} moved. The network fee may still have been charged.`); setPhase('failed'); onChanged(); return; }
       } catch { /* A busy provider is not a failed send; keep checking. */ }
     }
     setOutcome('Sui accepted your send but it hasn’t shown in a checkpoint yet. It will appear in Activity once it does.'); setPhase('done'); onChanged();
@@ -104,12 +110,16 @@ function Send({ state, labels, onChanged }: Props) {
         <ConnectButton modalOptions={{ sortFn: prioritizeSuiet }}/>
       </div> : wrongWallet ? <p className="read-inline-error" role="alert">Your wallet is on {short(account.address)}, but you signed in as {short(state.profile.wallet)}. Switch accounts in your wallet to send from this one.</p>
       : phase === 'form' ? <form className="move-form" onSubmit={review} noValidate>
+        <fieldset className="move-coin">
+          <legend>Send</legend>
+          <div className="read-filters" role="group" aria-label="Coin to send">{(['USDC', 'SUI'] as Coin[]).map(c => <button key={c} type="button" aria-pressed={coin === c} className={'read-filter' + (coin === c ? ' active' : '')} onClick={() => { setCoin(c); setValue(''); }}>{c}</button>)}</div>
+        </fieldset>
         <label>To<input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="0x…" autoComplete="off" spellCheck={false} required aria-describedby="recipient-help"/></label>
         <p className="micro" id="recipient-help">A Sui Mainnet address. Sends can’t be reversed, so check it matches.</p>
         <label>Amount
-          <span className="move-amount"><input inputMode="decimal" value={value} onChange={e => setValue(e.target.value.replace(',', '.'))} placeholder="0.00" required aria-invalid={!!valueError} aria-describedby="amount-help"/><span aria-hidden="true">USDC</span></span>
+          <span className="move-amount"><input inputMode="decimal" value={value} onChange={e => setValue(e.target.value.replace(',', '.'))} placeholder="0.00" required aria-invalid={!!valueError} aria-describedby="amount-help"/><span aria-hidden="true">{coin}</span></span>
         </label>
-        <p className={valueError ? 'read-inline-error' : 'micro'} id="amount-help" role={valueError ? 'alert' : undefined}>{valueError || (usdc !== null ? <>You have {exact(usdc)} USDC. <button type="button" className="text-button" onClick={() => setValue(exact(usdc).replaceAll(',', ''))}>Send all</button></> : 'Your balance hasn’t been read yet.')}</p>
+        <p className={valueError ? 'read-inline-error' : 'micro'} id="amount-help" role={valueError ? 'alert' : undefined}>{valueError || (held !== null && sendable !== null ? <>You have {exact(held, decimals)} {coin}{coin === 'SUI' ? ', and the network fee comes out of it too' : ''}. {sendable > 0n && <button type="button" className="text-button" onClick={() => setValue(exact(sendable, decimals).replaceAll(',', ''))}>Send all</button>}</> : 'Your balance hasn’t been read yet.')}</p>
         {labels && <fieldset className="move-label">
           <legend>What’s it for? <span className="muted">Optional</span></legend>
           <div className="move-label-row">
@@ -122,14 +132,14 @@ function Send({ state, labels, onChanged }: Props) {
         <div className="move-actions"><button className="button primary" disabled={busy || !recipient.trim() || !value.trim() || !!valueError}>{busy ? 'Preparing…' : 'Review send'}</button></div>
       </form>
       : phase === 'done' ? <div className="move-result" role="status">
-        <p className="move-result-amount"><Check size={20} aria-hidden="true"/>{prepared && exact(prepared.amount)} <small>USDC</small> to {sendingTo}</p>
+        <p className="move-result-amount"><Check size={20} aria-hidden="true"/>{prepared && exact(prepared.amount, DECIMALS[prepared.coin])} <small>{prepared?.coin}</small> to {sendingTo}</p>
         {outcome ? <p>{outcome}</p> : <p>Confirmed on Sui Mainnet and added to your Activity{note.trim() && labels ? ', with your label' : ''}.</p>}
         <div className="move-actions">{digest && <a className="button" href={suiscan(digest)} target="_blank" rel="noreferrer">View on Suiscan <ArrowUpRight size={15} aria-hidden="true"/><span className="sr-only"> (opens in a new tab)</span></a>}<Link className="button" href="/activity">See Activity</Link><button className="button primary" onClick={reset}>Send again</button></div>
       </div>
       : <div className="move-review">
         <dl className="move-summary">
           <div><dt>To</dt><dd title={prepared?.recipient}><code>{prepared?.recipient}</code></dd></div>
-          <div><dt>Amount</dt><dd><strong>{prepared && exact(prepared.amount)}</strong> USDC</dd></div>
+          <div><dt>Amount</dt><dd><strong>{prepared && exact(prepared.amount, DECIMALS[prepared.coin])}</strong> {prepared?.coin}</dd></div>
           <div><dt>Network fee</dt><dd>{fee ? `Up to ${fee} SUI` : 'Paid in SUI'}</dd></div>
           {labels && note.trim() && <div><dt>Label</dt><dd>{note.trim()} · {category}{!memoryAgreed && !memoryOk ? ' (not saved)' : ''}</dd></div>}
         </dl>
@@ -151,7 +161,7 @@ function Send({ state, labels, onChanged }: Props) {
   </div>;
 }
 
-type TransferRow = { id: string; recipient: string; amount: string; state: string; digest: string | null; createdAt: string };
+type TransferRow = { id: string; recipient: string; amount: string; coin: Coin; state: string; digest: string | null; createdAt: string };
 function RecentSends({ state }: { state: AccountState }) {
   const [rows, setRows] = useState<TransferRow[] | null>(null), [error, setError] = useState('');
   useEffect(() => { api<{ transfers: TransferRow[] }>('/transfers').then(r => setRows(r.transfers)).catch(e => setError((e as Error).message)); }, [state]);
@@ -160,7 +170,7 @@ function RecentSends({ state }: { state: AccountState }) {
     <h3>Sent from Sui Money</h3>
     {error ? <p className="micro">{error}</p> : rows === null ? <p className="micro">Loading…</p> : rows.length === 0 ? <p className="micro">Nothing sent from here yet. Every send also appears in Activity.</p>
     : <ul>{rows.slice(0, 5).map(r => <li key={r.id}>
-      <span><strong>{exact(r.amount)} USDC</strong> to {short(r.recipient)}</span>
+      <span><strong>{exact(r.amount, DECIMALS[r.coin])} {r.coin}</strong> to {short(r.recipient)}</span>
       <span className={'move-state ' + r.state}>{r.digest ? <a href={suiscan(r.digest)} target="_blank" rel="noreferrer">{label[r.state] ?? r.state}<span className="sr-only"> on Suiscan (opens in a new tab)</span></a> : label[r.state] ?? r.state}</span>
     </li>)}</ul>}
   </div>;

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { transaction } from '@/adapters/postgres/client';
 import { AppError, destinationId } from '@/lib/security';
 import { safeText } from '@/domain/learning';
-import { units, USDC_TYPE } from '@/domain/money';
+import { units, SUI_TYPE, USDC_TYPE } from '@/domain/money';
 import { weeklySuggestions } from '@/domain/recurrence';
 import { assertAllocationPayment } from './eligibility';
 import { accountState } from './state';
@@ -15,7 +15,9 @@ export async function annotate(profile:Profile,movementId:string,raw:unknown) {
   return transaction(async db=>{
     const row=(await db.query('SELECT * FROM chain_movements WHERE profile_id=$1 AND id=$2',[profile.id,movementId])).rows[0];
     if(!row)throw new AppError('NOT_FOUND',404,'Payment not found.');
-    if(row.coin_type!==USDC_TYPE||row.operation!=='simple_transfer'||row.execution_status!=='success')throw new AppError('INELIGIBLE_MOVEMENT',400,'This activity needs review and cannot be classified as a supported payment.');
+    // SUI payments can carry a label too; only native-USDC ones count toward spending and the plan.
+    if(![USDC_TYPE,SUI_TYPE].includes(row.coin_type)||row.operation!=='simple_transfer'||row.execution_status!=='success')throw new AppError('INELIGIBLE_MOVEMENT',400,'This activity needs review and cannot be classified as a supported payment.');
+    if(row.coin_type===SUI_TYPE&&(await db.query('SELECT 1 FROM chain_movements WHERE profile_id=$1 AND digest=$2 AND coin_type=$3',[profile.id,row.digest,USDC_TYPE])).rowCount)throw new AppError('INELIGIBLE_MOVEMENT',400,'This SUI is the network fee for a USDC payment. Label the USDC payment instead.');
     if(data.rememberDestination)throw new AppError('SEPARATE_RULE_REQUIRED',409,'Save the explanation first, then confirm a separate destination rule. A note alone never becomes a rule.');
     const event=newEvent(profile,{kind:'payment_explanation',logicalKey:'annotation:'+movementId,sourceRecordIds:[movementId],expectedRevision:data.expectedRevision,supersedesEventId:data.supersedesEventId,payload:{movementId,category:data.category,note:data.note,ownTransfer:data.ownTransfer}});
     return queueEvent(db,profile,event,data.expectedRevision);
