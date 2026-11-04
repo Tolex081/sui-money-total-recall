@@ -14,7 +14,7 @@ Updated 3 November 2026 from the audit in `PROJECT_AUDIT.md`; memory rows update
 | Receive USDC and SUI | IMPLEMENTED | Address and QR shown; live watch not exercised |
 | Payment labels written to Walrus | VERIFIED | 4 Nov 2026: owner labelled a real 0.01 SUI payment in production; written to Walrus and confirmed (`MILESTONE_1_EVIDENCE.md`) |
 | Synthetic seed memories on Walrus Mainnet (24) | VERIFIED | `docs/SEED_REVIEW.md`, `public_proof` seed checked 2026-10-28 |
-| Cross-session memory recall from Walrus | VERIFIED (code path) | PR #5's Walrus verification, run from fresh local processes against production and the Mainnet relayer: all 3 revisions matched (`MILESTONE_1_EVIDENCE.md`). The deployed Verify button after sign-out/sign-in is not yet tested; isolation between MemWal accounts not verified |
+| Cross-session memory recall from Walrus | VERIFIED | All 3 revisions matched when recalled from fresh local processes against production and the Mainnet relayer; the deployed Verify button also worked after sign-out/sign-in (owner-reported, backed by session and rate-limit records). See `MILESTONE_1_EVIDENCE.md`. Isolation between different MemWal accounts not verified |
 | Memory correction (new revision) | VERIFIED | 4 Nov 2026: two real corrections in production; each new revision replaced the previous one and was the only active revision when recalled from Walrus |
 | Memory forget (deactivation) in the live app | IMPLEMENTED | PR #5 (draft); mocked-Walrus real-DB test |
 | USDC plan: date, reserve, commitments | IMPLEMENTED | CI browser and real-DB tests; 0 plans in production |
