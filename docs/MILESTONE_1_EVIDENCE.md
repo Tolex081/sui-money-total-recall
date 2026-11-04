@@ -30,20 +30,23 @@ Recalls run sequentially, each with an 8 s timeout; no new recall starts after 2
 
 ## Production preflight (4 Nov 2026)
 
+"Owner-reported" means the product owner checked it in the Vercel or MemWal dashboard; it was not read by the agent.
+
 | Setting | Status |
 |---|---|
 | `APP_MODE=live`; sign-in, read, labels, send, plan flags on | Verified via `/api/health` |
 | `DATABASE_URL`, `TATUM_API_KEY`, `MEMWAL_PRIVATE_KEY`, `MEMWAL_ACCOUNT_ID`, `MEMWAL_NAMESPACE_SECRET`, `APP_ORIGIN` present | Verified via `/api/health` (booleans only) |
-| `MEMWAL_FREE_WRITES_CONFIRMED=true` in Vercel | **Unverified** |
-| `MEMWAL_SERVER_URL` unset or `https://relayer.memory.walrus.xyz` in Vercel | **Unverified** |
-| Sponsored-write quota | **Unverified**: the SDK has no quota call; check the MemWal dashboard |
+| `MEMWAL_FREE_WRITES_CONFIRMED=true` in Vercel | Owner-reported: present, value hidden (sensitive). Fails closed: if it is not exactly `true`, a label save reports "Confirm free sponsored writes in setup" and nothing is sent to Walrus (`src/adapters/memwal/memory.ts:13`). The first label save confirms it. |
+| `MEMWAL_SERVER_URL` unset or `https://relayer.memory.walrus.xyz` in Vercel | Owner-reported: present, value hidden (sensitive). Fails closed: any other value stops every Walrus call (`src/adapters/memwal/memory.ts:5–6`). |
+| Sponsored-write quota | Owner-reported: available (MemWal dashboard). The test needs about 3 writes. |
 | Vercel database is the one in `.env.local` | **Unverified** |
-| Fluid compute on for this project | **Unverified** |
-| Eligible payment to label in production | **None.** The only production movements are two SUI sends stored as `complex`, which cannot be labelled, and re-importing does not change stored rows. How to obtain an eligible payment is a separate decision: no blockchain transaction may be made for test data without separate approval. |
+| Fluid compute on for this project | Owner-reported: on; default max duration 300 s. Recall worst case is about 33 s. |
+| Preview deployments can reach production data | Owner-reported: no. `DATABASE_URL`, `MEMWAL_PRIVATE_KEY` and `MEMWAL_ACCOUNT_ID` are set for Production only. |
+| Eligible payment to label in production | **None.** The only production movements are two SUI sends stored as `complex`, which cannot be labelled, and re-importing does not change stored rows. The owner plans to send 0.01 SUI to their own second wallet. **Blocked as planned:** this wallet holds SUI only as an address balance, so any send uses `coin::redeem_funds`, which this PR does not classify as a payment (that change was moved out and is preserved as a patch). The new send would also be stored as `complex`. A decision is needed before any transaction. |
 
 ## Procedure for the real test (only after approval, deploy and an eligible payment)
 
-1. Product owner confirms the unverified settings above and decides how an eligible payment is obtained.
+1. An eligible payment exists in production and shows "What was this for?" in Activity. From this wallet that requires the `coin::redeem_funds` classification change (preserved separately) to be approved and deployed first; otherwise any new send is stored as `complex`.
 2. Sign in, accept consents and run **Import last 30 days**, so the eligible payment shows "What was this for?".
 3. Label it `Test label 1`, category `Other`. Wait for "Remembered".
 4. Record from the database: event ID, logical key, revision, job states, relayer job ID, blob ID, `recalled_at`, envelope SHA-256.
