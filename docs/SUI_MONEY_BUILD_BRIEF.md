@@ -164,7 +164,7 @@ If official requirements conflict with the proposed implementation, report the c
 
 ## 2. Official event requirements and evidence
 
-Sources E1 and E2 were checked on 28 October 2026; recheck them before submission. Implementation evidence was updated on 4 November 2026. Recheck before submission. The following is a concise implementation mapping, not a substitute for reading the rules.
+Sources E1 and E2 were checked on 28 October 2026; implementation evidence was updated on 4 November 2026. Recheck the event sources and current form before submission. The following is a concise implementation mapping, not a substitute for reading the rules.
 
 | ID | Classification | Requirement | Required evidence |
 | --- | --- | --- | --- |
