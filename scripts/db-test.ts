@@ -253,6 +253,58 @@ try{
       await assert.rejects(saveGoal(profile,{goalId,purpose:'laptop',target:'800',saved:'0',frequency:'weekly',targetDate,expectedRevision:4,supersedesEventId:'x'}),/forgotten/);
     }finally{if(prev===undefined)delete process.env.MEMWAL_FREE_WRITES_CONFIRMED;else process.env.MEMWAL_FREE_WRITES_CONFIRMED=prev;}
   });
+  await test('M2 goal API routes: signed-out 401, feature switch, memory consent, cross-profile goal IDs and body goal IDs cannot override ownership',async()=>{
+    const auth=await import('../src/application/auth');const routes=await import('../src/app/api/[...path]/route');
+    const {localToday}=await import('../src/domain/planning');
+    const sign=async(wallet:Ed25519Keypair)=>{const c=await auth.issueChallenge(wallet.toSuiAddress()),sig=await wallet.signPersonalMessage(new TextEncoder().encode(c.message));return auth.verifyChallenge({id:c.id,wallet:wallet.toSuiAddress(),signature:sig.signature});};
+    const sessionA=await sign(walletA),sessionB=await sign(walletB);
+    const post=(path:string,data:unknown,session?:{sessionToken:string;csrf:string})=>routes.POST(new Request('http://localhost:3000/api/'+path,{method:'POST',headers:{origin:'http://localhost:3000','content-type':'application/json',...(session?{cookie:'sm_session='+session.sessionToken,'x-csrf-token':session.csrf}:{})},body:JSON.stringify(data)}));
+    const code=async(r:Response)=>((await r.json()) as {error?:{code?:string}}).error?.code;
+    const goalRows=async(profileId:string)=>(await pool.query("SELECT logical_key,revision,envelope FROM learned_events WHERE profile_id=$1 AND logical_key LIKE 'goal:%' ORDER BY logical_key,revision",[profileId])).rows as {logical_key:string;revision:number;envelope:{payload:{goalId:string;target:string}}}[];
+    const timezone=(await pool.query('SELECT timezone FROM profiles WHERE id=$1',[a])).rows[0].timezone as string;
+    const targetDate=Temporal.PlainDate.from(localToday(new Date().toISOString(),timezone)).add({days:56}).toString();
+    const goal=(over:Record<string,unknown>={})=>({purpose:'laptop',target:'500',saved:'0',frequency:'weekly',targetDate,expectedRevision:0,...over});
+    const saved={access:process.env.PERSONAL_ACCESS_ENABLED,read:process.env.PERSONAL_READ_ENABLED,labels:process.env.PERSONAL_LABELS_ENABLED,plan:process.env.PERSONAL_PLAN_ENABLED};
+    try{
+      delete process.env.PERSONAL_ACCESS_ENABLED;process.env.PERSONAL_READ_ENABLED='true';process.env.PERSONAL_LABELS_ENABLED='true';process.env.PERSONAL_PLAN_ENABLED='true';
+      await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id IN ($1,$2)",[a,b]);
+      // 1. Signed out: refused before anything is read or written.
+      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal());assert.equal(r.status,401);}
+      // 2. Feature switch: with Plan off, both goal routes are refused by the release gate, even for a signed-in user.
+      delete process.env.PERSONAL_PLAN_ENABLED;
+      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal(),sessionA);assert.equal(r.status,503);assert.equal(await code(r),'RELEASE_GATE');}
+      process.env.PERSONAL_PLAN_ENABLED='true';
+      // 3. Memory consent: wallet-read consent alone is not enough to save a goal; nothing is written.
+      const beforeB=(await goalRows(b)).length;
+      await pool.query("UPDATE profiles SET consent_version='read-only-wallet-v1' WHERE id=$1",[b]);
+      const noConsent=await post('goals',goal(),sessionB);assert.equal(noConsent.status,409);assert.equal(await code(noConsent),'CONSENT_REQUIRED');
+      assert.equal((await goalRows(b)).length,beforeB);
+      await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id=$1",[b]);
+      // Profile A saves a goal through the route.
+      const created=await post('goals',goal(),sessionA);assert.equal(created.status,200);
+      const createdId=((await created.json()) as {eventId:string}).eventId;
+      const rowA=(await goalRows(a)).find(r=>(r.envelope as unknown as {eventId:string}).eventId===createdId)!;assert.ok(rowA);
+      const goalIdA=rowA.envelope.payload.goalId,keyA='goal:'+goalIdA,snapshotA=JSON.stringify(await goalRows(a));
+      // 4. Profile B cannot edit A's goal by its ID (it isn't found under B's profile), nor an unknown ID.
+      for(const id of [goalIdA,randomUUID()]){const r=await post('goals/'+encodeURIComponent(id),goal({target:'900',expectedRevision:1,supersedesEventId:createdId}),sessionB);assert.equal(r.status,404);assert.equal(await code(r),'NOT_FOUND');}
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);assert.equal((await goalRows(b)).some(r=>r.logical_key===keyA),false);
+      // 5. A goal ID in the body never overrides the route or ownership.
+      //    On create, B's body goal ID is ignored: B gets a new goal of its own; A's goal is untouched.
+      const spoofCreate=await post('goals',goal({goalId:goalIdA,purpose:'bike'}),sessionB);assert.equal(spoofCreate.status,200);
+      const goalsB=await goalRows(b);assert.equal(goalsB.length,beforeB+1);
+      const bGoal=goalsB[goalsB.length-1];assert.notEqual(bGoal.envelope.payload.goalId,goalIdA);assert.notEqual(bGoal.logical_key,keyA);
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
+      //    On edit, the path's goal ID wins over a different one in the body: B's body cannot steer B's edit onto A's goal.
+      const steer=await post('goals/'+encodeURIComponent(bGoal.envelope.payload.goalId),goal({goalId:goalIdA,purpose:'bike',target:'150',expectedRevision:1,supersedesEventId:(bGoal.envelope as unknown as {eventId:string}).eventId}),sessionB);assert.equal(steer.status,200);
+      const afterB=await goalRows(b);assert.equal(afterB.filter(r=>r.logical_key===bGoal.logical_key).length,2);assert.equal(afterB[afterB.length-1].envelope.payload.target,'150000000');
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
+      //    Fields that would choose an owner or namespace are rejected outright.
+      for(const extra of [{profileId:a},{namespace:'test-a-'+a}]){const r=await post('goals',goal(extra),sessionB);assert.equal(r.status,400);}
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
+    }finally{
+      for(const [k,v] of Object.entries({PERSONAL_ACCESS_ENABLED:saved.access,PERSONAL_READ_ENABLED:saved.read,PERSONAL_LABELS_ENABLED:saved.labels,PERSONAL_PLAN_ENABLED:saved.plan}))if(v===undefined)delete process.env[k];else process.env[k]=v;
+    }
+  });
   console.log('All real PostgreSQL tests passed in an isolated disposable schema.');
 }catch(error){console.error('Database test failed:',error instanceof Error?error.message:'unknown');process.exitCode=1;}
 finally{
