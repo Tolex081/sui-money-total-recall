@@ -8,6 +8,7 @@ import { accountState,summarize } from '@/application/state';
 import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,rememberManualRecurrence,reverseCommitmentAllocation } from '@/application/commands';
 import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
 import { advanceMemoryJob,refreshRecall } from '@/application/memory-jobs';
+import { verifyMemoriesFromWalrus } from '@/application/memory-recall';
 import { syncWallet } from '@/application/sync';
 import { suiBudget,saveSuiReserve,addSuiBill,removeSuiBill,markSuiBillPaid } from '@/application/sui-budget';
 import { emptySuiBudget } from '@/domain/sui-budget';
@@ -59,7 +60,8 @@ async function handle(request:Request) {
   const personalReadGet=new Set(['state','export']);
   // Labels are the one write allowed in the read-only pilot: payment explanations and their memory jobs.
   const labelsEnabled=personalReadEnabled&&process.env.PERSONAL_LABELS_ENABLED==='true';
-  const labelRequest=labelsEnabled&&method==='POST'&&(['consent/memory','memory-jobs/advance'].includes(path)||/^activity\/[^/]+\/annotation$/.test(path));
+  // memories/recall is a read-only check against Walrus for the signed-in profile's own memories.
+  const labelRequest=labelsEnabled&&method==='POST'&&(['consent/memory','memory-jobs/advance','memories/recall'].includes(path)||/^activity\/[^/]+\/annotation$/.test(path)||/^memories\/[^/]+\/deactivate$/.test(path));
   // Sending signs with the user's own wallet; the server only builds and relays. Planning adds the budget writes on top of labels.
   const sendEnabled=personalReadEnabled&&process.env.PERSONAL_SEND_ENABLED==='true';
   const sendRequest=sendEnabled&&((method==='GET'&&path==='transfers')||(method==='POST'&&(path==='transfers'||/^transfers\/[^/]+\/(submit|confirm)$/.test(path))));
@@ -124,7 +126,8 @@ async function handle(request:Request) {
   if(method==='POST'&&/^suggestions\/[^/]+\/decision$/.test(path))return json(await decideSuggestion(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&/^memories\/[^/]+\/correct$/.test(path))return json(await correctMemory(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&path==='memory-jobs/advance')return json(await advanceMemoryJob(profile));
-  if(method==='POST'&&path==='memories/recall')return json(await refreshRecall(profile));
+  // The pilot verifies memories from Walrus without changing anything; the older full-access mode keeps its recall refresh.
+  if(method==='POST'&&path==='memories/recall')return json(process.env.PERSONAL_ACCESS_ENABLED==='true'?await refreshRecall(profile):await verifyMemoriesFromWalrus(profile));
   if(method==='POST'&&/^memories\/[^/]+\/deactivate$/.test(path)){
     const id=decodeURIComponent(path.split('/')[1]);const data=z.object({reason:safeText,expectedRevision:z.number().int().positive()}).strict().parse(await body(request));
     return json(await transaction(async db=>{const prior=(await db.query('SELECT envelope FROM learned_events WHERE profile_id=$1 AND id=$2',[profile.id,id])).rows[0];if(!prior)throw new AppError('NOT_FOUND',404,'Memory not found.');return queueEvent(db,profile,newEvent(profile,{kind:'deactivation',logicalKey:prior.envelope.logicalKey,sourceRecordIds:prior.envelope.sourceRecordIds,expectedRevision:data.expectedRevision,supersedesEventId:id,payload:{reason:data.reason}}),data.expectedRevision);}));

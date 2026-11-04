@@ -507,6 +507,44 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 @media (max-width: 600px) {
   .plan-editor { padding: 19px; }
 }
+/* Label picker: one box, with common labels as choices that fill it. */
+.label-picker { display: grid; gap: 8px; }
+.label-picker > label { color: var(--ink); font-size: 14px; font-weight: 500; }
+.label-picker input { width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--control-border); border-radius: 8px; color: var(--ink); background: var(--paper); font: inherit; }
+.label-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.label-picker .micro { margin: 0; }
+/* Memories: one plain line per remembered thing, with Forget beside it. */
+.memories-live { display: grid; gap: 16px; max-width: 1080px; }
+.memories-intro, .memories-group { display: grid; gap: 12px; padding: 24px; }
+.memories-intro h2, .memories-group h2 { margin: 0; font-size: 18px; }
+.memories-intro p { margin: 0; max-width: 70ch; }
+.memories-group ul { display: grid; margin: 0; padding: 0; list-style: none; }
+.memories-group li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.memory-line { display: grid; gap: 2px; min-width: 0; }
+.memory-line strong { overflow-wrap: anywhere; }
+.memory-line span { font-size: 13px; }
+.memory-forget { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; font-size: 13px; }
+.memory-confirm { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; }
+.reimburse-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 1080px; margin-top: 16px; }
+.reimburse-card h2 { margin: 0 0 4px; font-size: 16px; }
+.plan-glance-links { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+@media (max-width: 600px) {
+  .memories-group li { grid-template-columns: minmax(0, 1fr) auto; }
+  .memory-forget, .memory-confirm { grid-column: 1 / -1; }
+  .reimburse-card { flex-direction: column; align-items: flex-start; }
+}
+/* Walrus verification and label changes on Memories. */
+.walrus-verify { display: grid; gap: 10px; padding: 24px; border-color: var(--memory-border); background: var(--memory); }
+.walrus-verify h2 { margin: 0; font-size: 18px; }
+.walrus-verify p { margin: 0; }
+.walrus-verify ul { display: grid; margin: 0; padding: 0; list-style: none; }
+.walrus-verify li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid var(--memory-border); }
+.memory-actions { display: inline-flex; gap: 14px; }
+.memory-failed { color: var(--negative); font-size: 13px; }
+.memories-group li.editing { grid-template-columns: minmax(0, 1fr); }
+.memories-group li.editing > .move-state { justify-self: start; }
+.memory-change { margin: 4px 0 0; }
+.memories-intro .move-actions .button { display: inline-flex; align-items: center; gap: 6px; }
 /* Settings: a label column beside each panel, stacked on a phone. */
 .settings { display: grid; gap: 32px; max-width: 1080px; }
 .settings-row { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr); gap: 24px; align-items: start; }

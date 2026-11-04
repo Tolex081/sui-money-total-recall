@@ -7,7 +7,7 @@ import qrcode from 'qrcode-generator';
 import { AlertCircle, ArrowDownLeft, ArrowUpRight, Check, Copy, RefreshCw } from 'lucide-react';
 import { api, ApiError } from './http';
 import { dAppKit, prioritizeSuiet } from './wallet';
-import { labelCategories } from './read-only-wallet';
+import { LabelPicker } from './label-picker';
 import type { AccountState } from '@/domain/state';
 import { amount, integer, units, SUI_TYPE, USDC_TYPE } from '@/domain/money';
 import { OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
@@ -95,7 +95,7 @@ function Send({ state, labels, onChanged }: Props) {
     } catch (e) { setOutcome(`Sent. Your label wasn’t saved: ${(e as Error).message} You can add it in Activity.`); }
   }
 
-  function reset() { setPhase('form'); setPrepared(null); setDigest(''); setFailure(''); setOutcome(''); setRecipient(''); setValue(''); setNote(''); }
+  function reset() { setPhase('form'); setPrepared(null); setDigest(''); setFailure(''); setOutcome(''); setRecipient(''); setValue(''); setNote(''); setCategory('Other'); }
 
   const fee = prepared?.gasBudget ? exact(prepared.gasBudget, 9) : null;
   const sendingTo = prepared ? short(prepared.recipient) : '';
@@ -121,11 +121,7 @@ function Send({ state, labels, onChanged }: Props) {
         </label>
         <p className={valueError ? 'read-inline-error' : 'micro'} id="amount-help" role={valueError ? 'alert' : undefined}>{valueError || (held !== null && sendable !== null ? <>You have {exact(held, decimals)} {coin}{coin === 'SUI' ? ', and the network fee comes out of it too' : ''}. {sendable > 0n && <button type="button" className="text-button" onClick={() => setValue(exact(sendable, decimals).replaceAll(',', ''))}>Send all</button>}</> : 'Your balance hasn’t been read yet.')}</p>
         {labels && <fieldset className="move-label">
-          <legend>What’s it for? <span className="muted">Optional</span></legend>
-          <div className="move-label-row">
-            <label><span className="sr-only">Label</span><input value={note} onChange={e => setNote(e.target.value)} maxLength={160} placeholder="e.g. Rent for November"/></label>
-            <label><span className="sr-only">Category</span><select value={category} onChange={e => setCategory(e.target.value)}>{labelCategories.map(c => <option key={c}>{c}</option>)}</select></label>
-          </div>
+          <LabelPicker id="send-label" label="What’s it for? (optional)" note={note} category={category} onChange={(nextNote, nextCategory) => { setNote(nextNote); setCategory(nextCategory); }}/>
           {note.trim() && !memoryAgreed && <label className="read-consent-check"><input type="checkbox" checked={memoryOk} onChange={e => setMemoryOk(e.target.checked)}/><span>Save this label to operator-managed Walrus Memory. It can’t be erased later, so use a short alias, not a name.</span></label>}
         </fieldset>}
         {failure && <p className="read-inline-error" role="alert">{failure}</p>}
