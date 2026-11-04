@@ -20,7 +20,7 @@ export class WalrusMemory {
   }
   // Raw hits for one event ID in this profile's namespace, for server-side verification only; never sent to a browser.
   async recallCandidates(eventId: string) {
-    const recalled = await this.client.recall({ query: eventId, namespace: this.namespace, limit: 20 });
+    const recalled = await this.client.recall({ query: eventId, namespace: this.namespace, limit: 20, timeoutMs: 8000 });
     return recalled.results.map(r => ({ text: r.text, blob_id: r.blob_id }));
   }
   async metadataPage(cursor?: string) { return this.client.listMemories({ namespace: this.namespace, cursor, limit: 500 }); }

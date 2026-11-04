@@ -32,9 +32,9 @@ function describe(m: Memory, state: AccountState): { title: string; detail: stri
 const labelOf = (m: Memory) => m.envelope.kind === 'payment_explanation' ? m.envelope.payload : null;
 
 // What POST /memories/recall returns: Walrus' answer for each active memory, already checked on the server.
-type Verified = { eventId: string; logicalKey: string; revision: number; kind: string; verdict: 'matched' | 'not_returned' | 'failed_verification' | 'unavailable'; reason?: string; blobId?: string; sameBlob?: boolean; remembered?: Record<string, string | boolean>; supersedes: { eventId: string; revision: number } | null; supersessionConsistent: boolean; recalledAt: string };
+type Verified = { eventId: string; logicalKey: string; revision: number; kind: string; verdict: 'matched' | 'not_returned' | 'failed_verification' | 'unavailable' | 'not_checked'; reason?: string; blobId?: string; sameBlob?: boolean; remembered?: Record<string, string | boolean>; supersedes: { eventId: string; revision: number } | null; supersessionConsistent: boolean; recalledAt: string };
 type Verification = { checkedAt: string; activeCount: number; checkedCount: number; results: Verified[] };
-const verdictText: Record<Verified['verdict'], string> = { matched: 'Returned by Walrus · matches', not_returned: 'Not returned by Walrus', failed_verification: 'Returned, but didn’t match', unavailable: 'Walrus unavailable' };
+const verdictText: Record<Verified['verdict'], string> = { matched: 'Returned by Walrus · matches', not_returned: 'Not returned by Walrus', failed_verification: 'Returned, but didn’t match', unavailable: 'Walrus unavailable', not_checked: 'Not checked this time' };
 function walrusSummary(r: Verified) {
   const v = r.remembered ?? {};
   if (r.kind === 'payment_explanation') return `“${v.note}” · ${v.ownTransfer ? 'Own transfer' : v.category}`;
@@ -131,7 +131,7 @@ export function LiveMemories({ state, onChanged }: { state: AccountState; onChan
           <span className="muted">Revision {r.revision}{r.supersedes ? ` · replaces revision ${r.supersedes.revision}` : ''}{r.blobId ? ` · blob …${r.blobId.slice(-10)}` : ''}{r.verdict === 'matched' && !r.sameBlob ? ' · another stored copy' : ''}{!r.supersessionConsistent ? ' · revision history doesn’t line up' : ''}</span>
           {r.reason && <span className="muted">{r.reason}</span>}
         </div>
-        <span className={'move-state ' + (r.verdict === 'matched' ? 'confirmed' : r.verdict === 'unavailable' ? '' : 'failed')}>{verdictText[r.verdict]}</span>
+        <span className={'move-state ' + (r.verdict === 'matched' ? 'confirmed' : r.verdict === 'unavailable' || r.verdict === 'not_checked' ? '' : 'failed')}>{verdictText[r.verdict]}</span>
       </li>)}</ul>
     </section>}
 

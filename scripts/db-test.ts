@@ -4,9 +4,10 @@ import assert from 'node:assert/strict';
 import { Pool } from 'pg';
 import { Temporal } from '@js-temporal/polyfill';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { testDatabaseUrl } from './test-database';
 const schema='test_'+randomUUID().replaceAll('-','');
-const input=process.env.TEST_DATABASE_URL??process.env.DATABASE_URL;
-if(!input)throw new Error('TEST_DATABASE_URL is required (or DATABASE_URL for an isolated disposable test schema).');
+// Fails closed: no fallback to DATABASE_URL, and never the production database (scripts/test-database.ts).
+const input=testDatabaseUrl();
 const connection=new URL(input);connection.searchParams.set('options','-c search_path='+schema);
 process.env.DATABASE_URL=connection.toString();process.env.APP_ORIGIN='http://localhost:3000';process.env.MEMWAL_NAMESPACE_SECRET??=randomBytes(32).toString('base64url');
 const admin=new Pool({connectionString:input,max:1,connectionTimeoutMillis:8000}),pool=new Pool({connectionString:connection.toString(),max:4,connectionTimeoutMillis:8000});
@@ -132,6 +133,8 @@ try{
     assert.equal(await snapshot(),before,'Recall must not change memory, label, profile, rule or ledger rows');
     // Profile B, asking with its own session, gets only its own memory.
     const other=await verifyMemoriesFromWalrus(profileB,ns=>({recallCandidates:async()=>{assert.equal(ns,profileB.namespace);return [];}}));assert.deepEqual(other.results.map(r=>r.eventId),[foreign.eventId]);
+    // Time budget: once it is spent, no further Walrus call starts and the rest are reported as not checked.
+    const timed=await verifyMemoriesFromWalrus(profileB,()=>({recallCandidates:async()=>{throw Error('No recall may start after the budget');}}),0);assert.deepEqual(timed.results.map(r=>r.verdict),['not_checked']);
     // Per-profile limit: profile A has used 1 of 3 recalls this minute.
     await verifyMemoriesFromWalrus(profileA,source);await verifyMemoriesFromWalrus(profileA,source);
     await assert.rejects(verifyMemoriesFromWalrus(profileA,source),(e:unknown)=>e instanceof AppError&&e.code==='RATE_LIMITED');
@@ -141,7 +144,18 @@ try{
     const call=()=>routes.POST(new Request('http://localhost:3000/api/memories/recall',{method:'POST',headers:{origin:'http://localhost:3000',cookie:'sm_session='+session.sessionToken,'x-csrf-token':session.csrf,'content-type':'application/json'},body:JSON.stringify({namespace:profileB.namespace,profileId:b})}));
     try{delete process.env.PERSONAL_ACCESS_ENABLED;process.env.PERSONAL_READ_ENABLED='true';process.env.PERSONAL_LABELS_ENABLED='true';
       const anonymous=await routes.POST(new Request('http://localhost:3000/api/memories/recall',{method:'POST',headers:{origin:'http://localhost:3000','content-type':'application/json'},body:JSON.stringify({namespace:profileB.namespace,profileId:b})}));assert.equal(anonymous.status,401);
-      delete process.env.PERSONAL_LABELS_ENABLED;assert.equal((await call()).status,503);}
+      // Feature flags, consent and configuration, each refused with its own code before any Walrus call.
+      const code=async(r:Response)=>((await r.json()) as {error?:{code?:string}}).error?.code;
+      await pool.query('DELETE FROM rate_limit_buckets');
+      delete process.env.PERSONAL_READ_ENABLED;let r=await call();assert.equal(r.status,503);assert.equal(await code(r),'RELEASE_GATE');
+      process.env.PERSONAL_READ_ENABLED='true';delete process.env.PERSONAL_LABELS_ENABLED;r=await call();assert.equal(r.status,503);assert.equal(await code(r),'RELEASE_GATE');
+      process.env.PERSONAL_LABELS_ENABLED='true';
+      await pool.query("UPDATE profiles SET consent_version='read-only-wallet-v1' WHERE id=$1",[a]);r=await call();assert.equal(r.status,409);assert.equal(await code(r),'CONSENT_REQUIRED');
+      await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id=$1",[a]);
+      // Through the gate with no Walrus credentials: fails closed and changes nothing except the rate-limit counter.
+      const keys={key:process.env.MEMWAL_PRIVATE_KEY,account:process.env.MEMWAL_ACCOUNT_ID};delete process.env.MEMWAL_PRIVATE_KEY;delete process.env.MEMWAL_ACCOUNT_ID;
+      try{const before=await snapshot();r=await call();assert.equal(r.status,503);assert.equal(await code(r),'CONFIGURATION_REQUIRED');assert.equal(await snapshot(),before);}
+      finally{if(keys.key!==undefined)process.env.MEMWAL_PRIVATE_KEY=keys.key;if(keys.account!==undefined)process.env.MEMWAL_ACCOUNT_ID=keys.account;}}
     finally{for(const [key,name] of [['access','PERSONAL_ACCESS_ENABLED'],['read','PERSONAL_READ_ENABLED'],['labels','PERSONAL_LABELS_ENABLED']] as const){const value=saved[key];if(value===undefined)delete process.env[name];else process.env[name]=value;}}
   });
   await test('M1 payment-label correction (mocked Walrus): old label stays until the new revision is confirmed; failure keeps it; forget removes it',async()=>{

@@ -14,15 +14,15 @@ Updated 3 November 2026 from the audit in `PROJECT_AUDIT.md`. **VERIFIED** means
 | Receive USDC and SUI | IMPLEMENTED | Address and QR shown; live watch not exercised |
 | Payment labels written to Walrus | IMPLEMENTED | Fixture tests; 0 personal Walrus writes in production |
 | Synthetic seed memories on Walrus Mainnet (24) | VERIFIED | `docs/SEED_REVIEW.md`, `public_proof` seed checked 2026-10-28 |
-| Cross-session memory recall from Walrus | NOT STARTED | Sessions read the PostgreSQL cache; Walrus is read only to confirm writes |
+| Cross-session memory recall from Walrus | IMPLEMENTED | PR #5 (draft): read-only Verify from Walrus; mocked-Walrus tests; relayer namespace filtering checked read-only on Mainnet; no real personal recall yet |
 | Memory correction (new revision) | IMPLEMENTED | Real-DB tests (F16); not exercised in production |
-| Memory forget (deactivation) in the live app | IN PROGRESS | Built in the working tree, uncommitted |
+| Memory forget (deactivation) in the live app | IMPLEMENTED | PR #5 (draft); mocked-Walrus real-DB test |
 | USDC plan: date, reserve, commitments | IMPLEMENTED | CI browser and real-DB tests; 0 plans in production |
-| Commitment payment matching, reimbursements | IMPLEMENTED | Real-DB tests; reimbursement button for live users uncommitted |
+| Commitment payment matching, reimbursements | IMPLEMENTED | Real-DB tests; a reimbursement button for live users is not in PR #5 (preserved separately) |
 | Recurring suggestions | IMPLEMENTED | Unit tests |
 | Live plan editor ("left to spend" as you type) | IMPLEMENTED | Local preview; deployed |
 | SUI budget | IMPLEMENTED | Unit tests, local preview; stored in PostgreSQL only |
-| Learning comparison (with vs without learned rules) | IN PROGRESS | Demo only in production; live link uncommitted |
+| Learning comparison (with vs without learned rules) | IN PROGRESS | Demo only in production; live link in PR #5 (draft) |
 | Settings, auto-lock, sign out everywhere, export | IMPLEMENTED | Local preview (idle lock → 401) |
 | Favicon, home-screen icon, share image | VERIFIED | Served by production (`/icon.svg`, `/apple-icon`, `/opengraph-image`) |
 | Savings goals and progress | NOT STARTED | |

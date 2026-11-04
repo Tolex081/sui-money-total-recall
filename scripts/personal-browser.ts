@@ -5,8 +5,9 @@ import {Pool} from 'pg';
 import {chromium,expect,type BrowserContext,type Browser} from '@playwright/test';
 import {Ed25519Keypair} from '@mysten/sui/keypairs/ed25519';
 import {Temporal} from '@js-temporal/polyfill';
-const schema='test_'+randomUUID().replaceAll('-',''),input=process.env.TEST_DATABASE_URL;
-if(!input)throw Error('Use an unpooled TEST_DATABASE_URL; only a disposable schema is changed.');
+import {testDatabaseUrl} from './test-database';
+// Fails closed: never the production database (scripts/test-database.ts).
+const schema='test_'+randomUUID().replaceAll('-',''),input=testDatabaseUrl();
 const connection=new URL(input);connection.searchParams.set('options','-c search_path='+schema);
 const admin=new Pool({connectionString:input,max:1,connectionTimeoutMillis:8000}),db=new Pool({connectionString:connection.toString(),max:1,connectionTimeoutMillis:8000});
 for(const connectionPool of [admin,db])connectionPool.on('error',()=>console.error('An idle browser-test database connection closed; the pool will reconnect.'));
