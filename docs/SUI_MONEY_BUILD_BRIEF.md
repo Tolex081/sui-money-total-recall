@@ -1,7 +1,7 @@
 # SUI MONEY: complete implementation brief for Codex
 
 **Working name:** Sui Money. This is a descriptive placeholder, not a checked brand or domain.
-**Version:** 2.0, prepared 28 October 2026, Africa/Lagos.
+**Version:** 2.1, updated 4 November 2026, Africa/Lagos.
 **Builder:** Tolex. **Submission track:** Consumer Finance Apps.
 **Event:** Total Recall, Tatum x Walrus Memory Hackathon.
 **Deadline:** 10 November 2026, 17:00 UTC / 18:00 Africa/Lagos.
@@ -10,9 +10,11 @@
 
 > Build a spending tracker and forward budget for Sui users. Tatum supplies verified wallet facts. Walrus Memory preserves explanations, confirmed habits and corrections that visibly change the next spending summary or plan.
 
-This document replaces the earlier HANDSHAKE brief for product scope, architecture and acceptance criteria. Do not build P2P trading, naira conversion, counterparty reputation or escrow. Preserve the original brief as historical context only. This is an implementation specification, not a claim that live integrations have already passed.
+This document replaces the earlier HANDSHAKE brief for product scope, architecture and acceptance criteria. Do not build P2P trading, naira conversion, counterparty reputation or escrow. Preserve the original brief as historical context only. The dated implementation snapshot in Section 0 records what has since been implemented and verified. The requirements and acceptance tests below remain authoritative; a status label never replaces evidence.
 
 ## Contents
+
+0. Current implementation snapshot — 4 November 2026
 
 1. Authority, scope and agent instructions
 2. Official event requirements and evidence
@@ -35,6 +37,90 @@ This document replaces the earlier HANDSHAKE brief for product scope, architectu
 19. Definition of done
 20. Sources and provenance
 21. Coding-agent kickoff instructions
+
+## 0. Current implementation snapshot — 4 November 2026
+
+This section is the dated implementation record. It does not weaken the product requirements or definition of done below. **Implemented** means the code/UI exists; **verified** means the stated real environment and evidence were exercised. A feature can be implemented without being safe to claim as fully verified.
+
+### 0.1 Product currently built
+
+The current application includes:
+
+- Sui wallet connection and signed wallet sign-in.
+- SUI and native USDC balance display through Tatum.
+- Send and receive journeys for SUI and native USDC, including wallet approval and transaction-status handling in the application.
+- Plan creation, commitments, reserve and forward-budget interfaces.
+- USDC planning and a separate SUI budget panel.
+- Activity import and transaction explanation/category labelling.
+- Walrus-backed memory write, correction/revision and recall-verification paths.
+- Public synthetic demo, proof/about surfaces, settings and export-related controls.
+
+The user's 4 November product update confirms that the send/receive, plan/commitment, wallet connection, balance display and SUI/USDC budgeting interfaces have been built. The status below deliberately separates those product capabilities from the narrower set of end-to-end live tests currently evidenced in the repository.
+
+### 0.2 Verified implementation status
+
+| Area | Status as of 4 Nov 2026 | Evidence and remaining qualification |
+|---|---|---|
+| Wallet connection and signed sign-in | **VERIFIED** | Production profile and signed-message authentication path; see `docs/IMPLEMENTATION_STATUS.md`. The deployed post-sign-in verification of the new Memories button is still pending. |
+| SUI and native USDC balances through Tatum | **VERIFIED** | Real production Tatum reads are recorded. Exact coin types are used; balances are not inferred from symbols. |
+| Tatum transport | **VERIFIED** | Current adapter uses Tatum Sui **gRPC**. This supersedes the older JSON-RPC assumption in parts of this brief. Do not rewrite it to JSON-RPC without a verified requirement and implementation decision. |
+| Public reference transaction history | **VERIFIED, bounded scope** | Public reference address history, exact asset identity, incoming/outgoing handling and cursor/resume evidence are recorded in public evidence. |
+| Personal wallet history | **PARTIALLY VERIFIED** | A real 0.01 SUI payment was imported and labelled in production on 4 Nov. This does not establish complete personal history coverage, every incoming/outgoing case, or complete USDC history. |
+| Send SUI / USDC | **IMPLEMENTED; full live path needs evidence** | Send UI and server-side Tatum transaction construction/submission path exist. Do not claim both assets' full signing, submission and confirmation journeys are verified without retained transaction evidence for each. |
+| Receive SUI / USDC | **IMPLEMENTED; live detection partly unverified** | Receive address/QR journey exists. Continuous or background incoming detection and complete confirmation behavior remain to be verified. |
+| Plan and commitment creation | **IMPLEMENTED** | Plan editor, dates, reserve, commitments and forward estimate exist. Personal production use and all financial edge cases still require release-gate verification. |
+| USDC budgeting | **IMPLEMENTED; personal calculation gated** | Domain, editor and commitment calculations exist. O04 below remains critical: the current Tatum balance/checkpoint contract does not yet prove the balance snapshot includes the relevant transaction, so do not present a live spending allowance as authoritative until resolved. |
+| SUI budgeting | **IMPLEMENTED as a separate extension** | SUI budget panel and PostgreSQL persistence exist. This is a deviation from the authoritative product scope in §4.2, which keeps budgeting in native USDC and displays SUI separately. Keep SUI budget clearly labelled as a separate experimental/extension feature; do not combine SUI and USDC or claim it satisfies the core USDC budget requirement. |
+| Synthetic Walrus Mainnet seed | **VERIFIED** | 24 approved synthetic Mainnet memories were written and recalled; expiry evidence is recorded. Synthetic demo memories are not personal user memories. |
+| Personal Walrus memory write | **VERIFIED** | On 4 Nov, a real personal payment explanation was written through the production app and confirmed on Walrus Mainnet. See `docs/MILESTONE_1_EVIDENCE.md`. |
+| Personal Walrus recall and revisions | **VERIFIED, with deployment qualification** | Three revisions were recalled from Walrus by fresh local processes against the production database and Mainnet relayer; each matched the exact stored envelope and only the latest revision remained active. The deployed Memories → Verify button after a browser sign-out/sign-in cycle still needs testing. |
+| Memory correction | **VERIFIED** | Two real corrections produced new revisions; supersession and latest-active-revision behavior were verified against Walrus. |
+| Forget/deactivation | **IMPLEMENTED; live confirmation pending** | The feature is in merged Milestone 1 code and has real-PostgreSQL tests with mocked Walrus. A real production Walrus deactivation and its recall result have not yet been demonstrated. |
+| Cross-account Walrus isolation | **OPEN / NOT VERIFIED** | Per-profile HMAC namespaces and server-side envelope checks exist. Evidence only proves namespace filtering within the same operator account. Isolation against another MemWal account/delegate has not been established. |
+| Normal application memory source | **POSTGRESQL CANONICAL; WALRUS VERIFIED COPY** | Ordinary account state is still read from PostgreSQL. Walrus is used for writes and recall verification, not yet as the normal source for every new session. No complete restore/rebuild of PostgreSQL from Walrus exists. |
+| Goals, what-if simulator, accountability, AI assistant, memory timeline | **NOT STARTED** | These are not required to prove the selected core learning loop. Do not let them displace release-critical work. |
+
+### 0.3 Milestone 1: completed code and real evidence
+
+Milestone 1 is merged into `main` through PR #5 (merge commit `549eb1f575fac4aeb73d2136735ad893021a3046`). PRs #6 and #7 were also merged before it. The milestone adds the live Memories screen, read-only Walrus recall verification, payment-label correction/revision, Forget/deactivation handling, and a fail-closed test-database guard.
+
+The real production/Mainnet test on 4 November used one personal SUI payment and three revisions:
+
+1. `Test Label 1 · Food` — recalled and matched.
+2. `Test Label 1 · Groceries` — recalled and matched; superseded revision 1.
+3. `version 2 · Groceries` — recalled and matched; superseded revision 2.
+
+Each fresh-process check returned the same Walrus blob as the saved record, verified the exact envelope and showed only one active revision. The verifier was run from a new local process, not through the deployed Memories button. This is real Walrus evidence, but it is not yet proof of the complete browser fresh-session journey.
+
+Primary evidence:
+- `docs/MILESTONE_1_EVIDENCE.md`
+- `docs/IMPLEMENTATION_STATUS.md`
+- `docs/OPEN_ITEMS.md`
+- Merged PR #5: https://github.com/Tolex081/sui-money-total-recall/pull/5
+
+### 0.4 Architecture facts that remain important
+
+- Tatum is the source of on-chain facts. The current integration is Sui gRPC.
+- PostgreSQL remains the canonical application database for profiles, sessions, plans, commitments, imported movements, memory events and job state.
+- Walrus Mainnet stores confirmed memory envelopes and is now proven to return personal memory revisions. It is not yet a PostgreSQL backup or complete restore source.
+- The MemWal account and delegate key are operator-managed. User separation currently depends on server-derived per-profile namespaces and application-level checks. Do not claim that each user independently owns a Walrus account or delegate key.
+- Wallet connection/signature is the current financial identity and authorization mechanism. Google sign-in remains a future identity option only; it must not replace Sui wallet authorization or interrupt the current release work.
+- Never expose Tatum or MemWal secrets in the browser, logs, evidence or repository.
+
+### 0.5 Critical remaining work, in order
+
+1. **Finish the deployed Milestone 1 verification:** deploy the merged code to production, sign out, sign in again, use Memories → Verify memories from Walrus, and retain sanitized evidence. Then test a real correction and a real Forget/deactivation through the deployed UI.
+2. **Resolve the Tatum balance/checkpoint gate (O04):** establish an authoritative atomic balance/checkpoint or equivalent watermark that proves which transactions are included in the balance. Until then, live plan totals must not imply stronger consistency than the provider evidence supports.
+3. **Verify personal wallet journeys:** use the actual supported wallet in the deployed environment to test signed sign-in, bounded history import, incoming and outgoing SUI/USDC, send approval/submission/confirmation and receive detection. Record each asset and direction separately. No funding or value transfer is authorized merely by this brief.
+4. **Prove user isolation:** test two distinct profiles and, where possible, another MemWal account/delegate. Verify that one profile cannot recall, inspect, correct or deactivate another profile's memories. The current operator-account namespace test is not enough.
+5. **Complete the memory-to-planning learning loop:** confirm a real user preference or recurring commitment, recall it in a genuinely new authenticated browser session, and show exactly how it changes the next plan. Preserve before/after inputs, outputs, event/blob IDs and timestamps. Keep deterministic financial calculations outside any LLM.
+6. **Finish financial correctness and persistence:** validate exact arithmetic, balance/transaction consistency, partial history, idempotency, reimbursements, commitment matching, recurring suggestions, concurrent edits, export and dependency failures.
+7. **Complete submission evidence:** current rules/eligibility review, public README/repository, published article, accessible 2–3-minute demo video, public demo/proof page, current form fields and retained submission receipt before the deadline.
+8. **Only after release-critical gates:** consider optional product enhancements such as richer transaction search, monthly review and savings goals. These are secondary and must not expand the current hackathon scope.
+
+### 0.6 Explicitly deferred ideas
+
+The following ideas may be revisited after the core submission is safe: a richer financial assistant, goals and progress, what-if simulation, accountability, a memory timeline, advanced natural-language transaction search, monthly reviews and shareable receipts. They are not permission to add P2P trading, escrow, swaps, multiple chains, fiat/NGN conversion, automated payments or custody. Google OAuth is also future-only.
 
 ## 1. Authority, scope and agent instructions
 
@@ -64,7 +150,7 @@ If official requirements conflict with the proposed implementation, report the c
 2. Recheck the official rules and event page. Save checked date, source URL, relevant facts and any differences. Do not assume that this document freezes third-party rules or quotas.
 3. Never invent package versions, API payloads, endpoint paths, contract identifiers, filters, response fields, explorer URLs or service limits. Inspect official schemas, proto files and installed types.
 4. Separate paper verification, local fixture tests, authenticated live tests and deployed tests in the evidence report.
-5. Build the mandatory live integration spikes before a polished UI. A successful checkpoint read does not prove wallet history works.
+5. Preserve verified work. Re-run only the release gates that remain open in Section 0.5; a successful checkpoint read does not prove complete personal wallet history or balance/transaction consistency.
 6. No fake success states. Never silently fall back from live mode to mocks. Never describe synthetic payments as the user's real payments.
 7. Do not weaken a MUST, omit a test, or mark an external action complete because its draft exists.
 8. Keep all money arithmetic deterministic and exact. No LLM may calculate balances, classify payments without confirmation, or approve a commitment.
@@ -78,7 +164,7 @@ If official requirements conflict with the proposed implementation, report the c
 
 ## 2. Official event requirements and evidence
 
-Sources E1 and E2 were checked on 28 October 2026. Recheck before submission. The following is a concise implementation mapping, not a substitute for reading the rules.
+Sources E1 and E2 were checked on 28 October 2026; recheck them before submission. Implementation evidence was updated on 4 November 2026. Recheck before submission. The following is a concise implementation mapping, not a substitute for reading the rules.
 
 | ID | Classification | Requirement | Required evidence |
 | --- | --- | --- | --- |
