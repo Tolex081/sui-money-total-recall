@@ -7,6 +7,7 @@ import qrcode from 'qrcode-generator';
 import { AlertCircle, ArrowDownLeft, ArrowUpRight, Check, Copy, RefreshCw } from 'lucide-react';
 import { api, ApiError } from './http';
 import { dAppKit, walletOrder } from './wallet';
+import { walletMessage } from './wallet-errors';
 import { labelCategories } from './read-only-wallet';
 import type { AccountState } from '@/domain/state';
 import { amount, integer, units, SUI_TYPE, USDC_TYPE } from '@/domain/money';
@@ -16,15 +17,6 @@ type Props = { state: AccountState; labels: boolean; onChanged: () => void };
 const exact = (value: string | bigint, decimals = 6) => amount(value, decimals, decimals).replace(/(\.\d{2}\d*?)0+$/, '$1');
 const short = (address: string) => `${address.slice(0, 6)}…${address.slice(-4)}`;
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-// A wallet built before Sui address balances rejects transactions that spend them with a raw validation error
-// ("Invalid type: Expected Object but received Object"). Say what it means instead of showing that.
-const WALLET_TOO_OLD = 'Your wallet couldn’t read this transaction. Your funds are held as a Sui address balance, a newer Sui feature this wallet version doesn’t support. Nothing was sent. Try an up-to-date Sui wallet.';
-function walletMessage(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  if (/reject|denied|cancel/i.test(message)) return 'You cancelled in your wallet. Nothing was sent.';
-  if (/Invalid type|Expected .+ but received|FundsWithdrawal|not supported|unsupported/i.test(message)) return WALLET_TOO_OLD;
-  return message;
-}
 const suiscan = (digest: string) => `https://suiscan.xyz/mainnet/tx/${digest}`;
 
 export default function MoneyMoves({ screen, ...props }: Props & { screen: 'send' | 'receive' }) {
@@ -117,7 +109,7 @@ function Send({ state, labels, onChanged }: Props) {
       {!account ? <div className="move-connect">
         <p>Connect the wallet you signed in with ({short(state.profile.wallet)}). It approves the send; Sui Money never holds your keys.</p>
         <ConnectButton modalOptions={{ sortFn: walletOrder }}/>
-        <p className="micro">Use an up-to-date Sui wallet. Suiet is ending support in November 2026 and can’t send from newer Sui balances.</p>
+        <p className="micro">Use an up-to-date Sui wallet. Suiet has ended development and its service stops after 14 November 2026, and it can’t send from newer Sui balances.</p>
       </div> : wrongWallet ? <p className="read-inline-error" role="alert">Your wallet is on {short(account.address)}, but you signed in as {short(state.profile.wallet)}. Switch accounts in your wallet to send from this one.</p>
       : phase === 'form' ? <form className="move-form" onSubmit={review} noValidate>
         <fieldset className="move-coin">

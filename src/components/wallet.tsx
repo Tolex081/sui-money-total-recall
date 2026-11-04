@@ -9,8 +9,9 @@ import { markActive } from './settings';
 // the app has no browser RPC proxy and no public-node fallback.
 const noChainFetch:typeof fetch=async()=>{throw new Error('Application chain reads must use the authenticated Tatum server adapter.');};
 export const dAppKit=createDAppKit({networks:['mainnet'],createClient:()=>new SuiGrpcClient({network:'mainnet',baseUrl:'https://sui-mainnet-grpc.gateway.tatum.io',fetch:noChainFetch}),slushWalletConfig:null,enableBurnerWallet:false,autoConnect:true});
-// Suiet is listed last: it is ending support in November 2026 and could not read transactions that spend
-// address balances, which is how newer Sui payments arrive. Other wallets keep their alphabetical order.
+// Suiet is listed last. It has ended development and keeps its API services only through 14 November 2026
+// (notice on https://suiet.app/), and on Mainnet it could not read transactions that spend address balances,
+// which is how newer Sui payments arrive. Other wallets keep their alphabetical order.
 export const walletOrder=(a:{name:string},b:{name:string})=>{
   const aPriority=/suiet/i.test(a.name)?1:0,bPriority=/suiet/i.test(b.name)?1:0;
   return aPriority-bPriority||a.name.localeCompare(b.name);
