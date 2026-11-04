@@ -1,6 +1,6 @@
 # Milestone 1 evidence: personal memory write, Walrus recall and correction
 
-Updated 4 November 2026. Branch `milestone-1-walrus-memory`, pushed to GitHub and open as **draft PR #5** against `main` (not merged). Vercel builds an automatic **preview** deployment for the PR; there is no production deployment. Preview environment variables were not inspected, so the preview must not be used for real memory writes until they are checked.
+Updated 4 November 2026. PR #5 merged into `main` as `549eb1f` and deployed to production. Owner-reported: Preview deployments have no production database or MemWal credentials; do not use previews for real memory writes.
 
 ## Scope of this PR
 
@@ -77,4 +77,12 @@ Envelope SHA-256 is computed over `JSON.stringify` of the stored envelope.
 | 14:42:40 (after rev 2) | 1 (rev 2) | **matched**, same blob; Walrus returned Test Label 1 · Groceries; replaces rev 1, supersession consistent |
 | 14:44:21 (after rev 3) | 1 (rev 3) | **matched**, same blob; Walrus returned version 2 · Groceries; replaces rev 2, supersession consistent |
 
-Each check found exactly one active revision, so older revisions were not reported as current. Not covered: a browser sign-out / sign-in cycle with the deployed Verify button (needs #5 deployed), and recall from a different MemWal account.
+Each check found exactly one active revision, so older revisions were not reported as current.
+
+### Deployed Verify button after sign-out / sign-in (4 Nov 2026)
+After #5 was deployed, the owner signed out, signed back in, opened **Memories** and pressed **Verify memories from Walrus**. Owner-reported: the screen showed the label returned by Walrus and matching. The database backs this up (read-only check by the agent):
+- the previous session was revoked at 14:58:30 UTC, and a new session was created at 15:23:44 UTC;
+- the profile's recall rate-limit bucket (`memory:recall:<profile>`) was opened at 15:43:24 UTC, after the agent's last local check (14:44), so this recall came from the deployed endpoint;
+- `learned_events` still holds 3 rows, so Verify wrote no memory.
+
+Not covered: recall isolation between different MemWal accounts (only namespace filtering within our operator account was shown).
