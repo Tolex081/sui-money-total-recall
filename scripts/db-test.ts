@@ -202,6 +202,57 @@ try{
       assert.equal(await settle(),'recall_confirmed');assert.equal(await label(),undefined);assert.equal(await latestActive(),undefined);
     }finally{if(prev===undefined)delete process.env.MEMWAL_FREE_WRITES_CONFIRMED;else process.env.MEMWAL_FREE_WRITES_CONFIRMED=prev;}
   });
+  await test('M2 savings goal (mocked Walrus): 500 then 700 USDC; only the confirmed revision drives the plan; failure keeps it; one goal at a time; forget removes it',async()=>{
+    const {saveGoal,newEvent,queueEvent}=await import('../src/application/commands');const {advanceMemoryJob}=await import('../src/application/memory-jobs');const {accountState}=await import('../src/application/state');
+    const {activeEvents,learnedEventSchema}=await import('../src/domain/learning');const {goalOccurrences}=await import('../src/domain/goals');const {localToday}=await import('../src/domain/planning');
+    const {verifyMemoriesFromWalrus}=await import('../src/application/memory-recall');const {transaction}=await import('../src/adapters/postgres/client');const {Temporal}=await import('@js-temporal/polyfill');
+    await pool.query('DELETE FROM rate_limit_buckets');
+    await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id=$1",[a]);
+    const profile=(await pool.query('SELECT * FROM profiles WHERE id=$1',[a])).rows[0];
+    const stored=new Map<string,string>();let failNext=false;
+    const walrus={submit:async(e:import('../src/domain/learning').LearnedEvent)=>{stored.set('job-'+e.eventId,JSON.stringify(e));return {job_id:'job-'+e.eventId};},status:async(jobId:string)=>failNext?{status:'failed'}:{status:'done',blob_id:'blob-'+jobId},recallEvent:async(e:import('../src/domain/learning').LearnedEvent)=>{const text=stored.get('job-'+e.eventId);return text?[{blob_id:'blob-job-'+e.eventId,text,distance:0}]:[];}};
+    const prev=process.env.MEMWAL_FREE_WRITES_CONFIRMED;process.env.MEMWAL_FREE_WRITES_CONFIRMED='true';
+    await pool.query("UPDATE memory_jobs SET state='failed' WHERE profile_id=$1 AND state IN ('queued','submitting','accepted','saved','submission_outcome_unknown')",[a]);
+    const today=localToday(new Date().toISOString(),profile.timezone),targetDate=Temporal.PlainDate.from(today).add({days:56}).toString(),far=Temporal.PlainDate.from(today).add({days:90}).toString();
+    let key='';
+    async function settle(){for(let i=0;i<6;i++){await advanceMemoryJob(profile,walrus as never);const job=(await pool.query('SELECT j.state FROM memory_jobs j JOIN learned_events e ON e.profile_id=j.profile_id AND e.id=j.event_id WHERE j.profile_id=$1 AND e.logical_key=$2 ORDER BY e.revision DESC LIMIT 1',[a,key])).rows[0];if(['recall_confirmed','failed'].includes(job.state))return job.state;}return 'pending';}
+    const active=async()=>activeEvents((await accountState(profile)).memories,a).find(m=>m.envelope.logicalKey===key)?.envelope;
+    const setAside=async()=>goalOccurrences((await accountState(profile)).memories,a,today,far).map(o=>o.amount);
+    try{
+      // Session A: a 500 USDC laptop goal, weekly. Nothing counts in the plan until Walrus confirms it.
+      const queued=await saveGoal(profile,{purpose:'laptop',target:'500',saved:'0',frequency:'weekly',targetDate,expectedRevision:0});
+      key=(await pool.query('SELECT logical_key FROM learned_events WHERE profile_id=$1 AND id=$2',[a,queued.eventId])).rows[0].logical_key;assert.match(key,/^goal:/);
+      assert.deepEqual(await setAside(),[]);
+      assert.equal(await settle(),'recall_confirmed');const rev1=(await active())!;assert.equal(rev1.kind,'savings_goal');assert.equal(rev1.revision,1);
+      assert.deepEqual(await setAside(),Array(9).fill('55560000'));
+      // A second goal can't start while this one exists.
+      await assert.rejects(saveGoal(profile,{purpose:'bike',target:'100',saved:'0',frequency:'monthly',targetDate,expectedRevision:0}),/already have a savings goal/);
+      const goalId=rev1.kind==='savings_goal'?rev1.payload.goalId:'';
+      // Session C: change to 700. The relayer fails the write: 500 stays in use.
+      await pool.query('DELETE FROM rate_limit_buckets');
+      await saveGoal(profile,{goalId,purpose:'laptop',target:'700',saved:'0',frequency:'weekly',targetDate,expectedRevision:1,supersedesEventId:rev1.eventId});
+      assert.deepEqual(await setAside(),Array(9).fill('55560000'));
+      failNext=true;assert.equal(await settle(),'failed');failNext=false;
+      assert.equal((await active())!.eventId,rev1.eventId);assert.deepEqual(await setAside(),Array(9).fill('55560000'));
+      const failed=(await pool.query('SELECT envelope FROM learned_events WHERE profile_id=$1 AND logical_key=$2 AND revision=2',[a,key])).rows[0].envelope;
+      // Retry names the failed revision; once confirmed, 700 drives the plan on the same contribution days.
+      await pool.query('DELETE FROM rate_limit_buckets');
+      await saveGoal(profile,{goalId,purpose:'laptop',target:'700',saved:'0',frequency:'weekly',targetDate,expectedRevision:2,supersedesEventId:failed.eventId});
+      assert.equal(await settle(),'recall_confirmed');const rev3=(await active())!;assert.equal(rev3.revision,3);assert.equal(rev3.supersedesEventId,failed.eventId);
+      assert.equal(rev3.kind==='savings_goal'&&rev3.payload.startDate,rev1.kind==='savings_goal'&&rev1.payload.startDate);
+      assert.deepEqual(await setAside(),Array(9).fill('77780000'));
+      // A stale change based on revision 1 is refused.
+      await assert.rejects(saveGoal(profile,{goalId,purpose:'laptop',target:'600',saved:'0',frequency:'weekly',targetDate,expectedRevision:1,supersedesEventId:rev1.eventId}));
+      // Session D: a fresh read-back from (mocked) Walrus returns 700, revision 3, replacing revision 2.
+      const check=await verifyMemoriesFromWalrus(profile,()=>({recallCandidates:async(id:string)=>{const text=stored.get('job-'+id);return text?[{text,blob_id:'blob-job-'+id}]:[];}}));
+      const row=check.results.find(r=>r.logicalKey===key)!;assert.equal(row.verdict,'matched');assert.equal(row.revision,3);assert.equal((row as {remembered?:Record<string,unknown>}).remembered?.target,'700000000');assert.equal(row.supersessionConsistent,true);
+      // Forget: the goal stops counting; it can't be changed afterwards.
+      await pool.query('DELETE FROM rate_limit_buckets');
+      await transaction(db=>queueEvent(db,profile,learnedEventSchema.parse(newEvent(profile,{kind:'deactivation',logicalKey:key,sourceRecordIds:[],expectedRevision:3,supersedesEventId:rev3.eventId,payload:{reason:'Forgotten by the user'}})),3));
+      assert.equal(await settle(),'recall_confirmed');assert.equal(await active(),undefined);assert.deepEqual(await setAside(),[]);
+      await assert.rejects(saveGoal(profile,{goalId,purpose:'laptop',target:'800',saved:'0',frequency:'weekly',targetDate,expectedRevision:4,supersedesEventId:'x'}),/forgotten/);
+    }finally{if(prev===undefined)delete process.env.MEMWAL_FREE_WRITES_CONFIRMED;else process.env.MEMWAL_FREE_WRITES_CONFIRMED=prev;}
+  });
   console.log('All real PostgreSQL tests passed in an isolated disposable schema.');
 }catch(error){console.error('Database test failed:',error instanceof Error?error.message:'unknown');process.exitCode=1;}
 finally{

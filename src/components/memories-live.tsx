@@ -26,6 +26,7 @@ function describe(m: Memory, state: AccountState): { title: string; detail: stri
     case 'own_destination_rule': return { title: 'One of your own wallets', detail: 'Transfers there are not counted as spending', group: 'Labels' };
     case 'reimbursement_link': return { title: 'Money you got back', detail: `Linked to ${e.payload.allocationIds.length} payment${e.payload.allocationIds.length > 1 ? 's' : ''}, so it isn’t counted as spending`, group: 'Other' };
     case 'correction': return e.payload.targetKind === 'annotation' ? { title: `“${e.payload.value.note}”`, detail: `Corrected label · ${e.payload.value.category}`, group: 'Labels' } : 'alias' in e.payload.value ? { title: `Recurring bill: ${e.payload.value.alias}`, detail: 'Corrected bill', group: 'Plan' } : { title: 'A reversed payment match', detail: 'The bill counts as unpaid again', group: 'Plan' };
+    case 'savings_goal': return { title: `Saving for ${e.payload.purpose}`, detail: `${amount(e.payload.target)} USDC by ${e.payload.targetDate} · ${e.payload.frequency} contributions · ${amount(e.payload.saved)} USDC saved so far`, group: 'Plan' };
     default: return { title: 'Remembered item', detail: '', group: 'Other' };
   }
 }
@@ -40,6 +41,7 @@ function walrusSummary(r: Verified) {
   if (r.kind === 'payment_explanation') return `“${v.note}” · ${v.ownTransfer ? 'Own transfer' : v.category}`;
   if (r.kind === 'planning_preference' && typeof v.value === 'string') return `Usual reserve · ${amount(v.value)} USDC`;
   if (r.kind === 'recurrence_confirmation' && typeof v.amount === 'string') return `${v.alias} · ${amount(v.amount)} USDC · ${v.frequency}`;
+  if (r.kind === 'savings_goal' && typeof v.target === 'string') return `Saving for ${v.purpose} · ${amount(v.target)} USDC by ${v.targetDate} · ${v.frequency}`;
   return r.kind.replaceAll('_', ' ');
 }
 

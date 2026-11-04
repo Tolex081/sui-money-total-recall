@@ -6,6 +6,9 @@ const annotation = z.object({ movementId: z.string().max(120), category: safeTex
 const recurrence = z.object({ ruleId: z.string().max(100), alias: safeText, amount: z.string().regex(/^\d{1,78}$/), category: safeText, nextDate: z.iso.date(), frequency: z.enum(['once','weekly','monthly']), destination: z.string().max(100).nullable().optional(), associateRuleId: z.string().max(100).optional(), origin:z.enum(['manual','history']).optional() }).strict();
 const decision = z.object({ suggestionId: z.string().max(2000), decision: z.enum(['confirmed','rejected']) }).strict();
 const preference=z.union([z.object({preference:z.enum(['reserve','horizon','category']),value:safeText}).strict(),z.object({preference:z.literal('reserve'),value:z.string().regex(/^\d{1,78}$/)}).strict()]);
+const usdcUnits = z.string().regex(/^\d{1,78}$/);
+// Savings goal (Milestone 2): user-entered through a form and confirmed before saving; amounts in USDC base units.
+const savingsGoal = z.object({ goalId: z.string().min(1).max(100), purpose: safeText, target: usdcUnits.refine(v => BigInt(v) > 0n, 'Target must be more than zero.'), saved: usdcUnits, frequency: z.enum(['weekly','monthly']), targetDate: z.iso.date(), startDate: z.iso.date() }).strict().refine(g => g.targetDate >= g.startDate, 'The target date must not be before the start date.');
 const variants = [
   z.object({ kind: z.literal('payment_explanation'), payload: annotation }),
   z.object({ kind: z.literal('category_rule'), payload: z.object({ destinationId: z.string().max(100), category: safeText }).strict() }),
@@ -16,13 +19,14 @@ const variants = [
   z.object({ kind: z.literal('planning_preference'), payload: preference }),
   z.object({ kind: z.literal('correction'), payload: z.discriminatedUnion('targetKind', [z.object({ targetKind: z.literal('annotation'), value: annotation }).strict(), z.object({ targetKind: z.literal('recurrence'), value: recurrence }).strict(), z.object({ targetKind: z.literal('reimbursement'), value: z.object({ reverseIds: z.array(z.string().max(100)).max(20) }).strict() })]) }),
   z.object({ kind: z.literal('deactivation'), payload: z.object({ reason: safeText }).strict() }),
+  z.object({ kind: z.literal('savings_goal'), payload: savingsGoal }),
 ] as const;
 export const learnedEventSchema = z.discriminatedUnion('kind', [
   base.extend(variants[0].shape).strict(), base.extend(variants[1].shape).strict(),
   base.extend(variants[2].shape).strict(), base.extend(variants[3].shape).strict(),
   base.extend(variants[4].shape).strict(), base.extend(variants[5].shape).strict(),
   base.extend(variants[6].shape).strict(), base.extend(variants[7].shape).strict(),
-  base.extend(variants[8].shape).strict(),
+  base.extend(variants[8].shape).strict(), base.extend(variants[9].shape).strict(),
 ]);
 export type LearnedEvent = z.infer<typeof learnedEventSchema>;
 export type ConfirmedEvent = { envelope: LearnedEvent; state: string; blobId: string | null; recalledAt: string | null; available: boolean };
