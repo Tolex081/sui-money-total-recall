@@ -89,6 +89,7 @@ export function PlanEditor({ state, demo, busy, act }: { state: AccountState; de
         <div><dt>Bills before then</dt><dd>{preview.commitments > 0n ? '−' : ''}{usdc(preview.commitments)}</dd></div>
         <div><dt>Kept aside</dt><dd>{preview.reserve > 0n ? '−' : ''}{usdc(preview.reserve)}</dd></div>
         <div className="total"><dt>Left to spend</dt><dd>{usdc(preview.discretionary)}</dd></div>
+        {preview.held > 0n && <p className="micro plan-held">Includes {usdc(preview.held)} USDC you’ve already paid toward bills, still set aside until your balance confirms the payment. Left to spend may be a little low, never too high.</p>}
       </dl>}
       <p className="micro">{state.balance ? `Balance ${state.balance.stale ? 'last checked' : 'checked'} ${new Intl.DateTimeFormat('en-GB', { timeStyle: 'short', timeZone: state.plan.timezone }).format(new Date(state.balance.observedAt))}. It updates as payments arrive.` : ''} Expected income is left out until it lands.</p>
     </section>

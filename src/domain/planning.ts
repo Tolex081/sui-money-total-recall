@@ -12,19 +12,24 @@ export function planning(input: { balance: Balance | null; plan: Plan; today: st
   if (!balance) return { state: 'unknown_balance' as const, reason: 'A verified balance is required.', days };
   if (days === null) return { state: 'incomplete' as const, reason: 'Choose a future end date within 90 local calendar days.', days };
   const eligible = [...new Map(input.occurrences.map(o => [o.id, o])).values()].filter(o => !o.cancelled && o.dueDate < plan.endDate!);
+  // A matched payment releases its reservation only when the balance is PROVEN to include it (balance.checkpoint is a
+  // proven inclusion checkpoint at or above the payment's). Otherwise its amount stays reserved ("held"): if the balance
+  // already includes the payment the allowance is understated by that amount, and if it does not the allowance is
+  // exact, so it can never be overstated (O04).
+  const proven = (a: Allocation) => !!a.checkpoint && !!balance.checkpoint && integer(a.checkpoint) <= integer(balance.checkpoint);
   const rows = eligible.map(o => {
     const paid = allocations.filter(a => a.targetId === o.id && a.state === 'active');
-    const inconsistent = paid.some(a => !a.checkpoint || !balance.checkpoint || integer(a.checkpoint) > integer(balance.checkpoint));
     const paidAmount = sum(paid.map(a => integer(a.amount)));
     if (paidAmount > integer(o.amount)) throw new Error('Commitment over-allocation.');
-    return { ...o, outstanding: integer(o.amount) - paidAmount, inconsistent };
+    const released = sum(paid.filter(proven).map(a => integer(a.amount)));
+    return { ...o, outstanding: integer(o.amount) - released, held: paidAmount - released };
   });
-  if (rows.some(o => o.inconsistent)) return { state: 'pending_balance' as const, reason: 'Refresh balance to include the matched payment before releasing its reservation.', days };
+  const held = sum(rows.map(o => o.held));
   const commitments = sum(rows.map(o => o.outstanding));
   const reserve = integer(plan.reserve);
   if (reserve < 0n) throw new Error('Reserve cannot be negative.');
   const remainder = integer(balance.usdc) - reserve - commitments;
   const discretionary = max(0n, remainder);
   const daily = discretionary / BigInt(days) / 10000n * 10000n;
-  return { state: 'ready' as const, days, commitments, reserve, remainder, discretionary, shortfall: max(0n, -remainder), daily, leftover: discretionary - daily * BigInt(days), rows, observedAt: balance.observedAt, stale: balance.stale };
+  return { state: 'ready' as const, days, commitments, held, conservative: held > 0n, reserve, remainder, discretionary, shortfall: max(0n, -remainder), daily, leftover: discretionary - daily * BigInt(days), rows, observedAt: balance.observedAt, stale: balance.stale };
 }

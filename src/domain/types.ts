@@ -9,5 +9,9 @@ export type Annotation = { movementId: string; category: string; note: string; o
 export type Allocation = { id: string; sourceId: string; targetId: string; amount: string; state: 'pending' | 'active' | 'reversed'; receiptDate?: string; checkpoint?: string };
 export type Occurrence = { id: string; ruleId: string; dueDate: string; alias: string; category: string; amount: string; cancelled: boolean; learnedEventId?: string };
 export type Plan = { endDate: string | null; endKind: 'income' | 'planning'; reserve: string; timezone: string; version: number; expectedIncome: string | null };
-export type Balance = { usdc: string; sui: string; observedAt: string; checkpoint: string | null; source: 'tatum' | 'synthetic'; stale: boolean };
+// `checkpoint` is a PROVEN inclusion checkpoint: the balance includes every transaction at or below it. Tatum's
+// GetBalance offers no such proof (docs/BALANCE_CONSISTENCY.md, O04), so it is null for live balances and only
+// labelled fixtures set it. `observedTip` is the service's reported checkpoint height near the read: informational,
+// never used to release a reservation.
+export type Balance = { usdc: string; sui: string; observedAt: string; checkpoint: string | null; observedTip?: string | null; source: 'tatum' | 'synthetic'; stale: boolean };
 export type CommitmentRule = { version?: number; id: string; alias: string; amount: string; category: string; startDate: string; frequency: 'once' | 'weekly' | 'monthly'; dayOfMonth?: number; effectiveFrom: string; endDate?: string; cancelled?: boolean; learnedEventId?: string; destination?: string | null };
