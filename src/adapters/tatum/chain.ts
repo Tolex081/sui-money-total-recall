@@ -37,7 +37,8 @@ export function extractTransaction(tx: GrpcTypes.ExecutedTransaction, owner: str
   }
   const changes=[...uniqueChanges.values()];
   const usdcOwners = [...new Set(changes.filter(c => c.coinType === USDC_TYPE && integer(c.amount) !== 0n).map(c => c.owner))];
-  const allowedStablecoinCalls = new Set(['balance::send_funds','balance::redeem_funds','coin::send_funds','coin::into_balance','funds_accumulator::withdrawal_split']);
+  // coin::redeem_funds turns an address-balance withdrawal into a coin; wallets use it to spend address balances.
+  const allowedStablecoinCalls = new Set(['balance::send_funds','balance::redeem_funds','coin::send_funds','coin::redeem_funds','coin::into_balance','funds_accumulator::withdrawal_split']);
   const supportedCommand = (coinType: string) => (c: GrpcTypes.Command) => {
     if(['transferObjects','splitCoins','mergeCoins'].includes(c.command.oneofKind ?? ''))return true;
     if(c.command.oneofKind!=='moveCall')return false;

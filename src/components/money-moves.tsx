@@ -6,7 +6,8 @@ import { ConnectButton } from '@mysten/dapp-kit-react/ui';
 import qrcode from 'qrcode-generator';
 import { AlertCircle, ArrowDownLeft, ArrowUpRight, Check, Copy, RefreshCw } from 'lucide-react';
 import { api, ApiError } from './http';
-import { dAppKit, prioritizeSuiet } from './wallet';
+import { dAppKit, walletOrder } from './wallet';
+import { walletMessage } from './wallet-errors';
 import { LabelPicker } from './label-picker';
 import type { AccountState } from '@/domain/state';
 import { amount, integer, units, SUI_TYPE, USDC_TYPE } from '@/domain/money';
@@ -68,7 +69,7 @@ function Send({ state, labels, onChanged }: Props) {
     setFailure(''); setPhase('signing');
     let signed: { bytes: string; signature: string };
     try { signed = await kit.signTransaction({ transaction: prepared.transaction }); }
-    catch (e) { setFailure(/reject|denied|cancel/i.test((e as Error).message) ? 'You cancelled in your wallet. Nothing was sent.' : (e as Error).message); setPhase('review'); return; }
+    catch (e) { setFailure(walletMessage(e)); setPhase('review'); return; }
     setPhase('submitting');
     let submitted: { digest: string; state: string; outcomeUnknown?: boolean };
     try { submitted = await api('/transfers/' + prepared.id + '/submit', signed); }
@@ -107,7 +108,8 @@ function Send({ state, labels, onChanged }: Props) {
       <h2 id="send-title" ref={heading} tabIndex={-1}>{phase === 'done' ? 'Sent' : phase === 'failed' ? 'Send didn’t go through' : phase === 'form' ? 'Who and how much' : 'Review and approve'}</h2>
       {!account ? <div className="move-connect">
         <p>Connect the wallet you signed in with ({short(state.profile.wallet)}). It approves the send; Sui Money never holds your keys.</p>
-        <ConnectButton modalOptions={{ sortFn: prioritizeSuiet }}/>
+        <ConnectButton modalOptions={{ sortFn: walletOrder }}/>
+        <p className="micro">Use an up-to-date Sui wallet. Suiet has ended development and its service stops after 14 November 2026, and it can’t send from newer Sui balances.</p>
       </div> : wrongWallet ? <p className="read-inline-error" role="alert">Your wallet is on {short(account.address)}, but you signed in as {short(state.profile.wallet)}. Switch accounts in your wallet to send from this one.</p>
       : phase === 'form' ? <form className="move-form" onSubmit={review} noValidate>
         <fieldset className="move-coin">
