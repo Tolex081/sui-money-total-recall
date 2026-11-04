@@ -605,3 +605,19 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
   .sui-bills li { grid-template-columns: minmax(0, 1fr) auto; }
   .sui-bill-actions { grid-column: 1 / -1; }
 }
+
+/* Sidebar fits short laptop screens: it scrolls when taller than the window, spacing tightens as height drops. */
+.sidebar { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.secondary-nav { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); }
+.sidebar-bottom { gap: 10px; }
+.sidebar-memory-brand { display: flex; align-items: center; gap: 8px; margin: 0; }
+.sidebar-memory-brand .integration-identity { padding: 5px 8px; }
+.sidebar-memory-brand img { height: 13px; width: auto; }
+@media (max-height: 820px) and (min-width: 1001px) {
+  .sidebar { padding-top: 22px; padding-bottom: 16px; }
+  .sidebar .brand { margin-bottom: 22px; }
+  .nav-item { min-height: 40px; padding-top: 9px; padding-bottom: 9px; margin-bottom: 3px; }
+  .secondary-nav .nav-item { min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
+  .secondary-nav { margin-top: 14px; padding-top: 10px; }
+  .sidebar-bottom { padding-top: 14px; }
+}
