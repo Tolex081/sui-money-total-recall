@@ -26,6 +26,7 @@ export function rememberedSummary(event: LearnedEvent): Record<string, string | 
     case 'recurrence_confirmation': return { alias: event.payload.alias, amount: event.payload.amount, frequency: event.payload.frequency, nextDate: event.payload.nextDate };
     case 'correction': return event.payload.targetKind === 'annotation' ? { note: event.payload.value.note, category: event.payload.value.category } : { targetKind: event.payload.targetKind };
     case 'suggestion_decision': return { decision: event.payload.decision };
+    case 'savings_goal': return { purpose: event.payload.purpose, target: event.payload.target, saved: event.payload.saved, frequency: event.payload.frequency, targetDate: event.payload.targetDate };
     default: return {};
   }
 }

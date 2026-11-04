@@ -5,7 +5,7 @@ import { database,transaction } from '@/adapters/postgres/client';
 import { authenticate,issueChallenge,verifyChallenge,revoke,revokeAll,sessionCookie,CONSENT_VERSION } from '@/application/auth';
 import { acceptReadOnlyWalletConsent,acceptMemoryConsent } from '@/application/consent';
 import { accountState,summarize } from '@/application/state';
-import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,rememberManualRecurrence,reverseCommitmentAllocation } from '@/application/commands';
+import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,saveGoal,rememberManualRecurrence,reverseCommitmentAllocation } from '@/application/commands';
 import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
 import { advanceMemoryJob,refreshRecall } from '@/application/memory-jobs';
 import { verifyMemoriesFromWalrus } from '@/application/memory-recall';
@@ -66,7 +66,7 @@ async function handle(request:Request) {
   const sendEnabled=personalReadEnabled&&process.env.PERSONAL_SEND_ENABLED==='true';
   const sendRequest=sendEnabled&&((method==='GET'&&path==='transfers')||(method==='POST'&&(path==='transfers'||/^transfers\/[^/]+\/(submit|confirm)$/.test(path))));
   const planEnabled=labelsEnabled&&process.env.PERSONAL_PLAN_ENABLED==='true';
-  const planRequest=planEnabled&&((method==='GET'&&['plan','suggestions'].includes(path))||(method==='POST'&&(['plan','commitments','preferences/reserve','recurrences/manual','reimbursements'].includes(path)||/^(commitment-allocations\/[^/]+\/reverse|commitments\/[^/]+\/allocate|suggestions\/[^/]+\/decision)$/.test(path)||/^sui-budget\/(reserve|bills|bills\/[^/]+\/(remove|paid))$/.test(path))));
+  const planRequest=planEnabled&&((method==='GET'&&['plan','suggestions'].includes(path))||(method==='POST'&&(['plan','commitments','preferences/reserve','recurrences/manual','reimbursements','goals'].includes(path)||/^goals\/[^/]+$/.test(path)||/^(commitment-allocations\/[^/]+\/reverse|commitments\/[^/]+\/allocate|suggestions\/[^/]+\/decision)$/.test(path)||/^sui-budget\/(reserve|bills|bills\/[^/]+\/(remove|paid))$/.test(path))));
   const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||labelRequest||sendRequest||planRequest);
   if(process.env.PERSONAL_ACCESS_ENABLED!=='true'&&!identityOnly&&!allowedReadOnlyRequest)throw new AppError('RELEASE_GATE',503,'Personal changes and budgeting are gated. Read-only wallet access may be enabled separately; the public demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
@@ -117,6 +117,9 @@ async function handle(request:Request) {
   if(method==='POST'&&/^sui-budget\/bills\/[^/]+\/paid$/.test(path))return json(await markSuiBillPaid(profile,decodeURIComponent(path.split('/')[2]),await body(request)));
   if(method==='POST'&&path==='commitments')return json(await saveCommitment(profile,await body(request)));
   if(method==='POST'&&path==='preferences/reserve')return json(await rememberReserve(profile,await body(request)));
+  // Savings goal: the profile comes from the signed session; the goal ID in the path must match the body's.
+  if(method==='POST'&&path==='goals')return json(await saveGoal(profile,{...await body(request),goalId:undefined}));
+  if(method==='POST'&&/^goals\/[^/]+$/.test(path)){const goalId=decodeURIComponent(path.split('/')[1]);return json(await saveGoal(profile,{...await body(request),goalId}));}
   if(method==='POST'&&path==='recurrences/manual')return json(await rememberManualRecurrence(profile,await body(request)));
   if(method==='POST'&&/^commitment-allocations\/[^/]+\/reverse$/.test(path))return json(await reverseCommitmentAllocation(profile,decodeURIComponent(path.split('/')[1])));
   if(method==='POST'&&/^activity\/[^/]+\/annotation$/.test(path))return json(await annotate(profile,decodeURIComponent(path.split('/')[1]),await body(request)));

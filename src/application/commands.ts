@@ -77,6 +77,38 @@ export async function rememberReserve(profile:Profile,raw:unknown){
   return transaction(db=>queueEvent(db,profile,newEvent(profile,{kind:'planning_preference',logicalKey:'preference:reserve',sourceRecordIds:[],expectedRevision:input.expectedRevision,supersedesEventId:input.supersedesEventId,payload:{preference:'reserve',value:input.reserve}}),input.expectedRevision));
 }
 
+// Savings goal (Milestone 2). Entered through a form and confirmed by the user before saving. It is written to Walrus
+// like any learned context and only changes the plan once Walrus has confirmed it. A change is a new revision of the
+// same goal that names the revision it replaces; the previous one stays in use until the change is confirmed.
+// One goal at a time: a new goal can't start while another is saved, saving or changing.
+const goalInput=z.object({goalId:z.string().uuid().optional(),purpose:safeText,target:amountInput,saved:amountInput,frequency:z.enum(['weekly','monthly']),targetDate:z.iso.date(),expectedRevision:z.number().int().nonnegative(),supersedesEventId:z.string().max(100).optional()}).strict();
+export async function saveGoal(profile:Profile,raw:unknown){
+  const input=goalInput.parse(raw);
+  const today=localToday(new Date().toISOString(),profile.timezone);
+  if(BigInt(input.target)<=0n)throw new AppError('INVALID_GOAL',400,'Enter a target above zero.');
+  if(input.targetDate<today)throw new AppError('INVALID_DATE',400,'Choose today or a future date for the goal.');
+  return transaction(async db=>{
+    await db.query('SELECT id FROM profiles WHERE id=$1 FOR UPDATE',[profile.id]);
+    const rows=(await db.query<{logical_key:string;revision:number;envelope:LearnedEvent;state:string}>("SELECT e.logical_key,e.revision,e.envelope,j.state FROM learned_events e JOIN memory_jobs j ON j.profile_id=e.profile_id AND j.event_id=e.id WHERE e.profile_id=$1 AND e.logical_key LIKE 'goal:%' ORDER BY e.revision",[profile.id])).rows;
+    let goalId=input.goalId,startDate=today;
+    if(goalId){
+      const history=rows.filter(r=>r.logical_key==='goal:'+goalId);
+      const base=[...history].reverse().find(r=>r.envelope.kind==='savings_goal');
+      if(!base||base.envelope.kind!=='savings_goal')throw new AppError('NOT_FOUND',404,'Goal not found.');
+      if(history.some(r=>r.envelope.kind==='deactivation'&&r.state!=='failed'))throw new AppError('GOAL_FORGOTTEN',409,'This goal was forgotten. Start a new goal instead.');
+      startDate=base.envelope.payload.startDate;
+    }else{
+      if(input.expectedRevision!==0||input.supersedesEventId)throw new AppError('VERSION_CONFLICT',409,'A new goal starts at its first version.');
+      const open=new Map<string,boolean>();
+      for(const r of rows){if(r.state==='failed')continue;open.set(r.logical_key,r.envelope.kind!=='deactivation');}
+      if([...open.values()].some(Boolean))throw new AppError('GOAL_EXISTS',409,'You already have a savings goal. Change it instead of starting another.');
+      goalId=randomUUID();
+    }
+    if(input.targetDate<startDate)throw new AppError('INVALID_DATE',400,'The target date can’t be before the goal started.');
+    return queueEvent(db,profile,newEvent(profile,{kind:'savings_goal',logicalKey:'goal:'+goalId,sourceRecordIds:[],expectedRevision:input.expectedRevision,supersedesEventId:input.supersedesEventId,payload:{goalId,purpose:input.purpose,target:input.target,saved:input.saved,frequency:input.frequency,targetDate:input.targetDate,startDate}}),input.expectedRevision);
+  });
+}
+
 export async function rememberManualRecurrence(profile:Profile,raw:unknown){
   const input=commitmentInput.parse(raw);
   if(input.id||input.cancelled||BigInt(input.amount)<=0n)throw new AppError('INVALID_RECURRENCE',400,'Confirm a new positive recurring commitment.');

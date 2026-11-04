@@ -202,6 +202,117 @@ try{
       assert.equal(await settle(),'recall_confirmed');assert.equal(await label(),undefined);assert.equal(await latestActive(),undefined);
     }finally{if(prev===undefined)delete process.env.MEMWAL_FREE_WRITES_CONFIRMED;else process.env.MEMWAL_FREE_WRITES_CONFIRMED=prev;}
   });
+  await test('M2 savings goal (mocked Walrus): 500 then 700 USDC; only the confirmed revision drives the plan; failure keeps it; one goal at a time; forget removes it',async()=>{
+    const {saveGoal,newEvent,queueEvent}=await import('../src/application/commands');const {advanceMemoryJob}=await import('../src/application/memory-jobs');const {accountState}=await import('../src/application/state');
+    const {activeEvents,learnedEventSchema}=await import('../src/domain/learning');const {goalOccurrences}=await import('../src/domain/goals');const {localToday}=await import('../src/domain/planning');
+    const {verifyMemoriesFromWalrus}=await import('../src/application/memory-recall');const {transaction}=await import('../src/adapters/postgres/client');const {Temporal}=await import('@js-temporal/polyfill');
+    await pool.query('DELETE FROM rate_limit_buckets');
+    await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id=$1",[a]);
+    const profile=(await pool.query('SELECT * FROM profiles WHERE id=$1',[a])).rows[0];
+    const stored=new Map<string,string>();let failNext=false;
+    const walrus={submit:async(e:import('../src/domain/learning').LearnedEvent)=>{stored.set('job-'+e.eventId,JSON.stringify(e));return {job_id:'job-'+e.eventId};},status:async(jobId:string)=>failNext?{status:'failed'}:{status:'done',blob_id:'blob-'+jobId},recallEvent:async(e:import('../src/domain/learning').LearnedEvent)=>{const text=stored.get('job-'+e.eventId);return text?[{blob_id:'blob-job-'+e.eventId,text,distance:0}]:[];}};
+    const prev=process.env.MEMWAL_FREE_WRITES_CONFIRMED;process.env.MEMWAL_FREE_WRITES_CONFIRMED='true';
+    await pool.query("UPDATE memory_jobs SET state='failed' WHERE profile_id=$1 AND state IN ('queued','submitting','accepted','saved','submission_outcome_unknown')",[a]);
+    const today=localToday(new Date().toISOString(),profile.timezone),targetDate=Temporal.PlainDate.from(today).add({days:56}).toString(),far=Temporal.PlainDate.from(today).add({days:90}).toString();
+    let key='';
+    async function settle(){for(let i=0;i<6;i++){await advanceMemoryJob(profile,walrus as never);const job=(await pool.query('SELECT j.state FROM memory_jobs j JOIN learned_events e ON e.profile_id=j.profile_id AND e.id=j.event_id WHERE j.profile_id=$1 AND e.logical_key=$2 ORDER BY e.revision DESC LIMIT 1',[a,key])).rows[0];if(['recall_confirmed','failed'].includes(job.state))return job.state;}return 'pending';}
+    const active=async()=>activeEvents((await accountState(profile)).memories,a).find(m=>m.envelope.logicalKey===key)?.envelope;
+    const setAside=async()=>goalOccurrences((await accountState(profile)).memories,a,today,far).map(o=>o.amount);
+    try{
+      // Session A: a 500 USDC laptop goal, weekly. Nothing counts in the plan until Walrus confirms it.
+      const queued=await saveGoal(profile,{purpose:'laptop',target:'500',saved:'0',frequency:'weekly',targetDate,expectedRevision:0});
+      key=(await pool.query('SELECT logical_key FROM learned_events WHERE profile_id=$1 AND id=$2',[a,queued.eventId])).rows[0].logical_key;assert.match(key,/^goal:/);
+      assert.deepEqual(await setAside(),[]);
+      assert.equal(await settle(),'recall_confirmed');const rev1=(await active())!;assert.equal(rev1.kind,'savings_goal');assert.equal(rev1.revision,1);
+      assert.deepEqual(await setAside(),[...Array(8).fill('55560000'),'55520000']);
+      // A second goal can't start while this one exists.
+      await assert.rejects(saveGoal(profile,{purpose:'bike',target:'100',saved:'0',frequency:'monthly',targetDate,expectedRevision:0}),/already have a savings goal/);
+      const goalId=rev1.kind==='savings_goal'?rev1.payload.goalId:'';
+      // Session C: change to 700. The relayer fails the write: 500 stays in use.
+      await pool.query('DELETE FROM rate_limit_buckets');
+      await saveGoal(profile,{goalId,purpose:'laptop',target:'700',saved:'0',frequency:'weekly',targetDate,expectedRevision:1,supersedesEventId:rev1.eventId});
+      assert.deepEqual(await setAside(),[...Array(8).fill('55560000'),'55520000']);
+      failNext=true;assert.equal(await settle(),'failed');failNext=false;
+      assert.equal((await active())!.eventId,rev1.eventId);assert.deepEqual(await setAside(),[...Array(8).fill('55560000'),'55520000']);
+      const failed=(await pool.query('SELECT envelope FROM learned_events WHERE profile_id=$1 AND logical_key=$2 AND revision=2',[a,key])).rows[0].envelope;
+      // Retry names the failed revision; once confirmed, 700 drives the plan on the same contribution days.
+      await pool.query('DELETE FROM rate_limit_buckets');
+      await saveGoal(profile,{goalId,purpose:'laptop',target:'700',saved:'0',frequency:'weekly',targetDate,expectedRevision:2,supersedesEventId:failed.eventId});
+      assert.equal(await settle(),'recall_confirmed');const rev3=(await active())!;assert.equal(rev3.revision,3);assert.equal(rev3.supersedesEventId,failed.eventId);
+      assert.equal(rev3.kind==='savings_goal'&&rev3.payload.startDate,rev1.kind==='savings_goal'&&rev1.payload.startDate);
+      assert.deepEqual(await setAside(),[...Array(8).fill('77780000'),'77760000']);
+      // A stale change based on revision 1 is refused.
+      await assert.rejects(saveGoal(profile,{goalId,purpose:'laptop',target:'600',saved:'0',frequency:'weekly',targetDate,expectedRevision:1,supersedesEventId:rev1.eventId}));
+      // Session D: a fresh read-back from (mocked) Walrus returns 700, revision 3, replacing revision 2.
+      const check=await verifyMemoriesFromWalrus(profile,()=>({recallCandidates:async(id:string)=>{const text=stored.get('job-'+id);return text?[{text,blob_id:'blob-job-'+id}]:[];}}));
+      const row=check.results.find(r=>r.logicalKey===key)!;assert.equal(row.verdict,'matched');assert.equal(row.revision,3);assert.equal((row as {remembered?:Record<string,unknown>}).remembered?.target,'700000000');assert.equal(row.supersessionConsistent,true);
+      // Forget: the goal stops counting; it can't be changed afterwards.
+      await pool.query('DELETE FROM rate_limit_buckets');
+      await transaction(db=>queueEvent(db,profile,learnedEventSchema.parse(newEvent(profile,{kind:'deactivation',logicalKey:key,sourceRecordIds:[],expectedRevision:3,supersedesEventId:rev3.eventId,payload:{reason:'Forgotten by the user'}})),3));
+      assert.equal(await settle(),'recall_confirmed');assert.equal(await active(),undefined);assert.deepEqual(await setAside(),[]);
+      await assert.rejects(saveGoal(profile,{goalId,purpose:'laptop',target:'800',saved:'0',frequency:'weekly',targetDate,expectedRevision:4,supersedesEventId:'x'}),/forgotten/);
+    }finally{if(prev===undefined)delete process.env.MEMWAL_FREE_WRITES_CONFIRMED;else process.env.MEMWAL_FREE_WRITES_CONFIRMED=prev;}
+  });
+  await test('M2 goal API routes: signed-out 401, feature switch, memory consent, cross-profile goal IDs and body goal IDs cannot override ownership',async()=>{
+    const auth=await import('../src/application/auth');const routes=await import('../src/app/api/[...path]/route');
+    const {localToday}=await import('../src/domain/planning');
+    const sign=async(wallet:Ed25519Keypair)=>{const c=await auth.issueChallenge(wallet.toSuiAddress()),sig=await wallet.signPersonalMessage(new TextEncoder().encode(c.message));return auth.verifyChallenge({id:c.id,wallet:wallet.toSuiAddress(),signature:sig.signature});};
+    const sessionA=await sign(walletA),sessionB=await sign(walletB);
+    const post=(path:string,data:unknown,session?:{sessionToken:string;csrf:string})=>routes.POST(new Request('http://localhost:3000/api/'+path,{method:'POST',headers:{origin:'http://localhost:3000','content-type':'application/json',...(session?{cookie:'sm_session='+session.sessionToken,'x-csrf-token':session.csrf}:{})},body:JSON.stringify(data)}));
+    const code=async(r:Response)=>((await r.clone().json()) as {error?:{code?:string}}).error?.code;
+    // Fails with the response's own error code and message, so a CI log shows which call went wrong and why.
+    const status=async(r:Response,expected:number,label:string)=>{if(r.status!==expected)assert.fail(label+': expected '+expected+', got '+r.status+' '+JSON.stringify(await r.clone().json().catch(()=>null)));};
+    const goalRows=async(profileId:string)=>(await pool.query("SELECT logical_key,revision,envelope FROM learned_events WHERE profile_id=$1 AND logical_key LIKE 'goal:%' ORDER BY logical_key,revision",[profileId])).rows as {logical_key:string;revision:number;envelope:{payload:{goalId:string;target:string}}}[];
+    const timezone=(await pool.query('SELECT timezone FROM profiles WHERE id=$1',[a])).rows[0].timezone as string;
+    const targetDate=Temporal.PlainDate.from(localToday(new Date().toISOString(),timezone)).add({days:56}).toString();
+    const goal=(over:Record<string,unknown>={})=>({purpose:'laptop',target:'500',saved:'0',frequency:'weekly',targetDate,expectedRevision:0,...over});
+    const saved={access:process.env.PERSONAL_ACCESS_ENABLED,read:process.env.PERSONAL_READ_ENABLED,labels:process.env.PERSONAL_LABELS_ENABLED,plan:process.env.PERSONAL_PLAN_ENABLED};
+    try{
+      delete process.env.PERSONAL_ACCESS_ENABLED;process.env.PERSONAL_READ_ENABLED='true';process.env.PERSONAL_LABELS_ENABLED='true';process.env.PERSONAL_PLAN_ENABLED='true';
+      await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id IN ($1,$2)",[a,b]);
+      // 1. Signed out: refused before anything is read or written.
+      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal());await status(r,401,'signed out '+path);}
+      // 2. Feature switch: with Plan off, both goal routes are refused by the release gate, even for a signed-in user.
+      delete process.env.PERSONAL_PLAN_ENABLED;
+      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal(),sessionA);await status(r,503,'plan switch off '+path);assert.equal(await code(r),'RELEASE_GATE');}
+      process.env.PERSONAL_PLAN_ENABLED='true';
+      // 3. Memory consent: wallet-read consent alone is not enough to save a goal; nothing is written.
+      const beforeB=(await goalRows(b)).length;
+      await pool.query("UPDATE profiles SET consent_version='read-only-wallet-v1' WHERE id=$1",[b]);
+      const noConsent=await post('goals',goal(),sessionB);await status(noConsent,409,'no memory consent');assert.equal(await code(noConsent),'CONSENT_REQUIRED');
+      assert.equal((await goalRows(b)).length,beforeB);
+      await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id=$1",[b]);
+      // Profile A saves a goal through the route.
+      const created=await post('goals',goal(),sessionA);await status(created,200,'A creates a goal');
+      const createdId=((await created.json()) as {eventId:string}).eventId;
+      const rowA=(await goalRows(a)).find(r=>(r.envelope as unknown as {eventId:string}).eventId===createdId)!;assert.ok(rowA);
+      const goalIdA=rowA.envelope.payload.goalId,keyA='goal:'+goalIdA,snapshotA=JSON.stringify(await goalRows(a));
+      // 4. Profile B cannot edit A's goal by its ID (it isn't found under B's profile), nor an unknown ID.
+      for(const id of [goalIdA,randomUUID()]){const r=await post('goals/'+encodeURIComponent(id),goal({target:'900',expectedRevision:1,supersedesEventId:createdId}),sessionB);await status(r,404,'B edits goal '+id);assert.equal(await code(r),'NOT_FOUND');}
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);assert.equal((await goalRows(b)).some(r=>r.logical_key===keyA),false);
+      // 5. A goal ID in the body never overrides the route or ownership.
+      //    On create, B's body goal ID is ignored: B gets a new goal of its own; A's goal is untouched.
+      const spoofCreate=await post('goals',goal({goalId:goalIdA,purpose:'bike'}),sessionB);await status(spoofCreate,200,'B creates with A goal ID in body');
+      const goalsB=await goalRows(b);assert.equal(goalsB.length,beforeB+1);
+      const bGoal=goalsB[goalsB.length-1];assert.notEqual(bGoal.envelope.payload.goalId,goalIdA);assert.notEqual(bGoal.logical_key,keyA);
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
+      //    While B's first version is still being saved, the per-goal pending lock refuses a second change; nothing is written.
+      const steerBody=goal({goalId:goalIdA,purpose:'bike',target:'150',expectedRevision:1,supersedesEventId:(bGoal.envelope as unknown as {eventId:string}).eventId});
+      const stacked=await post('goals/'+encodeURIComponent(bGoal.envelope.payload.goalId),steerBody,sessionB);await status(stacked,409,'stacked edit while pending');assert.equal(await code(stacked),'VERSION_CONFLICT');
+      assert.equal((await goalRows(b)).length,beforeB+1);
+      // Test fixture standing in for Walrus confirming B's first version (no relayer in this test).
+      await pool.query("UPDATE memory_jobs SET state='recall_confirmed',blob_id='fixture-blob',recalled_at=now() WHERE profile_id=$1 AND logical_key=$2",[b,bGoal.logical_key]);
+      //    On edit, the path's goal ID wins over a different one in the body: B's body cannot steer B's edit onto A's goal.
+      const steer=await post('goals/'+encodeURIComponent(bGoal.envelope.payload.goalId),goal({goalId:goalIdA,purpose:'bike',target:'150',expectedRevision:1,supersedesEventId:(bGoal.envelope as unknown as {eventId:string}).eventId}),sessionB);await status(steer,200,'B edits own goal with A goal ID in body');
+      const afterB=await goalRows(b);assert.equal(afterB.filter(r=>r.logical_key===bGoal.logical_key).length,2);assert.equal(afterB[afterB.length-1].envelope.payload.target,'150000000');
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
+      //    Fields that would choose an owner or namespace are rejected outright.
+      for(const extra of [{profileId:a},{namespace:'test-a-'+a}]){const r=await post('goals',goal(extra),sessionB);await status(r,400,'owner field '+Object.keys(extra)[0]);}
+      assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
+    }finally{
+      for(const [k,v] of Object.entries({PERSONAL_ACCESS_ENABLED:saved.access,PERSONAL_READ_ENABLED:saved.read,PERSONAL_LABELS_ENABLED:saved.labels,PERSONAL_PLAN_ENABLED:saved.plan}))if(v===undefined)delete process.env[k];else process.env[k]=v;
+    }
+  });
   console.log('All real PostgreSQL tests passed in an isolated disposable schema.');
 }catch(error){console.error('Database test failed:',error instanceof Error?error.message:'unknown');process.exitCode=1;}
 finally{

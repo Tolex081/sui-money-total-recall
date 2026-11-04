@@ -50,6 +50,8 @@ export function PlanEditor({ state, demo, busy, act }: { state: AccountState; de
   }
 
   const ready = preview.state === 'ready';
+  // Savings goal contributions are counted like commitments; show them on their own line.
+  const goalSetAside = ready ? preview.rows.filter(r => r.ruleId.startsWith('goal:')).reduce((n, r) => n + r.outstanding, 0n) : 0n;
   return <div className="plan-summary-grid plan-live">
     <form className="card plan-editor" onSubmit={submit} aria-labelledby="plan-editor-title">
       <h2 id="plan-editor-title">Your plan</h2>
@@ -86,7 +88,8 @@ export function PlanEditor({ state, demo, busy, act }: { state: AccountState; de
       <p>{ready ? (preview.shortfall > 0n ? `Bills and your reserve are ${usdc(preview.shortfall)} USDC more than you hold.` : `About ${usdc(preview.daily)} USDC a day until ${longDate(draft.plan.endDate!)}.`) : preview.state === 'unknown_balance' ? 'Your balance hasn’t been read yet.' : 'Choose a date to see what you can spend.'}</p>
       {ready && <dl className="plan-math">
         <div><dt>In your wallet</dt><dd>{state.balance ? usdc(state.balance.usdc) : '—'}</dd></div>
-        <div><dt>Bills before then</dt><dd>{preview.commitments > 0n ? '−' : ''}{usdc(preview.commitments)}</dd></div>
+        <div><dt>Bills before then</dt><dd>{preview.commitments - goalSetAside > 0n ? '−' : ''}{usdc(preview.commitments - goalSetAside)}</dd></div>
+        {goalSetAside > 0n && <div><dt>Savings goal</dt><dd>−{usdc(goalSetAside)}</dd></div>}
         <div><dt>Kept aside</dt><dd>{preview.reserve > 0n ? '−' : ''}{usdc(preview.reserve)}</dd></div>
         <div className="total"><dt>Left to spend</dt><dd>{usdc(preview.discretionary)}</dd></div>
         {preview.held > 0n && <p className="micro plan-held">Includes {usdc(preview.held)} USDC you’ve already paid toward bills, still set aside until your balance confirms the payment. Left to spend may be a little low, never too high.</p>}
