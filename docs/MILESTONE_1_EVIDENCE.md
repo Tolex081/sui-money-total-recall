@@ -69,7 +69,17 @@ Payment logical key `annotation:mov_0be1d03d25ddbf120a0ced091ff8daf4e4de1529`.
 | 2 | Test Label 1 · Groceries, replaces rev 1 | `721e7274-e4c4-4124-afc0-eefac4cfe09f` | `k5AO7K2jnjQZsF7y6GFLOJZs38ONTEu2AVB2ib658u0` | 14:40:46 / 14:41:31 | `138454752a5dfd60e1f680ef65c3c77eff1ac7e4544df1912917d57c6c5b5079` |
 | 3 | version 2 · Groceries, replaces rev 2 | `8df34485-8688-4025-8f38-5ba5f793cce1` | `UXhzz37J9I1bxNnsIzPtXvqUpTHk_36JyfjKOzRRuRk` | 14:42:42 / 14:43:36 | `1caa2e17d58f4ecb462cf40ac56495ff39a2f84ed147653d061261a90ae91b8a` |
 
-Envelope SHA-256 is computed over `JSON.stringify` of the stored envelope.
+Envelope SHA-256 is computed over `JSON.stringify` of the stored envelope. Memory type for all three: `payment_explanation`.
+
+| Revision | Memory job ID | Relayer job ID | Final state | Attempts | Error |
+|---|---|---|---|---|---|
+| 1 | `431de321-7e89-403a-b75b-10e9db26641f` | `1db0e2e4-f712-4b86-9ed1-0064ed737dca` | `recall_confirmed` | 1 | none |
+| 2 | `a133c565-74bd-4253-86cf-fbd049f639a1` | `02885586-a365-4703-bf57-ff3bce577a6b` | `recall_confirmed` | 1 | none |
+| 3 | `e863f266-e470-4817-9f19-c8f902ef0dbe` | `b16acfa6-89ad-4c30-84f7-c111ae02ba36` | `recall_confirmed` | 1 | none |
+
+Job state progression: `memory_jobs` stores only the current state, not a history. The code path (`src/application/memory-jobs.ts`) is `queued → submitting → accepted` (relayer job ID stored) `→ saved` (blob ID stored) `→ recall_confirmed` (exact recall matched, then activated). Each job holding a relayer job ID, a blob ID, `recall_confirmed`, one attempt and no error code is consistent with that path; the intermediate timestamps were not recorded.
+
+No public Walrus explorer link is given: none was established for these blob IDs.
 
 | Fresh-process check (UTC) | Active revisions | Result |
 |---|---|---|
@@ -86,3 +96,48 @@ After #5 was deployed, the owner signed out, signed back in, opened **Memories**
 - `learned_events` still holds 3 rows, so Verify wrote no memory.
 
 Not covered: recall isolation between different MemWal accounts (only namespace filtering within our operator account was shown).
+
+## Milestone 1 acceptance checklist (4 Nov 2026)
+
+**Real** = production app, production database and the Mainnet MemWal relayer. **Mocked** = Walrus replaced by a test double; real PostgreSQL in CI. Mocked results are not evidence of Walrus behaviour.
+
+### User journey (brief §1)
+| # | Step | Result | Kind |
+|---|---|---|---|
+| 1 | Create a memory from an existing transaction | Passed: label on a real 0.01 SUI payment | Real |
+| 2 | Written and confirmed on Walrus through MemWal | Passed: relayer job ID, blob ID, `recall_confirmed` | Real |
+| 3 | Sign out, fresh session | Passed: session revoked 14:58, new session 15:23 | Real |
+| 4 | Retrieve and verify from Walrus | Passed: exact match for every revision; deployed Verify button after sign-in | Real |
+| 5 | Correct the memory | Passed: Food → Groceries (rev 2), then text edit (rev 3) | Real |
+| 6 | Corrected revision written to Walrus | Passed: new blob IDs, `recall_confirmed` | Real |
+| 7 | Fresh session, retrieve the correction | Passed: fresh-process checks and the deployed Verify button | Real |
+| 8 | Outdated revision no longer active | Passed: exactly one active revision in every check | Real |
+
+### Automated tests (brief §10 A)
+All 16 items are covered: unit tests (`tests/memory-verification.test.ts`, `tests/test-database.test.ts`) and the CI database suite (`scripts/db-test.ts`: "M1 pilot Walrus recall (mocked Walrus)", "M1 payment-label correction", "HTTP handlers reject cross-profile resource IDs, namespace injection and export leakage", "F19 unknown memory submission…", and the existing Forget tests). Kind: mocked Walrus, real PostgreSQL. Passing in CI on every PR since #5.
+
+### Regression checks (brief §10 B)
+TypeScript, ESLint (0 errors; 1 pre-existing warning), 58/58 unit tests, CI database suites, production build: **Passed**.
+
+### Real Walrus integration (brief §10 C)
+Write, confirmed response, valid blob ID, exact-envelope recall, corrected write, recall of the correction: **Passed** (tables above).
+
+### Fresh-session sequence (brief §10 D)
+**Passed, with one difference in how it was run.** The final step (sign out, close the browser, sign in, Verify from Walrus, corrected revision active) used the deployed app. The earlier checks of revisions 1 and 2 were fresh server processes running the same verification function, not browser sign-out cycles, because #5 was not deployed yet.
+
+### Ownership (brief §10 E)
+| Check | Result | Kind |
+|---|---|---|
+| A second profile cannot retrieve the first profile's memory | Passed | Mocked, synthetic profiles |
+| A forged request cannot change the namespace | Passed (request namespace ignored; profile-derived namespace only) | Mocked + route test |
+| A mismatched profile ID in a returned envelope is rejected | Passed (`failed_verification`) | Mocked |
+| No namespace listings or other users' metadata exposed | Passed | Mocked |
+| Relayer filters recall by namespace | Passed for our operator account (own namespace returns the record; never-written namespace returns 0) | Real, read-only |
+| Isolation between different MemWal accounts | **Not tested** | — |
+
+### Not claimed
+Complete account recovery from Walrus; client-side namespace isolation; user-owned MemWal accounts; full production readiness of all Tatum operations.
+
+### Outstanding
+- Cross-account MemWal isolation: not tested (needs a second MemWal account; outside this milestone's setup).
+- Two leftover `test_*` schemas (29 Oct, 3 Nov) in the production database: cleanup awaits a product-owner decision.
