@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import Link from 'next/link';
 import { AlertCircle, ArrowDownLeft, ArrowRight, ArrowUpRight, RefreshCw, Search, Send, ShieldCheck, Sparkles, Tag } from 'lucide-react';
 import { api } from './http';
+import { LabelPicker } from './label-picker';
 import type { AccountState } from '@/domain/state';
 import type { planning } from '@/domain/planning';
 import { READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
@@ -22,8 +23,8 @@ type Props = {
   moves?: boolean;
   plan?: ReturnType<typeof planning> | null;
   suiPlan?: ReturnType<typeof planning> | null;
+  onCompare?: () => void;
 };
-export const labelCategories = ['Food', 'Groceries', 'Transport', 'Home', 'Internet', 'Learning', 'Health', 'Family', 'Work', 'Other'];
 
 function ConsentCard({ busy, onAccept }: { busy: boolean; onAccept: () => void }) {
   const [accepted, setAccepted] = useState(false);
@@ -65,7 +66,7 @@ function useLabelConfirmation(state: AccountState, enabled: boolean, onLabeled: 
   const pending = state.memories.filter(m => m.envelope.logicalKey.startsWith('annotation:') && UNSETTLED.includes(m.state)).sort((a, b) => a.envelope.recordedAt.localeCompare(b.envelope.recordedAt));
   const [stalled, setStalled] = useState<Record<string, string>>({}), [announcement, setAnnouncement] = useState('');
   const active = pending.filter(m => !stalled[m.envelope.eventId]);
-  const signature = active.map(m => m.envelope.eventId).join(','), oldestNote = active[0] ? labelPayload(active[0]).note : '';
+  const signature = active.map(m => m.envelope.eventId).join(','), oldestNote = active[0] ? (active[0].envelope.kind === 'deactivation' ? 'a label you forgot' : labelPayload(active[0]).note) : '';
   const reload = useRef(onLabeled);
   useEffect(() => { reload.current = onLabeled; }, [onLabeled]);
   useEffect(() => {
@@ -136,8 +137,7 @@ function LabelForm({ movement, state, onSaved, onCancel }: { movement: MovementR
     } catch (e) { setFailure((e as Error).message); setSaving(false); }
   }
   return <form className="read-label-panel" onSubmit={submit} onKeyDown={event => { if (event.key === 'Escape' && !saving) { event.preventDefault(); onCancel(); } }}>
-    <label>What was this for?<input ref={noteField} value={note} onChange={event => setNote(event.target.value)} maxLength={160} placeholder="e.g. October rent" required aria-describedby={`permanence-${movement.id}`}/></label>
-    <label>Category<select value={category} onChange={event => setCategory(event.target.value)}>{labelCategories.map(c => <option key={c}>{c}</option>)}</select></label>
+    <LabelPicker id={`label-${movement.id}`} ref={noteField} note={note} category={category} onChange={(nextNote, nextCategory) => { setNote(nextNote); setCategory(nextCategory); }} required describedBy={`permanence-${movement.id}`}/>
     <label className="read-label-own"><input type="checkbox" checked={own} onChange={event => setOwn(event.target.checked)}/>Moved to another wallet of mine</label>
     {failure && <p className="read-inline-error" role="alert">{failure}</p>}
     <p className="micro" id={`permanence-${movement.id}`}>Saved permanently to Walrus Memory. Use a short alias, not a person’s name.</p>
@@ -163,7 +163,8 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
   const canLabel = labels && labelable(movement, state.movements);
   const summary = `the ${shownAmount} ${unit} you ${incoming ? 'received' : 'sent'}${party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}`;
   const latest = latestLabel(state, movement.id), latestNote = latest ? labelPayload(latest).note : '';
-  const status = !latest ? null : UNSETTLED.includes(latest.state) ? (stalled[latest.envelope.eventId] ? 'stalled' : 'waiting') : latest.state === 'submission_outcome_unknown' ? 'unknown' : latest.state === 'failed' ? 'failed' : null;
+  const forgetting = latest?.envelope.kind === 'deactivation';
+  const status = !latest ? null : forgetting ? (UNSETTLED.includes(latest.state) || latest.state === 'submission_outcome_unknown' ? 'forgetting' : null) : UNSETTLED.includes(latest.state) ? (stalled[latest.envelope.eventId] ? 'stalled' : 'waiting') : latest.state === 'submission_outcome_unknown' ? 'unknown' : latest.state === 'failed' ? 'failed' : null;
   // After a save, focus moves to the chip that replaced the prompt, so keyboard users land on the new status.
   useEffect(() => { if (focusChip.current && status && chip.current) { chip.current.focus(); focusChip.current = false; } }, [status]);
   const close = () => { setOpen(false); requestAnimationFrame(() => opener.current?.focus()); };
@@ -184,7 +185,10 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
       </div>
       <div className={'pay-value ' + (incoming ? 'incoming' : '')}><strong>{incoming ? '+' : '−'}{shownAmount}</strong><small>{asset === 'native USDC' ? 'USDC' : asset}</small></div>
     </div>
-    {status === 'waiting' ? <div ref={chip} tabIndex={-1} className="pay-memory pending">
+    {status === 'forgetting' ? <div ref={chip} tabIndex={-1} className="pay-memory pending">
+      <RefreshCw size={14} aria-hidden="true"/>
+      <span>Forgetting this label. Waiting for Walrus to confirm.</span>
+    </div> : status === 'waiting' ? <div ref={chip} tabIndex={-1} className="pay-memory pending">
       <RefreshCw size={14} aria-hidden="true"/>
       <span><b>{latestNote}</b> Saved. Waiting for Walrus to confirm.</span>
     </div> : status === 'stalled' || status === 'unknown' ? <div ref={chip} tabIndex={-1} className="pay-memory pending stalled">
@@ -218,7 +222,7 @@ function freshness(observedAt: string, now: string) {
   return hours < 24 ? `Checked ${hours} h ago` : `Checked ${Math.round(hours / 24)} d ago`;
 }
 
-function PlanGlance({ plan, suiPlan }: { plan: ReturnType<typeof planning>; suiPlan: ReturnType<typeof planning> | null }) {
+function PlanGlance({ plan, suiPlan, onCompare }: { plan: ReturnType<typeof planning>; suiPlan: ReturnType<typeof planning> | null; onCompare?: () => void }) {
   if (plan.state !== 'ready') return <section className="card read-plan-glance" aria-labelledby="plan-glance-title">
     <h2 id="plan-glance-title">Your plan</h2>
     <p>{plan.state === 'incomplete' ? 'Set an end date and a reserve to see what’s left to spend each day.' : plan.reason}</p>
@@ -229,11 +233,11 @@ function PlanGlance({ plan, suiPlan }: { plan: ReturnType<typeof planning>; suiP
     <strong className="plan-glance-amount">{exact(plan.discretionary, 6)} <small>USDC</small></strong>
     <p className="muted small-text">{plan.shortfall > 0n ? `Your bills and reserve are ${exact(plan.shortfall, 6)} USDC more than you hold.` : `About ${exact(plan.daily, 6)} USDC a day for the next ${plan.days} days, after ${exact(plan.commitments, 6)} USDC of bills and a ${exact(plan.reserve, 6)} USDC reserve.`}</p>
     {suiPlan?.state === 'ready' && <p className="plan-glance-sui"><span>SUI left to spend</span><strong>{exact(suiPlan.discretionary, 9)} <small>SUI</small></strong></p>}
-    <Link className="text-link" href="/plan">Open Plan</Link>
+    <div className="plan-glance-links"><Link className="text-link" href="/plan">Open Plan</Link>{onCompare && <button className="text-button" onClick={onCompare}>Compare without what you taught it</button>}</div>
   </section>;
 }
 
-export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, labels, onLabeled, moves = false, plan = null, suiPlan = null }: Props) {
+export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, labels, onLabeled, moves = false, plan = null, suiPlan = null, onCompare }: Props) {
   const confirmation = useLabelConfirmation(state, labels, onLabeled);
   const consented = [READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION].includes(state.profile.consentVersion ?? '');
   if (!consented) return <ConsentCard busy={busy} onAccept={onAcceptConsent}/>;
@@ -300,7 +304,7 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
       </details>
     </section>
 
-    {plan && <PlanGlance plan={plan} suiPlan={suiPlan}/>}
+    {plan && <PlanGlance plan={plan} suiPlan={suiPlan} onCompare={onCompare}/>}
 
     {unlabeled.length > 0 && <section className="card read-activity-card read-queue" aria-labelledby="read-queue-title">
       <div className="section-title"><div><h2 id="read-queue-title">Waiting for a label <span className="read-count">{unlabeled.length}</span></h2><p className="muted small-text">What moved is read from the chain. What it was for comes from you.</p></div></div>
