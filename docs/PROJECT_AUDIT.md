@@ -138,7 +138,7 @@ No private keys, seed phrases or browser-exposed API keys were found. No `NEXT_P
 
 ## 10. Critical release blockers (deadline 10 Nov 2026, 17:00 UTC)
 
-1. **No real personal Walrus memory yet.** The submission's main claim (memory that changes the product across sessions) has only synthetic evidence.
+1. **No real personal Walrus memory yet.** The submission's main claim (memory that changes the product across sessions) has only synthetic evidence. *Update 4 Nov 2026: resolved for payment labels; a real label was written, recalled from Walrus and corrected twice (`MILESTONE_1_EVIDENCE.md`).*
 2. **No real send or receive yet.** Send/Receive are advertised but unproven with real funds.
 3. **No real-wallet history import yet** in production.
 4. **AI assistant and goals do not exist.** The new brief makes them central.

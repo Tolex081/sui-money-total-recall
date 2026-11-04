@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 3 November 2026 from the audit in `PROJECT_AUDIT.md`. **VERIFIED** means shown working against the real service or production with recorded evidence; automated tests with stubs or empty wallets count as **IMPLEMENTED**.
+Updated 3 November 2026 from the audit in `PROJECT_AUDIT.md`; memory rows updated 4 November 2026 after the real Milestone 1 test. **VERIFIED** means shown working against the real service or production with recorded evidence; automated tests with stubs or empty wallets count as **IMPLEMENTED**.
 
 | Feature | Status | Evidence or blocker |
 |---|---|---|
@@ -12,10 +12,10 @@ Updated 3 November 2026 from the audit in `PROJECT_AUDIT.md`. **VERIFIED** means
 | Send USDC | IMPLEMENTED | Build step returns correct errors against real Tatum; no real send yet |
 | Send SUI | IMPLEMENTED | As above |
 | Receive USDC and SUI | IMPLEMENTED | Address and QR shown; live watch not exercised |
-| Payment labels written to Walrus | IMPLEMENTED | Fixture tests; 0 personal Walrus writes in production |
+| Payment labels written to Walrus | VERIFIED | 4 Nov 2026: owner labelled a real 0.01 SUI payment in production; written to Walrus and confirmed (`MILESTONE_1_EVIDENCE.md`) |
 | Synthetic seed memories on Walrus Mainnet (24) | VERIFIED | `docs/SEED_REVIEW.md`, `public_proof` seed checked 2026-10-28 |
-| Cross-session memory recall from Walrus | IMPLEMENTED | PR #5 (draft): read-only Verify from Walrus; mocked-Walrus tests; relayer namespace filtering checked read-only on Mainnet; no real personal recall yet |
-| Memory correction (new revision) | IMPLEMENTED | Real-DB tests (F16); not exercised in production |
+| Cross-session memory recall from Walrus | VERIFIED (code path) | PR #5's Walrus verification, run from fresh local processes against production and the Mainnet relayer: all 3 revisions matched (`MILESTONE_1_EVIDENCE.md`). The deployed Verify button after sign-out/sign-in is not yet tested; isolation between MemWal accounts not verified |
+| Memory correction (new revision) | VERIFIED | 4 Nov 2026: two real corrections in production; each new revision replaced the previous one and was the only active revision when recalled from Walrus |
 | Memory forget (deactivation) in the live app | IMPLEMENTED | PR #5 (draft); mocked-Walrus real-DB test |
 | USDC plan: date, reserve, commitments | IMPLEMENTED | CI browser and real-DB tests; 0 plans in production |
 | Commitment payment matching, reimbursements | IMPLEMENTED | Real-DB tests; a reimbursement button for live users is not in PR #5 (preserved separately) |
