@@ -637,3 +637,47 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 .goal-confirm h3 { font-size: 15px; }
 @media (max-width: 540px) { .goal-figures, .goal-form-row { grid-template-columns: 1fr; gap: 10px; } }
 .goal-card .read-label-panel { margin-left: 0; }
+
+/* Financial assistant (Ask). Built from the same cards, chips and tokens as the rest of the app, not a chat skin. */
+.assistant { display: flex; flex-direction: column; gap: 14px; max-width: 820px; min-height: calc(100dvh - 230px); }
+.assistant-thread { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.assistant-intro { padding: 4px 2px; }
+.assistant-intro h2 { font-size: 20px; margin-bottom: 6px; color: var(--ink); }
+.assistant-intro p { max-width: 620px; }
+.assistant-turn { display: flex; flex-direction: column; gap: 10px; }
+.assistant-turn p { margin: 0; line-height: 1.6; color: var(--ink); }
+.assistant-turn.user { align-self: flex-end; max-width: 78%; }
+.assistant-turn.user p { background: var(--blue); color: #ffffff; padding: 10px 14px; border-radius: 14px 14px 4px 14px; }
+.assistant-turn.reply { align-self: flex-start; max-width: 100%; width: 100%; }
+.assistant-turn.reply > p { background: var(--paper); border: 1px solid var(--line); padding: 12px 14px; border-radius: 14px 14px 14px 4px; }
+.assistant-turn.failed > p { border-color: #efd6cc; }
+.assistant-turn.pending p { color: var(--muted); display: inline-flex; gap: 8px; align-items: center; }
+.assistant-card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.assistant-card h3 { display: flex; align-items: center; gap: 7px; font-size: 15px; margin: 0; color: var(--ink); }
+.assistant-card.proposal { border-color: var(--blue); }
+.assistant-source { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--blue-soft); color: var(--ink); }
+.assistant-source small { font-weight: 400; color: var(--muted); }
+.assistant-source.sui { background: color-mix(in srgb, var(--blue-soft) 40%, var(--line)); }
+.assistant-source.calculated { background: var(--line); }
+.assistant-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 18px; margin: 0; font-size: 14px; }
+.assistant-figures > div { display: flex; flex-direction: column; gap: 2px; border: 0; padding: 0; }
+.assistant-figures dt { color: var(--muted); font-size: 12px; }
+.assistant-figures dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+.assistant-figures s { color: var(--muted); }
+.assistant-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.assistant-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink); }
+.assistant-list li:first-child { border-top: 0; }
+.assistant-list .pill.muted-pill { opacity: .7; }
+.assistant-confirmed { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); }
+.assistant-suggestions { display: flex; flex-wrap: wrap; gap: 8px; }
+.assistant-suggestions .read-filter { min-height: 36px; font-size: 13px; }
+.assistant-composer { position: sticky; bottom: 12px; display: flex; gap: 8px; align-items: flex-end; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px rgba(20, 30, 50, .08); }
+.assistant-composer textarea { flex: 1; resize: none; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 15px; line-height: 1.5; padding: 8px 6px; max-height: 140px; outline: none; }
+.assistant-composer:focus-within { border-color: var(--blue); }
+.assistant-send { min-height: 40px; width: 40px; padding: 0; border-radius: 10px; }
+@media (max-width: 760px) {
+  .assistant { min-height: calc(100dvh - 200px); }
+  .assistant-turn.user { max-width: 90%; }
+  .assistant-figures { grid-template-columns: 1fr 1fr; }
+}
+.assistant-list li .micro { white-space: nowrap; flex-shrink: 0; }
