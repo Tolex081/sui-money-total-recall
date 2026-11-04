@@ -259,7 +259,9 @@ try{
     const sign=async(wallet:Ed25519Keypair)=>{const c=await auth.issueChallenge(wallet.toSuiAddress()),sig=await wallet.signPersonalMessage(new TextEncoder().encode(c.message));return auth.verifyChallenge({id:c.id,wallet:wallet.toSuiAddress(),signature:sig.signature});};
     const sessionA=await sign(walletA),sessionB=await sign(walletB);
     const post=(path:string,data:unknown,session?:{sessionToken:string;csrf:string})=>routes.POST(new Request('http://localhost:3000/api/'+path,{method:'POST',headers:{origin:'http://localhost:3000','content-type':'application/json',...(session?{cookie:'sm_session='+session.sessionToken,'x-csrf-token':session.csrf}:{})},body:JSON.stringify(data)}));
-    const code=async(r:Response)=>((await r.json()) as {error?:{code?:string}}).error?.code;
+    const code=async(r:Response)=>((await r.clone().json()) as {error?:{code?:string}}).error?.code;
+    // Fails with the response's own error code and message, so a CI log shows which call went wrong and why.
+    const status=async(r:Response,expected:number,label:string)=>{if(r.status!==expected)assert.fail(label+': expected '+expected+', got '+r.status+' '+JSON.stringify(await r.clone().json().catch(()=>null)));};
     const goalRows=async(profileId:string)=>(await pool.query("SELECT logical_key,revision,envelope FROM learned_events WHERE profile_id=$1 AND logical_key LIKE 'goal:%' ORDER BY logical_key,revision",[profileId])).rows as {logical_key:string;revision:number;envelope:{payload:{goalId:string;target:string}}}[];
     const timezone=(await pool.query('SELECT timezone FROM profiles WHERE id=$1',[a])).rows[0].timezone as string;
     const targetDate=Temporal.PlainDate.from(localToday(new Date().toISOString(),timezone)).add({days:56}).toString();
@@ -269,37 +271,37 @@ try{
       delete process.env.PERSONAL_ACCESS_ENABLED;process.env.PERSONAL_READ_ENABLED='true';process.env.PERSONAL_LABELS_ENABLED='true';process.env.PERSONAL_PLAN_ENABLED='true';
       await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id IN ($1,$2)",[a,b]);
       // 1. Signed out: refused before anything is read or written.
-      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal());assert.equal(r.status,401);}
+      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal());await status(r,401,'signed out '+path);}
       // 2. Feature switch: with Plan off, both goal routes are refused by the release gate, even for a signed-in user.
       delete process.env.PERSONAL_PLAN_ENABLED;
-      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal(),sessionA);assert.equal(r.status,503);assert.equal(await code(r),'RELEASE_GATE');}
+      for(const path of ['goals','goals/'+randomUUID()]){const r=await post(path,goal(),sessionA);await status(r,503,'plan switch off '+path);assert.equal(await code(r),'RELEASE_GATE');}
       process.env.PERSONAL_PLAN_ENABLED='true';
       // 3. Memory consent: wallet-read consent alone is not enough to save a goal; nothing is written.
       const beforeB=(await goalRows(b)).length;
       await pool.query("UPDATE profiles SET consent_version='read-only-wallet-v1' WHERE id=$1",[b]);
-      const noConsent=await post('goals',goal(),sessionB);assert.equal(noConsent.status,409);assert.equal(await code(noConsent),'CONSENT_REQUIRED');
+      const noConsent=await post('goals',goal(),sessionB);await status(noConsent,409,'no memory consent');assert.equal(await code(noConsent),'CONSENT_REQUIRED');
       assert.equal((await goalRows(b)).length,beforeB);
       await pool.query("UPDATE profiles SET consent_version='operator-managed-v1' WHERE id=$1",[b]);
       // Profile A saves a goal through the route.
-      const created=await post('goals',goal(),sessionA);assert.equal(created.status,200);
+      const created=await post('goals',goal(),sessionA);await status(created,200,'A creates a goal');
       const createdId=((await created.json()) as {eventId:string}).eventId;
       const rowA=(await goalRows(a)).find(r=>(r.envelope as unknown as {eventId:string}).eventId===createdId)!;assert.ok(rowA);
       const goalIdA=rowA.envelope.payload.goalId,keyA='goal:'+goalIdA,snapshotA=JSON.stringify(await goalRows(a));
       // 4. Profile B cannot edit A's goal by its ID (it isn't found under B's profile), nor an unknown ID.
-      for(const id of [goalIdA,randomUUID()]){const r=await post('goals/'+encodeURIComponent(id),goal({target:'900',expectedRevision:1,supersedesEventId:createdId}),sessionB);assert.equal(r.status,404);assert.equal(await code(r),'NOT_FOUND');}
+      for(const id of [goalIdA,randomUUID()]){const r=await post('goals/'+encodeURIComponent(id),goal({target:'900',expectedRevision:1,supersedesEventId:createdId}),sessionB);await status(r,404,'B edits goal '+id);assert.equal(await code(r),'NOT_FOUND');}
       assert.equal(JSON.stringify(await goalRows(a)),snapshotA);assert.equal((await goalRows(b)).some(r=>r.logical_key===keyA),false);
       // 5. A goal ID in the body never overrides the route or ownership.
       //    On create, B's body goal ID is ignored: B gets a new goal of its own; A's goal is untouched.
-      const spoofCreate=await post('goals',goal({goalId:goalIdA,purpose:'bike'}),sessionB);assert.equal(spoofCreate.status,200);
+      const spoofCreate=await post('goals',goal({goalId:goalIdA,purpose:'bike'}),sessionB);await status(spoofCreate,200,'B creates with A goal ID in body');
       const goalsB=await goalRows(b);assert.equal(goalsB.length,beforeB+1);
       const bGoal=goalsB[goalsB.length-1];assert.notEqual(bGoal.envelope.payload.goalId,goalIdA);assert.notEqual(bGoal.logical_key,keyA);
       assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
       //    On edit, the path's goal ID wins over a different one in the body: B's body cannot steer B's edit onto A's goal.
-      const steer=await post('goals/'+encodeURIComponent(bGoal.envelope.payload.goalId),goal({goalId:goalIdA,purpose:'bike',target:'150',expectedRevision:1,supersedesEventId:(bGoal.envelope as unknown as {eventId:string}).eventId}),sessionB);assert.equal(steer.status,200);
+      const steer=await post('goals/'+encodeURIComponent(bGoal.envelope.payload.goalId),goal({goalId:goalIdA,purpose:'bike',target:'150',expectedRevision:1,supersedesEventId:(bGoal.envelope as unknown as {eventId:string}).eventId}),sessionB);await status(steer,200,'B edits own goal with A goal ID in body');
       const afterB=await goalRows(b);assert.equal(afterB.filter(r=>r.logical_key===bGoal.logical_key).length,2);assert.equal(afterB[afterB.length-1].envelope.payload.target,'150000000');
       assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
       //    Fields that would choose an owner or namespace are rejected outright.
-      for(const extra of [{profileId:a},{namespace:'test-a-'+a}]){const r=await post('goals',goal(extra),sessionB);assert.equal(r.status,400);}
+      for(const extra of [{profileId:a},{namespace:'test-a-'+a}]){const r=await post('goals',goal(extra),sessionB);await status(r,400,'owner field '+Object.keys(extra)[0]);}
       assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
     }finally{
       for(const [k,v] of Object.entries({PERSONAL_ACCESS_ENABLED:saved.access,PERSONAL_READ_ENABLED:saved.read,PERSONAL_LABELS_ENABLED:saved.labels,PERSONAL_PLAN_ENABLED:saved.plan}))if(v===undefined)delete process.env[k];else process.env[k]=v;
