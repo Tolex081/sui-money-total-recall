@@ -61,3 +61,36 @@ it('SUI movements stay review-only when the payer is not the gas owner, a third 
   const minted=suiFixture();minted.balanceChanges[1].amount='3000000000';expect(extractTransaction(minted,owner).every(m=>m.operation==='complex')).toBe(true);
   const swap=suiFixture();const data=swap.transaction!.kind!.data;if(data?.oneofKind!=='programmableTransaction')throw Error('Fixture kind');data.programmableTransaction.commands=[GrpcTypes.Command.create({command:{oneofKind:'moveCall',moveCall:{package:third,module:'pool',function:'swap',typeArguments:[SUI_TYPE],arguments:[]}}})];expect(extractTransaction(swap,owner).every(m=>m.operation==='complex')).toBe(true);
 });
+// Shape of a real Mainnet send from an address balance (StarKey, 3 Nov 2026): redeem_funds → split → send_funds → transfer.
+function addressBalanceSend(coinType: string, sent: string, paid: string) {
+  const tx = fixture(), data = tx.transaction!.kind!.data;
+  if (data?.oneofKind !== 'programmableTransaction') throw Error('Fixture kind');
+  const call = (fn: string) => GrpcTypes.Command.create({ command: { oneofKind: 'moveCall', moveCall: { package: normalizeSuiAddress('0x2'), module: 'coin', function: fn, typeArguments: [coinType], arguments: [] } } });
+  data.programmableTransaction.commands = [call('redeem_funds'), GrpcTypes.Command.create({ command: { oneofKind: 'splitCoins', splitCoins: { amounts: [] } } }), call('send_funds'), GrpcTypes.Command.create({ command: { oneofKind: 'transferObjects', transferObjects: { objects: [] } } })];
+  tx.balanceChanges = coinType === SUI_TYPE
+    ? [GrpcTypes.BalanceChange.create({ address: owner, coinType: SUI_TYPE, amount: '-' + paid }), GrpcTypes.BalanceChange.create({ address: destination, coinType: SUI_TYPE, amount: sent })]
+    : [GrpcTypes.BalanceChange.create({ address: owner, coinType, amount: '-' + sent }), GrpcTypes.BalanceChange.create({ address: destination, coinType, amount: sent }), GrpcTypes.BalanceChange.create({ address: owner, coinType: SUI_TYPE, amount: '-' + paid })];
+  return tx;
+}
+it('sends from an address balance (coin::redeem_funds) are simple payments that can be labelled', () => {
+  const sui = extractTransaction(addressBalanceSend(SUI_TYPE, '100000', '1188000'), owner);
+  expect(sui).toHaveLength(1); expect(sui[0].operation).toBe('simple_transfer'); expect(sui[0].counterparty).toBe(destination); expect(sui[0].delta).toBe('-1188000');
+  const usdc = extractTransaction(addressBalanceSend(USDC_TYPE, '250000', '1100000'), owner).find(m => m.coinType === USDC_TYPE)!;
+  expect(usdc.operation).toBe('simple_transfer'); expect(usdc.counterparty).toBe(destination); expect(usdc.delta).toBe('-250000');
+});
+it('redeem_funds on a lookalike package stays review-only', () => {
+  const foreign = addressBalanceSend(SUI_TYPE, '100000', '1188000'), data = foreign.transaction!.kind!.data;
+  if (data?.oneofKind !== 'programmableTransaction') throw Error('Fixture kind');
+  const first = data.programmableTransaction.commands[0].command; if (first.oneofKind === 'moveCall') first.moveCall.package = third;
+  expect(extractTransaction(foreign, owner).every(m => m.operation === 'complex')).toBe(true);
+});
+it('redeem_funds for a coin other than the one that moved stays review-only', () => {
+  const lookalikeCoin = normalizeSuiAddress('0x4') + '::sui::SUI', bridgedUsdc = '0x' + '4'.repeat(64) + '::usdc::USDC';
+  // Only the first command's type argument changes; package, commands and balance changes are those of a real send.
+  for (const [moved, redeemed] of [[SUI_TYPE, USDC_TYPE], [SUI_TYPE, lookalikeCoin], [USDC_TYPE, SUI_TYPE], [USDC_TYPE, bridgedUsdc]] as const) {
+    const tx = addressBalanceSend(moved, moved === SUI_TYPE ? '100000' : '250000', moved === SUI_TYPE ? '1188000' : '1100000'), data = tx.transaction!.kind!.data;
+    if (data?.oneofKind !== 'programmableTransaction') throw Error('Fixture kind');
+    const first = data.programmableTransaction.commands[0].command; if (first.oneofKind === 'moveCall') first.moveCall.typeArguments = [redeemed];
+    expect(extractTransaction(tx, owner).every(m => m.operation === 'complex'), `${moved} moved, redeem_funds<${redeemed}>`).toBe(true);
+  }
+});
