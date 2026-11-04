@@ -296,6 +296,12 @@ try{
       const goalsB=await goalRows(b);assert.equal(goalsB.length,beforeB+1);
       const bGoal=goalsB[goalsB.length-1];assert.notEqual(bGoal.envelope.payload.goalId,goalIdA);assert.notEqual(bGoal.logical_key,keyA);
       assert.equal(JSON.stringify(await goalRows(a)),snapshotA);
+      //    While B's first version is still being saved, the per-goal pending lock refuses a second change; nothing is written.
+      const steerBody=goal({goalId:goalIdA,purpose:'bike',target:'150',expectedRevision:1,supersedesEventId:(bGoal.envelope as unknown as {eventId:string}).eventId});
+      const stacked=await post('goals/'+encodeURIComponent(bGoal.envelope.payload.goalId),steerBody,sessionB);await status(stacked,409,'stacked edit while pending');assert.equal(await code(stacked),'VERSION_CONFLICT');
+      assert.equal((await goalRows(b)).length,beforeB+1);
+      // Test fixture standing in for Walrus confirming B's first version (no relayer in this test).
+      await pool.query("UPDATE memory_jobs SET state='recall_confirmed',blob_id='fixture-blob',recalled_at=now() WHERE profile_id=$1 AND logical_key=$2",[b,bGoal.logical_key]);
       //    On edit, the path's goal ID wins over a different one in the body: B's body cannot steer B's edit onto A's goal.
       const steer=await post('goals/'+encodeURIComponent(bGoal.envelope.payload.goalId),goal({goalId:goalIdA,purpose:'bike',target:'150',expectedRevision:1,supersedesEventId:(bGoal.envelope as unknown as {eventId:string}).eventId}),sessionB);await status(steer,200,'B edits own goal with A goal ID in body');
       const afterB=await goalRows(b);assert.equal(afterB.filter(r=>r.logical_key===bGoal.logical_key).length,2);assert.equal(afterB[afterB.length-1].envelope.payload.target,'150000000');
