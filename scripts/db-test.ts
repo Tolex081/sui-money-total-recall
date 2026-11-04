@@ -224,23 +224,23 @@ try{
       key=(await pool.query('SELECT logical_key FROM learned_events WHERE profile_id=$1 AND id=$2',[a,queued.eventId])).rows[0].logical_key;assert.match(key,/^goal:/);
       assert.deepEqual(await setAside(),[]);
       assert.equal(await settle(),'recall_confirmed');const rev1=(await active())!;assert.equal(rev1.kind,'savings_goal');assert.equal(rev1.revision,1);
-      assert.deepEqual(await setAside(),Array(9).fill('55560000'));
+      assert.deepEqual(await setAside(),[...Array(8).fill('55560000'),'55520000']);
       // A second goal can't start while this one exists.
       await assert.rejects(saveGoal(profile,{purpose:'bike',target:'100',saved:'0',frequency:'monthly',targetDate,expectedRevision:0}),/already have a savings goal/);
       const goalId=rev1.kind==='savings_goal'?rev1.payload.goalId:'';
       // Session C: change to 700. The relayer fails the write: 500 stays in use.
       await pool.query('DELETE FROM rate_limit_buckets');
       await saveGoal(profile,{goalId,purpose:'laptop',target:'700',saved:'0',frequency:'weekly',targetDate,expectedRevision:1,supersedesEventId:rev1.eventId});
-      assert.deepEqual(await setAside(),Array(9).fill('55560000'));
+      assert.deepEqual(await setAside(),[...Array(8).fill('55560000'),'55520000']);
       failNext=true;assert.equal(await settle(),'failed');failNext=false;
-      assert.equal((await active())!.eventId,rev1.eventId);assert.deepEqual(await setAside(),Array(9).fill('55560000'));
+      assert.equal((await active())!.eventId,rev1.eventId);assert.deepEqual(await setAside(),[...Array(8).fill('55560000'),'55520000']);
       const failed=(await pool.query('SELECT envelope FROM learned_events WHERE profile_id=$1 AND logical_key=$2 AND revision=2',[a,key])).rows[0].envelope;
       // Retry names the failed revision; once confirmed, 700 drives the plan on the same contribution days.
       await pool.query('DELETE FROM rate_limit_buckets');
       await saveGoal(profile,{goalId,purpose:'laptop',target:'700',saved:'0',frequency:'weekly',targetDate,expectedRevision:2,supersedesEventId:failed.eventId});
       assert.equal(await settle(),'recall_confirmed');const rev3=(await active())!;assert.equal(rev3.revision,3);assert.equal(rev3.supersedesEventId,failed.eventId);
       assert.equal(rev3.kind==='savings_goal'&&rev3.payload.startDate,rev1.kind==='savings_goal'&&rev1.payload.startDate);
-      assert.deepEqual(await setAside(),Array(9).fill('77780000'));
+      assert.deepEqual(await setAside(),[...Array(8).fill('77780000'),'77760000']);
       // A stale change based on revision 1 is refused.
       await assert.rejects(saveGoal(profile,{goalId,purpose:'laptop',target:'600',saved:'0',frequency:'weekly',targetDate,expectedRevision:1,supersedesEventId:rev1.eventId}));
       // Session D: a fresh read-back from (mocked) Walrus returns 700, revision 3, replacing revision 2.
