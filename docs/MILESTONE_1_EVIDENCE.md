@@ -7,7 +7,7 @@
 | Check | Kind | Result |
 |---|---|---|
 | Relayer namespace filtering | **Real, read-only, Mainnet relayer** | Recalling 3 synthetic demo seed event IDs: own namespace returned 20 results each, exactly 1 with the requested event ID; a never-written namespace returned **0 results** for the same queries. Shows the relayer filters recall by namespace for our operator account. Does not show isolation between different MemWal accounts. Script: `evidence/private/relayer-namespace-check.ts` (not committed). |
-| Address-balance sends classified as payments | **Real, read-only, Tatum Mainnet** | Both confirmed StarKey SUI sends (`GXmPbrNR…`, `H7kwASEE…`) now classify as `simple_transfer` with a counterparty (were `complex`). Stored rows are unchanged until re-imported. |
+| Address-balance sends classified as payments | **Real, read-only, Tatum Mainnet** | Both confirmed StarKey SUI sends (`GXmPbrNR…`, `H7kwASEE…`) now classify as `simple_transfer` with a counterparty (were `complex`). The two stored rows stay `complex`: re-importing skips existing rows, so a new transfer is needed (see below). |
 | Recall endpoint ownership, exact match, read-only, rate limit | Mocked Walrus, real PostgreSQL | `scripts/db-test.ts` "M1 pilot Walrus recall": pass |
 | Label correction lifecycle and Forget | Mocked Walrus, real PostgreSQL | `scripts/db-test.ts` "M1 payment-label correction": pass |
 | Verification rules (exact copy, profile, revision, supersession, reordering) | Mocked hits | `tests/memory-verification.test.ts`: 4 pass |
