@@ -232,6 +232,7 @@ function PlanGlance({ plan, suiPlan, onCompare }: { plan: ReturnType<typeof plan
     <h2 id="plan-glance-title">Left to spend</h2>
     <strong className="plan-glance-amount">{exact(plan.discretionary, 6)} <small>USDC</small></strong>
     <p className="muted small-text">{plan.shortfall > 0n ? `Your bills and reserve are ${exact(plan.shortfall, 6)} USDC more than you hold.` : `About ${exact(plan.daily, 6)} USDC a day for the next ${plan.days} days, after ${exact(plan.commitments, 6)} USDC of bills and a ${exact(plan.reserve, 6)} USDC reserve.`}</p>
+    {plan.held > 0n && <p className="micro">{exact(plan.held, 6)} USDC already paid toward bills is still set aside until your balance confirms it, so this may be a little low, never too high.</p>}
     {suiPlan?.state === 'ready' && <p className="plan-glance-sui"><span>SUI left to spend</span><strong>{exact(suiPlan.discretionary, 9)} <small>SUI</small></strong></p>}
     <div className="plan-glance-links"><Link className="text-link" href="/plan">Open Plan</Link>{onCompare && <button className="text-button" onClick={onCompare}>Compare without what you taught it</button>}</div>
   </section>;

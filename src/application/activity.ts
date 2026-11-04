@@ -57,7 +57,7 @@ export async function allocateCommitment(profile:Profile,targetId:string,raw:unk
     const target=(await db.query('SELECT * FROM commitment_occurrences WHERE profile_id=$1 AND id=$2',[profile.id,targetId])).rows[0];
     if(!source||!target)throw new AppError('NOT_FOUND',404,'Payment or commitment not found.');
     await db.query("INSERT INTO commitment_allocations(profile_id,id,source_id,target_id,amount,checkpoint) VALUES($1,$2,$3,$4,$5,$6)",[profile.id,randomUUID(),data.sourceId,targetId,amount,source.checkpoint]);
-    return {saved:true,calculation:'pending_balance',reason:'The allocation is saved. Its reservation releases only when a verified balance includes the payment checkpoint.'};
+    return {saved:true,calculation:'conservative',reason:'The payment is matched. Its amount stays set aside until a balance proven to include it is available, so left to spend is never overstated.'};
   });
 }
 export async function decideSuggestion(profile:Profile,suggestionId:string,raw:unknown) {

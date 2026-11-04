@@ -91,9 +91,10 @@ export class TatumChain implements ChainPort {
       if (!response.balance?.coinType || normalizeStructTag(response.balance.coinType) !== coinType || response.balance.balance === undefined) throw new Error('TATUM_SHAPE: Missing balance is unknown, never zero.');
       values.push(response.balance.balance.toString());
     }
-    // GetBalance has no snapshot checkpoint of its own. The service checkpoint read *before* the balance is used as a
-    // lower bound: payments at or below it are treated as included. See docs/BALANCE_CONSISTENCY.md for the residual risk.
-    return { usdc: values[0], sui: values[1], checkpoint: service.checkpoint, observedAt: new Date().toISOString(), source: 'tatum', stale: false };
+    // GetBalance has no snapshot checkpoint. The service height read before it is the highest committed checkpoint
+    // summary, while balances come from a separate asynchronous index (sui-node 1.82.4-485613f749ed), so it does not
+    // prove the balance includes any payment. It is kept only as an observed tip; no inclusion checkpoint is claimed.
+    return { usdc: values[0], sui: values[1], checkpoint: null, observedTip: service.checkpoint, observedAt: new Date().toISOString(), source: 'tatum', stale: false };
   }
   // Builds an unsigned native-USDC or SUI transfer from the sender's own funds; gas is paid in SUI by the sender
   // (for SUI, from the same balance). The result goes to the user's wallet for signing. Nothing here holds a key.
