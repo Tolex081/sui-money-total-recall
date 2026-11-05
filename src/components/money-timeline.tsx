@@ -5,7 +5,7 @@ import { amount } from '@/domain/money';
 export type TimelineRow = { id: string; dueDate: string; alias: string; outstanding: bigint; remembered: boolean };
 
 const PLOT_H = 132, TOP = 14, BOTTOM = 10;
-const day = (iso: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en-GB', { ...opts, timeZone: 'UTC' }).format(new Date(iso + 'T12:00:00Z'));
+const day = (iso: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en-GB', { ...opts, timeZone: 'UTC' }).format(new Date(iso + 'T12:00:00Z')).replace('Sept', 'Sep');
 
 // The money timeline: what is left to spend, from today to the plan's end date, stepping down as each commitment
 // falls due. It starts at the balance after the reserve and ends at what the plan leaves, so it adds up to Today's figure.

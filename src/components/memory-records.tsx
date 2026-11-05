@@ -13,7 +13,7 @@ const groupTitle = { Labels: 'Payment labels', Plan: 'Plan rules', Other: 'Other
 export function MemoryRecords({ state, demo, busy, onCorrect, onTurnOff }: { state: AccountState; demo: boolean; busy: boolean; onCorrect: (m: Memory) => void; onTurnOff: (m: Memory) => void }) {
   const byKey = new Map<string, Memory[]>();
   for (const m of state.memories) byKey.set(m.envelope.logicalKey, [...(byKey.get(m.envelope.logicalKey) ?? []), m]);
-  const when = (iso: string | null) => iso ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: state.plan.timezone }).format(new Date(iso)) : null;
+  const when = (iso: string | null) => iso ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: state.plan.timezone }).format(new Date(iso)).replace('Sept', 'Sep') : null;
 
   const records = [...byKey.values()].map(list => {
     const versions = [...list].sort((a, b) => b.envelope.revision - a.envelope.revision), newest = versions[0];

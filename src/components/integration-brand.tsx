@@ -3,7 +3,7 @@ import mascot from '../../public/brand/walrus-tatum.png';
 
 export function IntegrationIdentity({provider}:{provider:'tatum'|'walrus'}) {
   return <span className={'integration-identity '+provider}>
-    <Image src={'/brand/'+provider+'.svg'} width={provider==='tatum'?81:90} height={21} alt={provider==='tatum'?'Tatum':'Walrus'} unoptimized/>
+    <Image src={'/brand/'+provider+'.svg'} width={provider==='tatum'?81:90} height={21} alt={provider==='tatum'?'Tatum':'Walrus'} loading="eager" unoptimized/>
   </span>;
 }
 
