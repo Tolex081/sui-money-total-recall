@@ -362,6 +362,22 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 .pay-memory.failed { border: 1px solid #efd6cc; background: var(--negative-soft); color: var(--ink); }
 .pay-memory.failed svg { color: var(--negative); }
 .pay-memory:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+/* Demo and full Activity rows: the payment fact, then what it was for. */
+.movement-row.two-layer { display: block; }
+.movement-fact { display: flex; align-items: center; gap: 14px; }
+.movement-fact .item-main { flex: 1; min-width: 0; }
+.movement-row.two-layer .pay-memory, .movement-row.two-layer .pay-prompt { margin-left: 53px; }
+.movement-row.two-layer .pay-prompt { width: calc(100% - 53px); }
+.movement-amount.own strong { color: var(--muted); }
+.icon-button-space { flex: 0 0 44px; }
+.table-heading.two-col { grid-template-columns: minmax(0, 1fr) auto; }
+.payment-facts dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 16px; margin: 6px 0 0; }
+.payment-facts dl div { display: contents; }
+.payment-facts dt { color: var(--muted); }
+.payment-facts dd { margin: 0; }
+@media (max-width: 600px) {
+  .movement-row.two-layer .pay-memory, .movement-row.two-layer .pay-prompt { margin-left: 0; width: 100%; }
+}
 .read-consent-facts { display: grid; gap: 8px; margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
 .read-consent-facts b { color: var(--ink); font-weight: 600; }
 
