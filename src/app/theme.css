@@ -538,6 +538,24 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 .walrus-verify li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid var(--memory-border); }
 .memory-actions { display: inline-flex; gap: 14px; }
 .memory-failed { color: var(--negative); font-size: 13px; }
+/* Demo and full Memories: the plain sentence leads; older versions and storage proof fold underneath. */
+.memories-demo-lead { display: grid; gap: 14px; margin-bottom: 32px; }
+.memories-demo-lead > h2 { margin: 0; font-size: 22px; }
+.memories-lead { max-width: 70ch; margin: -6px 0 16px; font-size: 14px; }
+.memories-group + .memories-group { margin-top: 16px; }
+.memories-group li.memory-record { row-gap: 2px; }
+.memory-record.turned_off .memory-line { opacity: .62; }
+.memory-history, .memory-proof { grid-column: 1 / -1; margin-top: -4px; font-size: 13px; }
+.memory-history summary, .memory-proof summary { width: fit-content; min-height: 32px; display: flex; align-items: center; color: var(--link); cursor: pointer; }
+.memory-history summary:hover, .memory-proof summary:hover { color: var(--link-hover); }
+.memory-history ol { display: grid; gap: 8px; margin: 6px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--line); list-style: none; }
+.memory-history ol li { display: grid; gap: 2px; grid-template-columns: none; padding: 0; border: 0; }
+.memory-proof dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 16px; margin: 6px 0 10px; }
+.memory-proof dl div { display: contents; }
+.memory-proof dt { color: var(--muted); }
+.memory-proof dd { margin: 0; font-variant-numeric: tabular-nums; }
+.memory-proof pre { max-height: 220px; overflow: auto; margin: 0; padding: 12px; border-radius: 10px; background: var(--canvas); font-size: 12px; }
+@media (max-width: 600px) { .memory-proof dl { grid-template-columns: 1fr; } .memory-proof dt { margin-top: 6px; } }
 .memories-group li.editing { grid-template-columns: minmax(0, 1fr); }
 .memories-group li.editing > .move-state { justify-self: start; }
 .memory-change { margin: 4px 0 0; }
