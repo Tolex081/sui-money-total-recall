@@ -11,7 +11,7 @@ type Memory = AccountState['memories'][number];
 const UNSETTLED = ['queued', 'submitting', 'accepted', 'saved', 'submission_outcome_unknown'];
 
 // One line of plain language per remembered thing, so people can see what the app will use and drop what's wrong.
-function describe(m: Memory, state: AccountState): { title: string; detail: string; group: 'Labels' | 'Plan' | 'Other' } {
+export function describe(m: Memory, state: AccountState): { title: string; detail: string; group: 'Labels' | 'Plan' | 'Other' } {
   const e = m.envelope;
   switch (e.kind) {
     case 'payment_explanation': {
@@ -19,13 +19,20 @@ function describe(m: Memory, state: AccountState): { title: string; detail: stri
       const paid = movement ? `${amount(movement.delta.replace('-', ''), movement.coinType === SUI_TYPE ? 9 : 6)} ${movement.coinType === SUI_TYPE ? 'SUI' : 'USDC'} ${movement.delta.startsWith('-') ? 'sent' : 'received'} ${new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: state.plan.timezone }).format(new Date(movement.timestamp))}` : 'A payment';
       return { title: `“${e.payload.note}”`, detail: `${e.payload.ownTransfer ? 'Own transfer' : e.payload.category} · ${paid}`, group: 'Labels' };
     }
-    case 'planning_preference': return { title: 'Your usual reserve', detail: `${amount(e.payload.value)} USDC kept aside when you plan`, group: 'Plan' };
+    // Personal reserves are saved in base units; older and demo preferences are a sentence the person confirmed.
+    case 'planning_preference': return /^\d+$/.test(e.payload.value) ? { title: 'Your usual reserve', detail: `${amount(e.payload.value)} USDC kept aside when you plan`, group: 'Plan' } : { title: e.payload.value, detail: 'A planning preference you confirmed', group: 'Plan' };
     case 'recurrence_confirmation': return { title: `Recurring bill: ${e.payload.alias}`, detail: `${amount(e.payload.amount)} USDC · ${e.payload.frequency === 'once' ? 'once' : e.payload.frequency} · next ${e.payload.nextDate}`, group: 'Plan' };
     case 'suggestion_decision': return { title: e.payload.decision === 'confirmed' ? 'A suggested weekly payment you confirmed' : 'A suggested weekly payment you turned down', detail: 'Used when Sui Money suggests bills', group: 'Plan' };
     case 'category_rule': return { title: 'Payments to one address', detail: `Always counted as ${e.payload.category}`, group: 'Labels' };
     case 'own_destination_rule': return { title: 'One of your own wallets', detail: 'Transfers there are not counted as spending', group: 'Labels' };
     case 'reimbursement_link': return { title: 'Money you got back', detail: `Linked to ${e.payload.allocationIds.length} payment${e.payload.allocationIds.length > 1 ? 's' : ''}, so it isn’t counted as spending`, group: 'Other' };
-    case 'correction': return e.payload.targetKind === 'annotation' ? { title: `“${e.payload.value.note}”`, detail: `Corrected label · ${e.payload.value.category}`, group: 'Labels' } : 'alias' in e.payload.value ? { title: `Recurring bill: ${e.payload.value.alias}`, detail: 'Corrected bill', group: 'Plan' } : { title: 'A reversed payment match', detail: 'The bill counts as unpaid again', group: 'Plan' };
+    case 'correction': {
+      const v = e.payload.value as Record<string, unknown>;
+      if (e.payload.targetKind === 'annotation') return { title: `“${v.note}”`, detail: `Corrected label · ${v.category}`, group: 'Labels' };
+      if ('alias' in v) return { title: `Recurring bill: ${v.alias}`, detail: `Corrected to ${typeof v.amount === 'string' && /^\d+$/.test(v.amount) ? amount(v.amount) + ' USDC · ' : ''}${v.frequency ?? ''}${v.nextDate ? ` · next ${v.nextDate}` : ''}`, group: 'Plan' };
+      if (e.payload.targetKind === 'reimbursement') return { title: 'Money you got back, unlinked', detail: 'It no longer offsets the payment it was linked to', group: 'Other' };
+      return { title: 'A reversed payment match', detail: 'The bill counts as unpaid again', group: 'Plan' };
+    }
     case 'savings_goal': return { title: `Saving for ${e.payload.purpose}`, detail: `${amount(e.payload.target)} USDC by ${e.payload.targetDate} · ${e.payload.frequency} contributions · ${amount(e.payload.saved)} USDC saved so far`, group: 'Plan' };
     default: return { title: 'Remembered item', detail: '', group: 'Other' };
   }

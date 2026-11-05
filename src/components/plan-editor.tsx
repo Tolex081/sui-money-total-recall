@@ -74,7 +74,7 @@ export function PlanEditor({ state, demo, busy, act }: { state: AccountState; de
       <details className="quiet-details plan-more">
         <summary>More options</summary>
         <label>Time zone<select value={timezone} onChange={e => setTimezone(e.target.value)}>{(zones.includes(timezone) ? zones : [timezone, ...zones]).map(z => <option key={z}>{z}</option>)}</select></label>
-        <label className="checkbox-label"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)}/>Also remember this reserve for future plan choices. This queues a separate write; it is usable only after confirmed recall.</label>
+        <label className="checkbox-label"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)}/>Also remember this reserve for next time. It’s used once Walrus confirms it.</label>
       </details>
       {!consented && <label className="checkbox-label"><input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)}/>I understand the operator owns the shared memory account, its relayer processes notes, and hiding a rule is not permanent erasure. <Link href="/about">Read details</Link>.</label>}
       {demo ? <p className="micro">Demo: try the dates and amounts. Nothing is saved.</p> : <div className="move-actions">

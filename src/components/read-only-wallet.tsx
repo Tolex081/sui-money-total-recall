@@ -246,7 +246,7 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
   if (screen === 'plan') return <section className="card read-release-card">
     <span className="read-only-label">Personal planning is paused</span>
     <h2>Wallet facts are available. Budget changes are still locked.</h2>
-    <p>The balance read has no checkpoint that proves it includes a matched payment. Until Tatum supplies that consistency evidence, this screen won’t calculate a personal spending allowance or release bill reservations.</p>
+    <p>Tatum can’t yet prove whether this balance already includes a payment you matched to a bill. Until it can, Sui Money won’t work out a spending allowance for you or release money held for bills.</p>
     <p>Your current balance and imported payments are available in <Link className="text-link" href="/today">Today</Link> and <Link className="text-link" href="/activity">Activity</Link>. {labels ? 'Budget edits stay off in this read-only pilot; payment labels are the only thing it saves.' : 'No budget edits or memory writes are enabled in this read-only pilot.'}</p>
   </section>;
 
@@ -301,7 +301,7 @@ export function ReadOnlyWallet({ screen, state, busy, onSync, onAcceptConsent, l
         <p>The server queried the signed-in address through Tatum’s Sui Mainnet gRPC service. It checked the network identity, exact coin type and metadata before saving the result.</p>
         <p>USDC coin type · 6 decimals</p><code>{USDC_TYPE}</code>
         <p>SUI coin type · 9 decimals</p><code>{SUI_TYPE}</code>
-        <p className="micro">Tatum does not attach a checkpoint to this balance response. The latest service checkpoint is separate and is not treated as the balance’s checkpoint.</p>
+        <p className="micro">Tatum doesn’t say exactly which point on the chain this balance was read at, so the newest payments may not be in it yet.</p>
       </details>
     </section>
 

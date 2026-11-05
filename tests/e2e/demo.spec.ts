@@ -4,14 +4,20 @@ test('public demo: core screens, learning comparison and honest proof',async({pa
   await page.goto('/demo');await expect(page.getByRole('heading',{name:'A little clarity for today.'})).toBeVisible();
   await expect(page.getByText('Fictional finance data',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'Why this changed'}).click();await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByText('134.00 USDC of future obligations',{exact:false})).toBeVisible();
+  await expect(page.getByText('134.00 USDC of upcoming bills',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'Close dialog'}).click();
   await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('link',{name:'Activity'}).click();
   await expect(page.getByRole('heading',{name:'Every payment has a story.'})).toBeVisible();
   await page.getByLabel('Search payment explanations').fill('shared');await expect(page.getByText('Shared grocery shop',{exact:true})).toBeVisible();
   await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('link',{name:'Plan',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Make room for what’s next.'})).toBeVisible();
-  await expect(page.getByRole('button',{name:'Add commitment'})).toBeDisabled();
+  // The demo applies a new bill in this browser only, and Today's figure follows it.
+  await page.getByRole('button',{name:'Add commitment'}).click();
+  const bill=page.getByRole('dialog');await bill.getByLabel('Short alias').fill('Phone top-up');await bill.getByLabel('Amount · USDC').fill('50');await bill.locator('input[name=date]').fill('2026-11-02');
+  await bill.getByRole('button',{name:'Add commitment'}).click();
+  await expect(page.getByText('Added in this browser only',{exact:false})).toBeVisible();
+  await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('link',{name:'Today',exact:true}).click();
+  await expect(page.locator('.lead-figure')).toContainText('548');
   await page.goto('/proof');await expect(page.getByRole('heading',{name:'Recorded public evidence'})).toBeVisible();
 });
 test('390px and 1440px have no horizontal page overflow, keyboard focus and accessible labels',async({page})=>{
