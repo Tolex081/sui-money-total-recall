@@ -749,3 +749,31 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
   .timeline-memory .mascot-memory { width: 44px; }
   .timeline-memory .text-link { grid-column: 2; justify-self: start; }
 }
+
+/* Phone: main screens in thumb reach, 44px targets, a shorter banner, and two-line landing headlines. */
+.tab-bar { display: none; }
+@media (max-width: 760px) {
+  .tab-bar { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--paper); }
+  .tab-bar a, .tab-bar button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; border: 0; border-radius: 10px; background: none; color: var(--muted); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+  .tab-bar a.active { color: var(--ink); background: var(--blue-soft); }
+  .tab-bar a:focus-visible, .tab-bar button:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
+  .app-body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .topbar-right .button.small, .topbar-right .button, .theme-toggle, .button.small, .text-button, .icon-button { min-height: 44px; }
+  .icon-button, .theme-toggle { min-width: 44px; }
+  .page-heading { margin: 20px 0 18px; }
+}
+@media (max-width: 540px) {
+  .banner-extra { display: none; }
+  .demo-banner { padding: 8px 10px; }
+  .page-heading p { display: none; }
+}
+@media (min-width: 761px) and (max-width: 1000px) {
+  .landing .landing-hero h1 { font-size: 44px; letter-spacing: -.035em; }
+}
+@media (max-width: 1000px) {
+  .landing .landing-preview h2 { font-size: 26px; }
+}
+@media (max-width: 540px) {
+  .landing .landing-preview h2 { font-size: 25px; }
+  .landing .landing-hero h1 { font-size: 42px; letter-spacing: -.035em; }
+}
