@@ -560,7 +560,7 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
 .memories-lead { max-width: 70ch; margin: -6px 0 16px; font-size: 14px; }
 .memories-group + .memories-group { margin-top: 16px; }
 .memories-group li.memory-record { row-gap: 2px; }
-.memory-record.turned_off .memory-line { opacity: .62; }
+.memory-record.turned_off .memory-line strong { color: var(--muted); font-weight: 500; }
 .memory-history, .memory-proof { grid-column: 1 / -1; margin-top: -4px; font-size: 13px; }
 .memory-history summary, .memory-proof summary { width: fit-content; min-height: 32px; display: flex; align-items: center; color: var(--link); cursor: pointer; }
 .memory-history summary:hover, .memory-proof summary:hover { color: var(--link-hover); }
