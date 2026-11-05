@@ -9,6 +9,7 @@ import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,saveGoal,re
 import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
 import { advanceMemoryJob,refreshRecall } from '@/application/memory-jobs';
 import { verifyMemoriesFromWalrus } from '@/application/memory-recall';
+import { askAssistant } from '@/application/assistant';
 import { syncWallet } from '@/application/sync';
 import { suiBudget,saveSuiReserve,addSuiBill,removeSuiBill,markSuiBillPaid } from '@/application/sui-budget';
 import { emptySuiBudget } from '@/domain/sui-budget';
@@ -66,8 +67,10 @@ async function handle(request:Request) {
   const sendEnabled=personalReadEnabled&&process.env.PERSONAL_SEND_ENABLED==='true';
   const sendRequest=sendEnabled&&((method==='GET'&&path==='transfers')||(method==='POST'&&(path==='transfers'||/^transfers\/[^/]+\/(submit|confirm)$/.test(path))));
   const planEnabled=labelsEnabled&&process.env.PERSONAL_PLAN_ENABLED==='true';
+  // The financial assistant is part of planning; PERSONAL_ASSISTANT_ENABLED=false switches it off on its own.
+  const assistantRequest=planEnabled&&process.env.PERSONAL_ASSISTANT_ENABLED!=='false'&&method==='POST'&&path==='assistant';
   const planRequest=planEnabled&&((method==='GET'&&['plan','suggestions'].includes(path))||(method==='POST'&&(['plan','commitments','preferences/reserve','recurrences/manual','reimbursements','goals'].includes(path)||/^goals\/[^/]+$/.test(path)||/^(commitment-allocations\/[^/]+\/reverse|commitments\/[^/]+\/allocate|suggestions\/[^/]+\/decision)$/.test(path)||/^sui-budget\/(reserve|bills|bills\/[^/]+\/(remove|paid))$/.test(path))));
-  const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||labelRequest||sendRequest||planRequest);
+  const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||labelRequest||sendRequest||planRequest||assistantRequest);
   if(process.env.PERSONAL_ACCESS_ENABLED!=='true'&&!identityOnly&&!allowedReadOnlyRequest)throw new AppError('RELEASE_GATE',503,'Personal changes and budgeting are gated. Read-only wallet access may be enabled separately; the public demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
   if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED!=='true')throw new AppError('WALLET_SIGNIN_DISABLED',503,'Wallet sign-in is disabled until explicit release configuration enables it.');
@@ -102,6 +105,12 @@ async function handle(request:Request) {
     const input=z.object({kind:z.enum(['balances','history','recent'])}).strict().parse(await body(request));
     if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept the read-only wallet data terms before importing balance or activity.');
     return json(await syncWallet(profile,input.kind));
+  }
+  // Read-only: answers from the session profile's own data. Wallet-read consent is enough; any goal change it proposes
+  // is confirmed through POST /goals, which requires memory consent.
+  if(method==='POST'&&path==='assistant'){
+    if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept the read-only wallet data terms before asking about your wallet.');
+    return json(await askAssistant(profile,await body(request)));
   }
   if(path==='transfers'||path.startsWith('transfers/')){
     if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept wallet access before sending.');

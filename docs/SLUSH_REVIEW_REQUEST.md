@@ -1,33 +1,42 @@
-# Slush security warning — prepared review request
+# Slush security warning: review request
 
-The user later reported contacting Slush independently. This prepared draft was not sent by Codex; no response or provider evidence has been recorded here.
+Updated 5 November 2026. Status: **unresolved**, and only Slush can clear it. The owner reported contacting Slush support earlier; no response has been recorded here. Do not bypass the warning, disable wallet protections, sign on a flagged origin, or switch to another hostname to evade it.
 
-Status: unresolved; no support request has been sent. Do not bypass the warning, disable wallet protections, sign on the flagged origin or use another hostname to evade the warning.
+## What the owner sees
+- **Screen:** the Slush browser extension in Chrome on the owner's PC shows "Malicious website. This site has been flagged for malicious behavior." It offers "Flag for review" and "Return to safety".
+- **Latest occurrence:** 5 Nov 2026, on the production app `https://sui-money.vercel.app`. **Alert ID `59b8ede0-3a5f-446a-a7a9-bf2ac1c74e19`.**
+- **Extension version:** 26.21.6 (e2be7f2), reported earlier and not rechecked on 5 Nov.
+- **Other wallets:** StarKey connects, signs in and sends normally on the same app. Suiet has ended development and can't read address-balance transactions.
 
-## Reported environment
+## Investigation (5 Nov 2026, read-only)
+- **Public blocklist:** MystenLabs/wallet_blocklist `main` (commit `fe160fa`, 27 Oct 2026), `blocklists/domain-list.json` has 50,630 entries:
+  - `sui-money.vercel.app` is **not** listed;
+  - no bare `vercel.app` entry and no wildcard;
+  - nothing containing "sui-money" or "suimoney";
+  - **447 unrelated `*.vercel.app` hosts** are listed, mostly phishing sites.
+- **Conclusion:** the warning doesn't come from the public domain list. It comes from Slush's own, non-public checks. A plausible reason, unconfirmed, is a new finance/crypto app on a shared free `vercel.app` hostname, a pattern common among the listed scam sites. This is not proof of a false positive. Only Slush can identify the rule.
+- **Not affected:** the warning appears before the app runs and isn't caused by anything the app can change in code.
 
-- Slush browser extension in **Chrome** on the builder's PC, confirmed by the user.
-- User-reported version: **26.21.6 (e2be7f2)**.
-- Warning: “Malicious website. This site has been flagged for malicious behavior.”
-- Intended app: https://sui-money.vercel.app/today . Exact hostname displayed when the warning appeared still needs confirmation.
-- Server-verified installed-wallet sign-in remains unverified. Public evidence must not contain private authentication records.
+Sources: https://github.com/MystenLabs/wallet_blocklist · https://slush.app/security · support https://support.slush.app/hc/en-us/requests/new
 
-## Investigation evidence
+## Draft for official support (accurate as of 5 Nov 2026)
 
-`evidence/public/wallet-domain-check.json` records a read-only inspection of MystenLabs/wallet_blocklist at commit `fe160fa2e5e0d103bdcbed92c7d72f5dc8685bf1`. No exact app hostname or literal vercel.app wildcard was found in the inspected lists. This does **not** establish safety or a false positive: other checks, matching behavior and the exact reported origin remain unverified.
+**Subject:** Review requested: Slush warning on sui-money.vercel.app (Alert ID 59b8ede0-3a5f-446a-a7a9-bf2ac1c74e19)
 
-Source: https://github.com/MystenLabs/wallet_blocklist . Official security information: https://slush.app/security . Official support: https://support.slush.app/hc/en-us/requests/new . The UI/API sign-in pause is deployed and verified on deployed source bdace24: health reports disabled sign-in and a new challenge is rejected. See `evidence/public/visual-checks.json`.
+Slush in Chrome shows "Malicious website. This site has been flagged for malicious behavior" when opening our app at https://sui-money.vercel.app (Alert ID 59b8ede0-3a5f-446a-a7a9-bf2ac1c74e19). The domain is not in the public MystenLabs/wallet_blocklist domain list as of commit fe160fa.
 
-## Draft for official support
+Sui Money is a Sui Mainnet personal-finance app built for the Tatum × Walrus "Total Recall" hackathon. Source code is public: https://github.com/Tolex081/sui-money-total-recall .
 
-**Subject:** Review requested: Slush extension warning for Sui Money demo
+How it uses a wallet:
+- **Sign-in** asks the wallet to sign a readable, origin-bound, expiring personal message. It's not a transaction.
+- **Sending:** to send USDC or SUI, the app builds an **unsigned** transfer to an address the user typed. The user reviews and approves it in their own wallet. The app never holds keys, never asks for seed phrases or private keys, and never requests token approvals or allowances.
+- **Data:** balances and history are read through Tatum's Sui gateway. Payment labels and savings goals are stored with Walrus Memory after the user agrees.
+- **Demo:** a fictional demo is available without a wallet at https://sui-money.vercel.app/demo .
 
-Slush extension 26.21.6 (e2be7f2) in Chrome on a PC displays “Malicious website — This site has been flagged for malicious behavior” while opening our Sui Money application. Intended origin: https://sui-money.vercel.app . We are confirming the precise flagged hostname.
-
-Public source: https://github.com/Tolex081/sui-money-total-recall . The application is a Sui Mainnet spending tracker and forward budget. Wallet authentication requests a readable origin-bound, expiring nonce personal message. It does not construct or execute transactions, transfer funds, request token approvals or request private keys. The public fictional demo is available without a wallet.
-
-Please identify the rule or behavior causing the warning and advise on the official review/remediation process. We have instructed the user not to bypass the warning and are pausing sign-in. We are not asserting this is a false positive. We can provide the exact flagged hostname and a redacted screenshot if needed.
+Please let us know which check caused the warning and how to get it reviewed. We have told users not to bypass it, and we're happy to make any change you require.
 
 ## Builder actions
-
-Confirm the warning's exact hostname. Chrome and the extension version are recorded. Submit the draft through the official support form if desired; use contact details privately there. Never attach keys, seed phrases, signatures, session cookies, authentication nonces or database exports. Record the support case/reference privately. Resume the genuine wallet acceptance only after the warning has been resolved through official review and the application has been rechecked.
+1. Tap **Flag for review** on the Slush warning screen.
+2. Submit the draft above through the official support form. Put contact details only in the form, never in this repository. Don't attach keys, seed phrases, signatures, session cookies, sign-in nonces or database exports.
+3. Record the support case reference privately. Once Slush responds, recheck the app in Slush before telling users it's safe to use.
+4. Until then, point users to a wallet that works (StarKey). Longer term, a dedicated custom domain is a sensible permanent home for the app. Adopt it as the real address, not to get around this review.
