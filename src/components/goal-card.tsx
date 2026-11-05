@@ -67,7 +67,7 @@ export function GoalCard({ state, demo, busy, act, onChanged }: { state: Account
 
   if (!shown && !pending || (!shown && status?.pendingState === 'failed')) return <section className="card goal-card" aria-labelledby="goal-title">
     <div className="section-title"><div><h2 id="goal-title"><PiggyBank size={18} aria-hidden="true"/> Savings goal</h2><p className="muted small-text">Tell Sui Money what you’re saving for. It’s remembered on Walrus and sets aside each contribution from what you can spend.</p></div></div>
-    {editing || demo ? <GoalForm today={state.today} busy={busy} demo={demo} onSave={save} onCancel={() => setEditing(false)}/> : <button className="button primary small" onClick={() => setEditing(true)}>Set a savings goal</button>}
+    {editing || demo ? <GoalForm today={state.today} busy={busy} demo={demo} focusOnOpen={editing} onSave={save} onCancel={() => setEditing(false)}/> : <button className="button primary small" onClick={() => setEditing(true)}>Set a savings goal</button>}
   </section>;
 
   const inUse = shown?.payload, next = pending?.payload;
@@ -93,17 +93,18 @@ export function GoalCard({ state, demo, busy, act, onChanged }: { state: Account
     {next && status?.pendingState === 'saving' && <p className="micro"><RefreshCw size={12} className="spin" aria-hidden="true"/> {inUse ? `Changing to ${usdc(next.target)} USDC by ${longDate(next.targetDate)}. The current goal stays in use until Walrus confirms.` : `Saving ${usdc(next.target)} USDC by ${longDate(next.targetDate)} to Walrus.`}</p>}
     {next && status?.pendingState === 'failed' && <p className="memory-failed">Your change to {usdc(next.target)} USDC didn’t save. The current goal is still in use.</p>}
     {inUse && !editing && status?.pendingState !== 'saving' && <div className="move-actions"><button className="button small" disabled={demo} onClick={() => setEditing(true)}><PencilLine size={14} aria-hidden="true"/>Change goal</button></div>}
-    {editing && inUse && <GoalForm today={state.today} busy={busy} demo={demo} initial={status?.pendingState === 'failed' && next ? next : inUse} onSave={save} onCancel={() => setEditing(false)}/>}
+    {editing && inUse && <GoalForm today={state.today} busy={busy} demo={demo} focusOnOpen initial={status?.pendingState === 'failed' && next ? next : inUse} onSave={save} onCancel={() => setEditing(false)}/>}
   </section>;
 }
 
 // A plain form, then a confirmation step that shows exactly what will be remembered.
-function GoalForm({ today, busy, demo, initial, onSave, onCancel }: { today: string; busy: boolean; demo: boolean; initial?: SavingsGoal; onSave: (goal: Omit<SavingsGoal, 'goalId' | 'startDate'>) => Promise<boolean>; onCancel: () => void }) {
+function GoalForm({ today, busy, demo, focusOnOpen = false, initial, onSave, onCancel }: { today: string; busy: boolean; demo: boolean; focusOnOpen?: boolean; initial?: SavingsGoal; onSave: (goal: Omit<SavingsGoal, 'goalId' | 'startDate'>) => Promise<boolean>; onCancel: () => void }) {
   const [purpose, setPurpose] = useState(initial?.purpose ?? ''), [target, setTarget] = useState(initial ? plain(initial.target) : ''), [saved, setSaved] = useState(initial ? plain(initial.saved) : '0');
   const [frequency, setFrequency] = useState<'weekly' | 'monthly'>(initial?.frequency ?? 'weekly'), [targetDate, setTargetDate] = useState(initial?.targetDate ?? Temporal.PlainDate.from(today).add({ months: 3 }).toString());
   const [confirming, setConfirming] = useState(false);
   const field = useRef<HTMLInputElement>(null);
-  useEffect(() => { field.current?.focus(); }, []);
+  // Only take focus when someone opened the form, never on page load.
+  useEffect(() => { if (focusOnOpen) field.current?.focus(); }, [focusOnOpen]);
   let targetUnits: bigint | null = null, savedUnits: bigint | null = null, error = '';
   try { targetUnits = units(target.trim() || '0'); if (targetUnits <= 0n) error = 'Enter a target above zero.'; } catch (e) { error = (e as Error).message; }
   try { savedUnits = units(saved.trim() || '0'); } catch (e) { error ||= (e as Error).message; }
