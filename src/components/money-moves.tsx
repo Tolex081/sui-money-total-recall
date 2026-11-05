@@ -85,7 +85,7 @@ function Send({ state, labels, onChanged }: Props) {
         if (result.state === 'failed') { setFailure(`Sui recorded this transaction as failed, so no ${prepared.coin} moved. The network fee may still have been charged.`); setPhase('failed'); onChanged(); return; }
       } catch { /* A busy provider is not a failed send; keep checking. */ }
     }
-    setOutcome('Sui accepted your send but it hasn’t shown in a checkpoint yet. It will appear in Activity once it does.'); setPhase('done'); onChanged();
+    setOutcome('Sui accepted your send but hasn’t confirmed it yet. It will appear in Activity once it does.'); setPhase('done'); onChanged();
   }
 
   async function saveLabel(movementId: string | null) {

@@ -4,7 +4,7 @@ test('public demo: core screens, learning comparison and honest proof',async({pa
   await page.goto('/demo');await expect(page.getByRole('heading',{name:'A little clarity for today.'})).toBeVisible();
   await expect(page.getByText('Fictional finance data',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'Why this changed'}).click();await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByText('134.00 USDC of future obligations',{exact:false})).toBeVisible();
+  await expect(page.getByText('134.00 USDC of upcoming bills',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'Close dialog'}).click();
   await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('link',{name:'Activity'}).click();
   await expect(page.getByRole('heading',{name:'Every payment has a story.'})).toBeVisible();
