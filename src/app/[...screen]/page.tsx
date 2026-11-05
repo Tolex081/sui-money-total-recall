@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
 import Dashboard from '@/components/dashboard';
 import { appMode } from '@/lib/config';
-const routes=['today','activity','plan','send','receive','settings','memories','proof','about','demo','demo/today','demo/activity','demo/plan','demo/memories','demo/learning'];
+const routes=['today','activity','plan','send','receive','settings','memories','proof','about','demo','demo/today','demo/activity','demo/plan','demo/memories','demo/learning','assistant','demo/assistant'];
 export default async function Page({params}:{params:Promise<{screen:string[]}>}){const {screen}=await params;const route=screen.join('/');if(!routes.includes(route))notFound();return <Dashboard key={route} route={route} mode={appMode()} walletSignInEnabled={process.env.WALLET_SIGNIN_ENABLED==='true'} personalReadEnabled={process.env.PERSONAL_READ_ENABLED==='true'} personalAccessEnabled={process.env.PERSONAL_ACCESS_ENABLED==='true'} personalLabelsEnabled={process.env.PERSONAL_READ_ENABLED==='true'&&process.env.PERSONAL_LABELS_ENABLED==='true'} personalSendEnabled={process.env.PERSONAL_SEND_ENABLED==='true'} personalPlanEnabled={process.env.PERSONAL_PLAN_ENABLED==='true'}/>;}
