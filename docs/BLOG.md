@@ -1,60 +1,70 @@
 # What a wallet balance cannot tell you
 
-> **Article draft — not published.** Before publishing, replace every `[FILL IN: …]` with what actually happened in your own session (real dates, real labels), or delete that paragraph. Do not publish a placeholder or describe a session that did not happen. Keep the limits section unless new evidence replaces it.
+A wallet can tell you how much USDC it holds. It cannot tell you that the 18.50 you sent this morning was lunch, that last Tuesday's 120 went to another wallet you own, or that you are saving 700 for a laptop by February. That meaning lives in your head, or in a chat that is gone next session.
 
-A wallet can tell you how much native USDC it holds. It cannot tell you that the 18.50 you sent this morning was lunch, that last Tuesday's 120 went to another wallet you own, or that the 600 that arrived yesterday was a freelance invoice. That meaning lives in your head, and it is gone the next time you look.
-
-Sui Money is a small bet that a money app should remember what you tell it.
+Sui Money is a bet that a money app should remember what you tell it, prove where it kept it, and plan with it.
 
 ## What it does
 
-Connect a Sui wallet and sign a readable message: no gas, no approval. Sui Money reads your native-USDC and SUI balances from Sui Mainnet, imports the last 30 days of payments, and puts each one in a two-layer row. On top is the fact the chain recorded: sent or received, to or from which address, when, and the exact amount. Underneath is what it was for, in your words.
+Connect a Sui wallet and sign a readable message: no gas, no approval. Sui Money reads your native-USDC and SUI balances from Sui Mainnet and imports your recent payments.
 
-The first time you answer "What was this for?", Sui Money tells you exactly what will be remembered and asks for consent. After that, labelling a payment takes a note and a category. Today shows the payments still waiting for a label; Activity has the full list with filters, search and a "Label next" button for working through a backlog.
+- **Today** answers one question: what can I spend? One sentence and one figure, with a timeline that steps down as each bill falls due.
+- **Activity** puts every payment in two layers. On top is what the chain recorded: sent or received, when, the exact amount. Underneath is what it was for, in your words, or a dashed "What was this for?" prompt.
+- **Plan** holds your bills, a reserve and a savings goal.
+- **Memories** lists everything Sui Money remembers, its status, its earlier versions and its Walrus proof.
+- **Ask** (the walrus button, bottom right) answers questions about your money and labels every answer by where it came from.
 
-There is no custody and no sending. You pay from your own wallet, then come back and explain the payment.
+Sui Money never holds your keys. When you send USDC, the transaction is built on the server through Tatum and signed only in your own wallet. A savings goal never moves or locks money: it only sets aside part of what you can spend, on paper.
 
 ## How it uses Tatum
 
-Every fact on screen comes from Tatum's Sui Mainnet gRPC service. Sui Money matches coin types exactly instead of trusting token symbols, checks coin metadata, and keeps a zero balance distinct from a failed read. History is imported with an affected-address filter, because an incoming payment matters even when your wallet did not submit the transaction, and resumes from durable cursors, because an empty page is not proof that a scan is finished.
+Every wallet fact comes from Tatum's Sui Mainnet gRPC service. Sui Money matches coin types exactly instead of trusting token symbols, checks the decimals, and keeps a zero balance distinct from a failed read. History is imported with an affected-address filter, because an incoming payment matters even when your wallet did not submit the transaction, and it resumes from durable cursors, because an empty page is not proof that a scan is finished. Every balance on screen says "Read from Sui Mainnet through Tatum" and when.
 
-The balance refreshes automatically when the saved reading is more than two minutes old and always shows when it was checked. A payment you just sent can take a moment to appear, and the screen says so.
+Tatum was verified against a public reference wallet with real incoming and outgoing native-USDC transfers, confirmed by resumed history pages and direct transaction reads rather than explorer labels.
 
-Tatum was verified against a public reference wallet with real incoming and outgoing native-USDC transfers, including an incoming transfer sent by someone else: 60 USDC out and 50 base units (0.000050 USDC) in, confirmed by two resumed history pages and direct transaction reads rather than explorer labels.
+One thing Tatum cannot yet tell us is exactly which point on the chain a balance was read at. So when you match a payment to a bill, Sui Money keeps that bill's money held until it can prove the balance already includes the payment. The numbers can be cautious; they are never counted twice.
 
 ## How it uses Walrus Memory
 
-A label is not just a database row. It becomes a versioned event with a durable job:
+A remembered thing is not just a database row. Labels, recurring bills, planning preferences and savings goals each become a versioned record with a durable job:
 
-1. **Saved.** The label form closes at once and the payment shows "Saved. Waiting for Walrus to confirm."
-2. **Stored.** The event is submitted through the Walrus Memory relayer to Mainnet.
-3. **Confirmed.** Sui Money asks Walrus to recall the event and checks that the same event, profile and revision come back. Only then does the label become active on the payment.
+1. **Saved.** The screen closes at once and says "Saving to Walrus."
+2. **Stored.** The record goes through the Walrus Memory relayer to Mainnet.
+3. **Confirmed.** Sui Money reads the record back from Walrus and checks that the same record, profile and version return. Only then does it count in your plan.
 
-If storage fails, the payment says so ("Walrus didn't store 'Bus pass'") and offers to try again with the same note. If the outcome of a submission is unknown, Sui Money reconciles it by recall instead of writing twice. A correction is a new revision; earlier ones stay stored. PostgreSQL keeps the complete, structured ledger; semantic recall is never used to total money.
+If storage fails, the screen says so and the previous version stays in use. If the outcome of a write is unknown, Sui Money reads back before it decides to write again, so nothing is stored twice. A correction is a new version that replaces the old one; the old one stays in history, marked replaced. PostgreSQL keeps the structured ledger; similarity search is never used to total money.
 
-Each label stores the note, its category and whether it was a transfer to your own wallet, linked to the payment's transaction ID and your wallet address. Walrus storage cannot be erased on request, so the consent screen asks for short aliases like "Rent" or "Landlord" and never names, phone numbers or keys. The operator runs one shared Walrus account; every profile has its own namespace and the server enforces access.
+Each wallet's records live in their own space inside Sui Money's Walrus account, and the server decides who can read them. Walrus storage cannot be erased on request, so Sui Money asks for short descriptions and never names, phone numbers or keys.
 
-## How it learned over time
+## What actually happened
 
-Twenty-four reviewed, synthetic demo memories were written to Walrus Mainnet and each one was confirmed by recall, with storage expiry covering 30 November 2026. They power the public demo, where you can see the same fixed, fictional wallet with and without remembered rules: 1,240.50 USDC held, 328 of explicit bills and a 180 reserve leave 732.50; adding remembered weekly groceries and transport (134) leaves 598.50. The wallet observation is identical in both views; only the remembered context changes the plan.
+This is not a mock-up. On 4 and 5 November 2026, in production, with a real wallet signed in through Suiet:
 
-[FILL IN: your real session. On <date>, I connected my own wallet with Suiet, imported my last 30 days and labelled <n> payments, for example "<label>" on a <amount> USDC payment. The label showed "Waiting for Walrus to confirm" for about <time>, then settled. On <later date>, I signed in again from a fresh session and the labels were back on the same payments. Include one screenshot of a confirmed label before and after signing back in.]
+- **A payment label, corrected twice.** A real 0.01 SUI payment got a label, then a corrected category (version 2), then a corrected note (version 3). After signing out and back in, the current version came back from Walrus and matched; the earlier ones stayed in history.
+- **A savings goal that survived a fresh session.** "Laptop, 500 USDC, weekly, by 4 February 2027" was saved and confirmed by Walrus, with a suggested 35.72 USDC a week. The wallet signed out completely and signed back in. "Verify memories from Walrus" returned the goal: *Revision 1, returned by Walrus, matches*.
+- **A correction that changed the plan.** The target was raised to 700. Until Walrus confirmed it, the 500 version stayed in use; then the card switched to 700.00 USDC and 50.00 USDC a week. Walrus returned *Revision 2, replaces revision 1, matches*.
+- **Ask answering from memory.** "What am I saving towards?" came back as 700 for a laptop, labelled *Walrus Memory, version 2*. "What was my previous target?" listed version 2 in use and version 1 (500) replaced. "How much should I contribute weekly?" gave 50.00, labelled *Calculated*. "Increase my goal to 1,000 USDC" produced a proposal; we pressed "No, keep it" and it said "Kept as it is. Nothing was saved."
 
-[FILL IN, optional: anything you corrected, such as relabelling a payment, and what the app showed while the new revision was confirmed.]
+By 5 November that one real account held 13 records on Walrus Mainnet, every one stored and read back. The public demo holds 24 more: reviewed, fictional records, each confirmed by read-back and kept until at least 30 November 2026.
 
-## What is deliberately paused
+## Ask is not an AI model
 
-Sui Money was designed to turn those remembered explanations into a forward budget: commitments, a virtual reserve, reimbursements and weekly recurring suggestions that only count once you confirm them. All of that is built and tested, and the demo shows it. For real wallets it is switched off, for one reason: Tatum's balance response has no proven checkpoint telling us whether it already includes a payment you just matched to a bill. Releasing a reservation against a balance that might not include the payment would count money twice, so the app refuses to calculate a personal budget until that can be proven.
+Ask answers from fixed rules over your own data, so it never guesses a number. Every answer carries one of three labels: **Walrus Memory** (what you confirmed), **Sui blockchain** (what Tatum read), or **Calculated** (Sui Money's arithmetic on the two). It can propose a change to your goal, but nothing is saved until you press "Yes".
 
-Building it this way meant BigInt amounts, local calendar dates, database row locks and explicit provenance on every number, and a test suite that covers the failure paths as well as the happy ones: unit and property tests, real-database tests in disposable schemas, and public and signed-in browser tests on every push.
+## Honest limits
+
+- Isolation between separate Walrus accounts has not been tested; namespace separation was shown inside one operator account.
+- The balance-inclusion proof from Tatum is still open, so matched bills stay held, as described above.
+- "Saved so far" on a goal is a number you type, not a reading of your wallet.
+- The public demo uses fictional finances, clearly marked on every screen.
+
+Building it this way meant exact integer amounts, local calendar dates, database row locks, a source on every number, and tests for the failure paths as well as the happy ones: unit tests, real-database tests, and public and signed-in browser tests on every push.
 
 ## Try it
 
-- Live app: https://sui-money.vercel.app (connect with Suiet)
-- Fictional demo, no wallet needed: https://sui-money.vercel.app/demo
+- Live app: https://sui-money.vercel.app (sign in with Suiet)
+- Demo with fictional data, no wallet needed: https://sui-money.vercel.app/demo
 - Integration proof: https://sui-money.vercel.app/proof
 - Source: https://github.com/Tolex081/sui-money-total-recall
-
-[FILL IN: link to the demo video once it is uploaded.]
 
 Built for Total Recall, the Tatum × Walrus Memory hackathon, in the Consumer Finance Apps track.
