@@ -2,7 +2,7 @@ import { Pin } from 'lucide-react';
 import { Temporal } from '@js-temporal/polyfill';
 import { amount } from '@/domain/money';
 
-export type TimelineRow = { id: string; dueDate: string; alias: string; outstanding: bigint; remembered: boolean };
+export type TimelineRow = { id: string; dueDate: string; alias: string; outstanding: bigint; remembered: boolean; local?: boolean };
 
 const PLOT_H = 132, TOP = 14, BOTTOM = 10;
 const day = (iso: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en-GB', { ...opts, timeZone: 'UTC' }).format(new Date(iso + 'T12:00:00Z')).replace('Sept', 'Sep');
@@ -41,7 +41,7 @@ export function MoneyTimeline({ today, endDate, start, rows, maxRows = 6 }: { to
       <li className="ledger-head" aria-hidden="true"><span>Due</span><span>Commitment</span><span>Amount</span><span>Left after</span></li>
       {shown.map(s => <li key={s.id}>
         <span className="ledger-date">{s.overdue ? 'Overdue' : day(s.dueDate, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-        <span className="ledger-name">{s.alias}{s.remembered && <span className="ledger-pin"><Pin size={12} aria-hidden="true"/>Remembered</span>}</span>
+        <span className="ledger-name">{s.alias}{s.remembered && <span className="ledger-pin"><Pin size={12} aria-hidden="true"/>Remembered</span>}{s.local && <span className="demo-local-tag">Demo · not saved</span>}</span>
         <span className="ledger-amount">−{amount(s.outstanding)}</span>
         <span className="ledger-after">{amount(s.after)}</span>
       </li>)}

@@ -92,7 +92,7 @@ export function GoalCard({ state, demo, busy, act, onChanged }: { state: Account
     </>}
     {next && status?.pendingState === 'saving' && <p className="micro"><RefreshCw size={12} className="spin" aria-hidden="true"/> {inUse ? `Changing to ${usdc(next.target)} USDC by ${longDate(next.targetDate)}. The current goal stays in use until Walrus confirms.` : `Saving ${usdc(next.target)} USDC by ${longDate(next.targetDate)} to Walrus.`}</p>}
     {next && status?.pendingState === 'failed' && <p className="memory-failed">Your change to {usdc(next.target)} USDC didn’t save. The current goal is still in use.</p>}
-    {inUse && !editing && status?.pendingState !== 'saving' && <div className="move-actions"><button className="button small" disabled={demo} onClick={() => setEditing(true)}><PencilLine size={14} aria-hidden="true"/>Change goal</button></div>}
+    {inUse && !editing && status?.pendingState !== 'saving' && <div className="move-actions"><button className="button small" disabled={demo} title={demo ? 'Not in the demo. Try it with your own wallet.' : undefined} onClick={() => setEditing(true)}><PencilLine size={14} aria-hidden="true"/>Change goal</button></div>}
     {editing && inUse && <GoalForm today={state.today} busy={busy} demo={demo} focusOnOpen initial={status?.pendingState === 'failed' && next ? next : inUse} onSave={save} onCancel={() => setEditing(false)}/>}
   </section>;
 }

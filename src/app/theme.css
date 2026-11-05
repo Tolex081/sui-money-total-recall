@@ -777,3 +777,5 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
   .landing .landing-preview h2 { font-size: 25px; }
   .landing .landing-hero h1 { font-size: 42px; letter-spacing: -.035em; }
 }
+.demo-local-tag { flex: none; margin-left: auto; padding: 2px 8px; border: 1px dashed var(--border-strong); border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.ledger-name .demo-local-tag { margin-left: 0; }
