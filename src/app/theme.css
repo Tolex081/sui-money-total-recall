@@ -681,3 +681,4 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
   .assistant-figures { grid-template-columns: 1fr 1fr; }
 }
 .assistant-list li .micro { white-space: nowrap; flex-shrink: 0; }
+.assistant-resume { display: inline-flex; align-items: center; gap: 6px; }
