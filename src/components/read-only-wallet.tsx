@@ -8,6 +8,7 @@ import type { AccountState } from '@/domain/state';
 import type { planning } from '@/domain/planning';
 import { READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
 import { amount, integer, SUI_TYPE, USDC_TYPE } from '@/domain/money';
+import { TatumProof } from './tatum-proof';
 
 type SyncKind = 'balances' | 'history';
 type Props = {
@@ -205,6 +206,7 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
       {canLabel && <button ref={opener} className="pay-memory-edit" aria-expanded={open} onClick={() => setOpen(!open)}>Edit<span className="sr-only"> label “{annotation.note}”</span></button>}
     </div> : canLabel && <button ref={opener} className="pay-prompt" aria-expanded={open} onClick={() => setOpen(!open)}><Tag size={14} aria-hidden="true"/>What was this for?<span className="sr-only"> {incoming ? 'Received' : 'Sent'} {shownAmount} {unit}{party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}</span></button>}
     {open && (status === null || status === 'failed') && (memoryAgreed ? <LabelForm movement={movement} state={state} onSaved={() => { setOpen(false); focusChip.current = true; onLabeled(); }} onCancel={close}/> : <MemoryConsent movement={movement} summary={summary} onAccepted={onLabeled} onCancel={close}/>)}
+    <TatumProof movement={movement} timezone={timezone}/>
   </li>;
 }
 
