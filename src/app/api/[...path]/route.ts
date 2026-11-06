@@ -21,6 +21,7 @@ import { safeText } from '@/domain/learning';
 import { weeklySuggestions } from '@/domain/recurrence';
 import { demoState,demoComparison } from '@/adapters/mock/demo';
 import { READ_ONLY_WALLET_CONSENT_VERSION } from '@/domain/consent';
+import { verifyMovementWithTatum } from '@/application/tatum-proof';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -70,7 +71,7 @@ async function handle(request:Request) {
   // The financial assistant is part of planning; PERSONAL_ASSISTANT_ENABLED=false switches it off on its own.
   const assistantRequest=planEnabled&&process.env.PERSONAL_ASSISTANT_ENABLED!=='false'&&method==='POST'&&path==='assistant';
   const planRequest=planEnabled&&((method==='GET'&&['plan','suggestions'].includes(path))||(method==='POST'&&(['plan','commitments','preferences/reserve','recurrences/manual','reimbursements','goals'].includes(path)||/^goals\/[^/]+$/.test(path)||/^(commitment-allocations\/[^/]+\/reverse|commitments\/[^/]+\/allocate|suggestions\/[^/]+\/decision)$/.test(path)||/^sui-budget\/(reserve|bills|bills\/[^/]+\/(remove|paid))$/.test(path))));
-  const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||labelRequest||sendRequest||planRequest||assistantRequest);
+  const allowedReadOnlyRequest=personalReadEnabled&&((method==='GET'&&personalReadGet.has(path))||(method==='POST'&&['consent','sync'].includes(path))||(method==='POST'&&/^activity\/[^/]+\/tatum-proof$/.test(path))||labelRequest||sendRequest||planRequest||assistantRequest);
   if(process.env.PERSONAL_ACCESS_ENABLED!=='true'&&!identityOnly&&!allowedReadOnlyRequest)throw new AppError('RELEASE_GATE',503,'Personal changes and budgeting are gated. Read-only wallet access may be enabled separately; the public demo and proof remain available.');
   if(method==='POST')assertSameOrigin(request);
   if(method==='POST'&&['auth/challenge','auth/verify'].includes(path)&&process.env.WALLET_SIGNIN_ENABLED!=='true')throw new AppError('WALLET_SIGNIN_DISABLED',503,'Wallet sign-in is disabled until explicit release configuration enables it.');
@@ -105,6 +106,11 @@ async function handle(request:Request) {
     const input=z.object({kind:z.enum(['balances','history','recent'])}).strict().parse(await body(request));
     if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept the read-only wallet data terms before importing balance or activity.');
     return json(await syncWallet(profile,input.kind));
+  }
+  // Read-only: re-reads one of this wallet's own stored payments from Tatum and compares it with what was saved.
+  if(method==='POST'&&/^activity\/[^/]+\/tatum-proof$/.test(path)){
+    if(![CONSENT_VERSION,READ_ONLY_WALLET_CONSENT_VERSION].includes(profile.consent_version??''))throw new AppError('CONSENT_REQUIRED',409,'Accept the read-only wallet data terms before checking a payment.');
+    return json(await verifyMovementWithTatum(profile,decodeURIComponent(path.split('/')[1])));
   }
   // Read-only: answers from the session profile's own data. Wallet-read consent is enough; any goal change it proposes
   // is confirmed through POST /goals, which requires memory consent.
