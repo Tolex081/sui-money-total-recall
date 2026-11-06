@@ -844,3 +844,54 @@ mysten-dapp-kit-connect-button::part(trigger) { min-height: 44px; padding-inline
   .ask-fab-mascot { width: 44px; height: 44px; }
   .ask-panel { width: 100vw; border-left: 0; }
 }
+
+/* Colour: one hue per spending category, used wherever a category is shown. Tints are mixed from the hue,
+   so they follow the light or dark surface automatically. */
+[data-cat] { --cat: #94a3b8; }
+[data-cat="Food"] { --cat: #ea580c; }
+[data-cat="Groceries"] { --cat: #16a34a; }
+[data-cat="Transport"] { --cat: #0284c7; }
+[data-cat="Home"] { --cat: #db2777; }
+[data-cat="Internet"] { --cat: #0d9488; }
+[data-cat="Learning"] { --cat: #7c3aed; }
+[data-cat="Reimbursement"] { --cat: #059669; }
+[data-cat="Own transfer"] { --cat: #64748b; }
+[data-cat="Other"] { --cat: #b45309; }
+.cat-dot { flex: none; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--cat, var(--blue)); }
+.pay-memory[data-cat] { border-color: color-mix(in srgb, var(--cat) 35%, var(--paper)); background: color-mix(in srgb, var(--cat) 12%, var(--paper)); }
+.pay-memory[data-cat] svg { color: var(--cat); }
+.movement-row.compact[data-cat] .compact-dir { color: var(--cat); }
+.timeline-dot[data-cat] { border-color: var(--cat); background: var(--cat); }
+.timeline-dot.remembered[data-cat] { background: var(--paper); }
+.ledger-name .cat-dot { margin-right: 2px; }
+.timeline-ledger li[data-cat] .ledger-amount { color: var(--ink); }
+
+/* Today's answer sits on a field of the brand cobalt. */
+.lead-main { background: #1f56d8; border-color: #1f56d8; color: #fff; }
+.lead-main .lead-sentence, .lead-main .lead-figure { color: #fff; }
+.lead-main .figure-cents { color: rgba(255, 255, 255, .8); }
+.lead-main .figure-unit, .lead-main .lead-label { color: #fff; }
+.lead-main .lead-label b { color: #fff; }
+
+/* Activity's three summary tiles each get their own tint. */
+.spending-stats .stat:nth-child(1) { background: color-mix(in srgb, #ea580c 9%, var(--paper)); border-color: color-mix(in srgb, #ea580c 25%, var(--paper)); }
+.spending-stats .stat:nth-child(2) { background: color-mix(in srgb, #059669 9%, var(--paper)); border-color: color-mix(in srgb, #059669 25%, var(--paper)); }
+.spending-stats .stat:nth-child(3) { background: color-mix(in srgb, #2863e8 10%, var(--paper)); border-color: color-mix(in srgb, #2863e8 28%, var(--paper)); }
+
+/* Sidebar: each main screen has its own icon colour. */
+nav[aria-label="Primary navigation"] .nav-item:nth-child(1) svg { color: #2863e8; }
+nav[aria-label="Primary navigation"] .nav-item:nth-child(2) svg { color: #ea580c; }
+nav[aria-label="Primary navigation"] .nav-item:nth-child(3) svg { color: #7c3aed; }
+nav[aria-label="Primary navigation"] .nav-item:nth-child(4) svg { color: #0d9488; }
+nav[aria-label="Primary navigation"] .nav-item:nth-child(5) svg { color: #16a34a; }
+nav[aria-label="Primary navigation"] .nav-item:nth-child(6) svg { color: #db2777; }
+.secondary-nav .nav-item:nth-child(1) svg { color: #7c3aed; }
+.secondary-nav .nav-item:nth-child(2) svg { color: #059669; }
+.tab-bar a:nth-child(1) svg { color: #2863e8; }
+.tab-bar a:nth-child(2) svg { color: #ea580c; }
+.tab-bar a:nth-child(3) svg { color: #7c3aed; }
+
+/* Memories: each group carries a colour of its own. */
+.memories-group:nth-of-type(1) h2 .read-count { background: color-mix(in srgb, #ea580c 14%, var(--paper)); color: #b45309; }
+.memories-group:nth-of-type(2) h2 .read-count { background: color-mix(in srgb, #7c3aed 14%, var(--paper)); color: #6d28d9; }
+.pay-memory span.cat-dot { flex: 0 0 9px; width: 9px; min-width: 9px; }

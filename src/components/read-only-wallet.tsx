@@ -199,7 +199,7 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
       <AlertCircle size={14} aria-hidden="true"/>
       <span><b>Walrus didn’t store “{latestNote}”.</b> {annotation ? `Your earlier label “${annotation.note}” still applies.` : 'This payment has no label yet.'}{retryError && <> {retryError}</>}</span>
       {canLabel && <button className="pay-memory-edit" disabled={retrying} onClick={() => memoryAgreed ? void saveAgain() : setOpen(true)}>{retrying ? 'Saving…' : 'Try again'}<span className="sr-only"> to save “{latestNote}”</span></button>}
-    </div> : annotation ? <div className="pay-memory">
+    </div> : annotation ? <div className="pay-memory" data-cat={annotation.ownTransfer ? 'Own transfer' : annotation.category}>
       <Sparkles size={14} aria-hidden="true"/>
       <span><b>{annotation.note}</b> {annotation.ownTransfer ? 'Own transfer' : annotation.category}</span>
       {canLabel && <button ref={opener} className="pay-memory-edit" aria-expanded={open} onClick={() => setOpen(!open)}>Edit<span className="sr-only"> label “{annotation.note}”</span></button>}
