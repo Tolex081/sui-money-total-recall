@@ -110,7 +110,7 @@ type Summary=ReturnType<typeof summarize>;
 function Today({state,summary,base,onCompare}:{state:AccountState;summary:Summary;base:string;onCompare:()=>void}){
   const plan=summary.plan,synthetic=state.mode==='synthetic',balance=state.balance,ready=plan.state==='ready';
   const longDate=(iso:string)=>new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(iso+'T12:00:00Z')).replace('Sept','Sep');
-  const rows=ready?plan.rows.map(o=>({id:o.id,dueDate:o.dueDate,alias:o.alias,outstanding:o.outstanding,remembered:!!o.learnedEventId,local:o.ruleId.startsWith('demo-local')})).filter(o=>o.outstanding>0n):[];
+  const rows=ready?plan.rows.map(o=>({id:o.id,dueDate:o.dueDate,alias:o.alias,outstanding:o.outstanding,remembered:!!o.learnedEventId,local:o.ruleId.startsWith('demo-local'),category:o.category})).filter(o=>o.outstanding>0n):[];
   const next=[...rows].sort((x,y)=>x.dueDate.localeCompare(y.dueDate))[0];
   const remembered=rows.filter(r=>r.remembered).reduce((t,r)=>t+r.outstanding,0n);
   const figure=ready?money(plan.shortfall>0n?plan.shortfall:plan.discretionary):'—',[whole,cents]=figure.split('.');
@@ -160,14 +160,14 @@ function MovementRow({movement:m,state,compact=false,onOpen}:{movement:Movement;
   const fact=m.operation==='complex'?'Needs review':(incoming?'Received':'Sent')+(party?(incoming?' from ':' to ')+party:'');
   const value=amount(integer(m.delta)<0n?-integer(m.delta):integer(m.delta),m.coinType===SUI_TYPE?9:6),unit=m.coinType===USDC_TYPE?'USDC':m.coinType===SUI_TYPE?'SUI':'Unsupported asset';
   const amountCell=<div className={'movement-amount '+(incoming?'incoming ':'')+(own?'own':'')}><strong>{incoming?'+':'−'}{value}</strong><small>{unit}</small></div>;
-  if(compact)return <div className="movement-row compact"><span className="compact-dir" aria-hidden="true">{incoming?<ArrowDownLeft size={16}/>:<ArrowUpRight size={16}/>}</span><div className="item-main"><strong>{annotation?.note??fact}</strong><span>{own?'Own transfer · not spending':annotation?.category??'Not explained yet'} <span aria-hidden>·</span> {prettyDate(m.timestamp,state.plan.timezone)}{m.status==='failed'?' · Failed':''}</span></div>{amountCell}</div>;
+  if(compact)return <div className="movement-row compact" data-cat={annotation?(own?'Own transfer':annotation.category):'Unclassified'}><span className="compact-dir" aria-hidden="true">{incoming?<ArrowDownLeft size={16}/>:<ArrowUpRight size={16}/>}</span><div className="item-main"><strong>{annotation?.note??fact}</strong><span>{own?'Own transfer · not spending':annotation?.category??'Not explained yet'} <span aria-hidden>·</span> {prettyDate(m.timestamp,state.plan.timezone)}{m.status==='failed'?' · Failed':''}</span></div>{amountCell}</div>;
   return <div className="movement-row two-layer">
     <div className="movement-fact"><IconTile tone={own?'lilac':incoming?'mint':'peach'}>{incoming?<ArrowDownLeft size={18} aria-hidden="true"/>:<ArrowUpRight size={18} aria-hidden="true"/>}</IconTile>
       <div className="item-main"><strong>{fact}</strong><span>{prettyDate(m.timestamp,state.plan.timezone)}{m.status==='failed'?' · Failed, no money moved':''}</span></div>
       {amountCell}
       {onOpen&&!annotation&&<span className="icon-button-space" aria-hidden="true"/>}{onOpen&&annotation&&<button className="icon-button" aria-label={'Details for '+annotation.note} onClick={onOpen}><ChevronRight size={18} aria-hidden="true"/></button>}
     </div>
-    {annotation?<div className="pay-memory"><Sparkles size={14} aria-hidden="true"/><span><b>{annotation.note}</b>{own?'Own transfer · not counted as spending':annotation.category}</span>{annotation.eventId==='demo-local'&&<span className="demo-local-tag">Demo · not saved</span>}</div>
+    {annotation?<div className="pay-memory" data-cat={own?'Own transfer':annotation.category}><span className="cat-dot" aria-hidden="true"/><Sparkles size={14} aria-hidden="true"/><span><b>{annotation.note}</b>{own?'Own transfer · not counted as spending':annotation.category}</span>{annotation.eventId==='demo-local'&&<span className="demo-local-tag">Demo · not saved</span>}</div>
       :onOpen&&<button className="pay-prompt" onClick={onOpen}><Tag size={14} aria-hidden="true"/>{m.operation==='complex'?'Needs a closer look':incoming?'Where did this come from?':'What was this for?'}<span className="sr-only"> {fact}, {value} {unit}</span></button>}
   </div>;
 }
