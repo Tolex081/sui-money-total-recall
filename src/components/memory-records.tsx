@@ -29,7 +29,7 @@ export function MemoryRecords({ state, demo, busy, onCorrect, onTurnOff }: { sta
     <ul>{items.map(r => {
       const d = describe(r.shown, state), correctable = r.shown.envelope.kind === 'recurrence_confirmation' || r.shown.envelope.kind === 'reimbursement_link' || (r.shown.envelope.kind === 'correction' && r.shown.envelope.payload.targetKind === 'recurrence');
       const saved = when(r.shown.recalledAt);
-      return <li key={r.key} className={'memory-record ' + r.status}>
+      return <li key={r.key} className={'memory-record ' + r.status} data-kind={r.shown.envelope.kind}>
         <div className="memory-line">
           <strong>{d.title}</strong>
           <span className="muted">{d.detail}</span>

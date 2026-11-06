@@ -147,7 +147,7 @@ export function LiveMemories({ state, onChanged }: { state: AccountState; onChan
     {error && <p className="read-inline-error" role="alert">{error}</p>}
     {groups.length ? groups.map(g => <section key={g.name} className="card memories-group" aria-labelledby={`memories-${g.name}`}>
       <h2 id={`memories-${g.name}`}>{g.name === 'Labels' ? 'Payment labels' : g.name === 'Plan' ? 'Plan rules' : 'Other'} <span className="read-count">{g.items.length}</span></h2>
-      <ul>{g.items.map(row => { const d = describe(row.shown, state), id = row.latest.envelope.eventId, label = labelOf(row.shown), pending = row.status === 'changing' || row.status === 'change_failed' ? labelOf(row.latest) : null; return <li key={id} className={editing === id ? 'editing' : ''}>
+      <ul>{g.items.map(row => { const d = describe(row.shown, state), id = row.latest.envelope.eventId, label = labelOf(row.shown), pending = row.status === 'changing' || row.status === 'change_failed' ? labelOf(row.latest) : null; return <li key={id} className={editing === id ? 'editing' : ''} data-kind={row.shown.envelope.kind}>
         <div className="memory-line">
           <strong>{d.title}</strong><span className="muted">{d.detail}</span>
           {row.status === 'changing' && <span className="muted">{pending ? `Changing to “${pending.note}”. ` : 'Saving a change. '}{d.title} stays in use until Walrus confirms.</span>}

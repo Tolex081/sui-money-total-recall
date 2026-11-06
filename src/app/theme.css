@@ -895,3 +895,28 @@ nav[aria-label="Primary navigation"] .nav-item:nth-child(6) svg { color: #db2777
 .memories-group:nth-of-type(1) h2 .read-count { background: color-mix(in srgb, #ea580c 14%, var(--paper)); color: #b45309; }
 .memories-group:nth-of-type(2) h2 .read-count { background: color-mix(in srgb, #7c3aed 14%, var(--paper)); color: #6d28d9; }
 .pay-memory span.cat-dot { flex: 0 0 9px; width: 9px; min-width: 9px; }
+
+/* Ask: each source has its own colour, so where an answer came from reads at a glance. */
+.assistant-source { --src: #2863e8; background: color-mix(in srgb, var(--src) 15%, var(--paper)); color: color-mix(in srgb, var(--src) 72%, var(--ink)); border: 1px solid color-mix(in srgb, var(--src) 30%, var(--paper)); }
+.assistant-source.walrus { --src: #0d9488; }
+.assistant-source.sui { --src: #2863e8; background: color-mix(in srgb, var(--src) 15%, var(--paper)); }
+.assistant-source.calculated { --src: #7c3aed; background: color-mix(in srgb, var(--src) 15%, var(--paper)); }
+.assistant-source svg { color: var(--src); }
+
+/* Plan: commitments carry their category colour; the goal fills in green; Left to spend is tinted cobalt. */
+.commitment-row[data-cat] .icon-tile { color: var(--cat); background: color-mix(in srgb, var(--cat) 14%, var(--paper)); }
+.goal-progress { background: color-mix(in srgb, #16a34a 14%, var(--paper)); }
+.goal-progress > span { background: #16a34a; }
+.plan-preview { background: color-mix(in srgb, #2863e8 10%, var(--paper)); border-color: color-mix(in srgb, #2863e8 30%, var(--paper)); }
+.plan-preview h2 { color: var(--blue); }
+
+/* Memories: a dot by kind, and Walrus's own read-back box in Walrus teal. */
+li[data-kind] { --kind: #94a3b8; }
+li[data-kind="payment_explanation"], li[data-kind="category_rule"], li[data-kind="own_destination_rule"], li[data-kind="correction"] { --kind: #ea580c; }
+li[data-kind="planning_preference"] { --kind: #7c3aed; }
+li[data-kind="recurrence_confirmation"] { --kind: #0284c7; }
+li[data-kind="savings_goal"] { --kind: #16a34a; }
+li[data-kind="reimbursement_link"] { --kind: #059669; }
+li[data-kind] .memory-line > strong::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 9px; border-radius: 50%; background: var(--kind); vertical-align: 1px; }
+.walrus-verify { background: color-mix(in srgb, #0d9488 9%, var(--paper)); border-color: color-mix(in srgb, #0d9488 32%, var(--paper)); }
+.walrus-verify li { border-top-color: color-mix(in srgb, #0d9488 22%, var(--paper)); }
