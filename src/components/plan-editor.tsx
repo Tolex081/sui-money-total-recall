@@ -9,6 +9,7 @@ import { summarize } from '@/domain/summary';
 import { occurrences } from '@/domain/recurrence';
 import { activeEvents } from '@/domain/learning';
 import { OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
+import { NumberTrailButton } from './number-trail';
 
 type Act = (path: string, payload: unknown, success?: string) => Promise<Record<string, unknown> | null>;
 const usdc = (value: string | bigint) => amount(value);
@@ -94,6 +95,7 @@ export function PlanEditor({ state, demo, busy, act }: { state: AccountState; de
         <div className="total"><dt>Left to spend</dt><dd>{usdc(preview.discretionary)}</dd></div>
         {preview.held > 0n && <p className="micro plan-held">Includes {usdc(preview.held)} USDC you’ve already paid toward bills, still set aside until your balance confirms the payment. Left to spend may be a little low, never too high.</p>}
       </dl>}
+      {ready && <NumberTrailButton label={'Where your ' + usdc(preview.discretionary) + ' USDC comes from'} state={draft} rows={preview.rows.filter(r => r.outstanding > 0n)} commitments={preview.commitments} reserve={preview.reserve} result={preview.discretionary} daily={preview.daily} days={preview.days} base={demo ? '/demo' : ''}/>}
       <p className="micro">{state.balance ? `Balance ${state.balance.stale ? 'last checked' : 'checked'} ${new Intl.DateTimeFormat('en-GB', { timeStyle: 'short', timeZone: state.plan.timezone }).format(new Date(state.balance.observedAt))}. It updates as payments arrive.` : ''} Expected income is left out until it lands.</p>
     </section>
   </div>;

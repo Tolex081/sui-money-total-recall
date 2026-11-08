@@ -21,6 +21,7 @@ import { GoalCard } from './goal-card';
 import { LiveMemories } from './memories-live';
 import { MemoryRecords } from './memory-records';
 import { MoneyTimeline } from './money-timeline';
+import { NumberTrailButton } from './number-trail';
 import { Assistant } from './assistant';
 import { AskShortcut } from './ask-shortcut';
 import { Settings,useAutoLock } from './settings';
@@ -121,7 +122,7 @@ function Today({state,summary,base,onCompare}:{state:AccountState;summary:Summar
       <div className="lead-main">
         <p className="lead-sentence">{sentence}</p>
         <p className="lead-figure" id="today-answer"><span className="figure-whole">{whole}</span>{cents&&<span className="figure-cents">.{cents}</span>}<span className="figure-unit">USDC</span></p>
-        <p className="lead-label">{!ready?'Add a plan and a verified balance to see this.':plan.shortfall>0n?'Short under your plan':<>Safe to spend · about <b>{money(plan.daily)}</b> USDC a day for {plan.days} days</>}</p>
+        <p className="lead-label" data-tour="answer">{!ready?'Add a plan and a verified balance to see this.':plan.shortfall>0n?'Short under your plan':<>Safe to spend · about <b>{money(plan.daily)}</b> USDC a day for {plan.days} days</>}</p>{ready&&<NumberTrailButton className="lead-trail" label={'Where '+figure+' USDC comes from'} state={state} rows={plan.rows.filter(o=>o.outstanding>0n)} commitments={plan.commitments} reserve={integer(state.plan.reserve)} result={plan.discretionary} daily={plan.daily} days={plan.days} base={base}/>}
       </div>
       <dl className="lead-wallet">
         <div className="lead-wallet-head"><dt>Your wallet</dt><dd><IntegrationIdentity provider="tatum"/></dd></div>
