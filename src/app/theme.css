@@ -956,3 +956,21 @@ li[data-kind] .memory-line > strong::before { content: ''; display: inline-block
 .trail-src.you { --src: #64748b; }
 .trail-button { justify-self: start; margin-top: 12px; padding: 8px 14px; border: 1px solid color-mix(in srgb, var(--blue) 40%, var(--paper)); border-radius: 999px; background: var(--paper); color: var(--link); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 .trail-button:hover { background: color-mix(in srgb, var(--blue) 10%, var(--paper)); }
+
+/* Judge tour: a spotlight on one thing at a time and a short card explaining it. */
+.tour-start { gap: 6px; }
+.tour-start svg { color: #0d9488; }
+.tour-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.tour-spot { position: fixed; border-radius: 16px; box-shadow: 0 0 0 4px #2863e8, 0 0 0 9999px rgba(10, 18, 32, .58); transition: left .2s ease-out, top .2s ease-out, width .2s ease-out, height .2s ease-out; }
+.tour-dim { position: fixed; inset: 0; background: rgba(10, 18, 32, .58); }
+.tour-card { position: fixed; width: min(380px, calc(100vw - 32px)); padding: 18px 20px; border-radius: 16px; background: var(--paper); color: var(--ink); box-shadow: 0 20px 50px rgba(10, 18, 32, .35); pointer-events: auto; outline: none; }
+.tour-card.centered { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.tour-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.tour-count { font-size: 12px; font-weight: 700; color: #0d9488; }
+.tour-card h2 { margin: 0 0 6px; font-size: 19px; }
+.tour-card p { margin: 0 0 14px; font-size: 14px; line-height: 1.55; color: var(--ink); }
+.tour-actions { display: flex; justify-content: flex-end; gap: 8px; }
+@media (prefers-reduced-motion: reduce) { .tour-spot { transition: none; } }
+@media (max-width: 760px) {
+  .tour-card, .tour-card.centered { left: 16px; right: 16px; top: auto; bottom: calc(84px + env(safe-area-inset-bottom)); width: auto; transform: none; }
+}
