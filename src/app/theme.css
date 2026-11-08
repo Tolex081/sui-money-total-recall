@@ -933,3 +933,26 @@ li[data-kind] .memory-line > strong::before { content: ''; display: inline-block
 .tatum-proof-result.matches { color: var(--positive); font-weight: 600; }
 .tatum-proof-result.differs, .tatum-proof-result.not_found { color: var(--negative); font-weight: 600; }
 @media (max-width: 600px) { .tatum-proof { margin-left: 0; } .tatum-proof dl { grid-template-columns: 1fr; } }
+
+/* "Where does this number come from?": the trail behind Today's figure. */
+.lead-trail { justify-self: start; margin-top: 6px; padding: 8px 14px; border: 1px solid rgba(255, 255, 255, .55); border-radius: 999px; background: rgba(255, 255, 255, .12); color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.lead-trail:hover { background: rgba(255, 255, 255, .22); }
+.lead-trail:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.number-trail { display: grid; gap: 14px; }
+.number-trail-lead { margin: 0; color: var(--muted); font-size: 14px; }
+.number-trail ol { display: grid; margin: 0; padding: 0; list-style: none; }
+.number-trail li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.number-trail li > div { display: grid; gap: 4px; min-width: 0; }
+.number-trail li strong { font-size: 15px; font-weight: 600; }
+.number-trail li b { font-size: 16px; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.number-trail .trail-total { border-top: 2px solid var(--ink); }
+.number-trail .trail-total b { font-size: 22px; color: var(--blue); }
+.number-trail .trail-total b small { font-size: 13px; color: var(--muted); }
+.trail-src { --src: #64748b; display: inline-flex; align-items: center; gap: 5px; width: fit-content; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: color-mix(in srgb, var(--src) 14%, var(--paper)); color: color-mix(in srgb, var(--src) 72%, var(--ink)); }
+.trail-src svg { color: var(--src); }
+.trail-src.walrus { --src: #0d9488; }
+.trail-src.sui { --src: #5842ed; }
+.trail-src.calc { --src: #7c3aed; }
+.trail-src.you { --src: #64748b; }
+.trail-button { justify-self: start; margin-top: 12px; padding: 8px 14px; border: 1px solid color-mix(in srgb, var(--blue) 40%, var(--paper)); border-radius: 999px; background: var(--paper); color: var(--link); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.trail-button:hover { background: color-mix(in srgb, var(--blue) 10%, var(--paper)); }
