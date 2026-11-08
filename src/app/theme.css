@@ -974,3 +974,5 @@ li[data-kind] .memory-line > strong::before { content: ''; display: inline-block
 @media (max-width: 760px) {
   .tour-card, .tour-card.centered { left: 16px; right: 16px; top: auto; bottom: calc(84px + env(safe-area-inset-bottom)); width: auto; transform: none; }
 }
+.number-trail .trail-total.short b { color: var(--negative); }
+.trail-short { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--negative-soft); color: var(--ink); font-size: 13px; }
