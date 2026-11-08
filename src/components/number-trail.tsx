@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Database, Link2, Calculator, PencilLine, X } from 'lucide-react';
 import type { AccountState } from '@/domain/state';
-import { amount } from '@/domain/money';
+import { amount, units } from '@/domain/money';
 
 type Memory = AccountState['memories'][number];
 export type TrailRow = { id: string; ruleId?: string; dueDate: string; alias: string; outstanding: bigint; learnedEventId?: string };
@@ -23,9 +23,18 @@ function rememberedFor(state: AccountState, row: TrailRow): Memory | null {
   const aliasOf = (m: Memory) => { const p = payload(m); const v = (m.envelope.kind === 'correction' ? p.value : p) as Record<string, unknown> | undefined; return typeof v?.alias === 'string' ? v.alias : null; };
   return newest(usable.filter(m => aliasOf(m) === row.alias));
 }
-function reserveMemory(state: AccountState): Memory | null {
-  return state.memories.filter(m => m.state === 'recall_confirmed' && m.envelope.kind === 'planning_preference' && !['category', 'horizon'].includes(String((m.envelope.payload as { preference?: string }).preference)))
-    .sort((a, b) => b.envelope.revision - a.envelope.revision)[0] ?? null;
+// A remembered reserve counts as the source only when it holds the same amount the plan uses now; a reserve typed on
+// Plan that was never remembered must not be credited to Walrus.
+function reserveMemory(state: AccountState, reserve: bigint): Memory | null {
+  const valueOf = (m: Memory): bigint | null => {
+    const v = String((m.envelope.payload as { value?: unknown }).value ?? '');
+    if (/^\d+$/.test(v)) return BigInt(v);
+    const n = v.match(/([\d,]+(?:\.\d+)?)\s*USDC/i)?.[1]?.replaceAll(',', '');
+    try { return n ? units(n) : null; } catch { return null; }
+  };
+  const newest = state.memories.filter(m => m.state === 'recall_confirmed' && m.envelope.kind === 'planning_preference' && !['category', 'horizon'].includes(String((m.envelope.payload as { preference?: string }).preference)))
+    .sort((a, b) => b.envelope.revision - a.envelope.revision)[0];
+  return newest && valueOf(newest) === reserve ? newest : null;
 }
 
 // "Where does this number come from?": every input to the figure, each with its source and its proof.
@@ -40,7 +49,9 @@ export function NumberTrail({ state, rows, commitments, reserve, result, daily, 
     if (g) { g.count++; g.total += r.outstanding; } else list.push({ key, alias: r.alias, first: r.dueDate, count: 1, total: r.outstanding, row: r });
     return list;
   }, []);
-  const res = reserveMemory(state);
+  const res = reserveMemory(state, reserve);
+  // What the lines add up to. Left to spend never goes below zero, so a shortfall is shown as what it is.
+  const held = balance ? BigInt(balance.usdc) : 0n, remainder = held - commitments - reserve, short = remainder < 0n;
   return <div className="number-trail">
     <p className="number-trail-lead">Every part of this figure has a source you can check. Nothing is estimated by a model.</p>
     <ol>
@@ -61,11 +72,12 @@ export function NumberTrail({ state, rows, commitments, reserve, result, daily, 
         <div><strong>Your reserve</strong>{reserve > 0n && res ? walrus(res) : <span className="trail-src you"><PencilLine size={12} aria-hidden="true"/>Set by you on Plan</span>}</div>
         <b>−{amount(reserve)}</b>
       </li>
-      <li className="trail-total">
-        <div><strong>Left to spend</strong><span className="trail-src calc"><Calculator size={12} aria-hidden="true"/>Calculated · exact to the cent · {amount(commitments)} set aside in total</span></div>
-        <b>{amount(result)} <small>USDC</small></b>
+      <li className={'trail-total' + (short ? ' short' : '')}>
+        <div><strong>{short ? 'Short by' : 'Left to spend'}</strong><span className="trail-src calc"><Calculator size={12} aria-hidden="true"/>Calculated · exact to the cent</span></div>
+        <b>{amount(short ? -remainder : result)} <small>USDC</small></b>
       </li>
     </ol>
+    {short && <p className="trail-short">Your bills, goal and reserve need {amount(-remainder)} USDC more than this wallet holds, so Left to spend shows {amount(result)}. It never goes below zero.</p>}
     <p className="micro">{days > 0 ? `About ${amount(daily)} USDC a day for ${days} days, rounded down so it never overstates. ` : ''}Check the Walrus records on <Link className="text-link" href={base + '/memories'}>Memories</Link> and the wallet reads on <Link className="text-link" href="/proof">Integration proof</Link>.</p>
   </div>;
 }
