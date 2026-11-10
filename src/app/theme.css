@@ -976,3 +976,32 @@ li[data-kind] .memory-line > strong::before { content: ''; display: inline-block
 }
 .number-trail .trail-total.short b { color: var(--negative); }
 .trail-short { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--negative-soft); color: var(--ink); font-size: 13px; }
+
+/* A slow, soft moving background behind every page. Three pale colour fields drift; cards stay solid on top, so text
+   keeps its contrast. It stops for people who ask for reduced motion. */
+.aurora { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--canvas); }
+.aurora span { position: absolute; width: 56vmax; height: 56vmax; border-radius: 50%; filter: blur(90px); opacity: .5; will-change: transform; }
+.aurora span:nth-child(1) { left: -14vmax; top: -18vmax; background: #b9d0ff; animation: aurora-a 26s ease-in-out infinite alternate; }
+.aurora span:nth-child(2) { right: -18vmax; top: 8vmax; background: #b5efe2; animation: aurora-b 32s ease-in-out infinite alternate; }
+.aurora span:nth-child(3) { left: 22vmax; bottom: -30vmax; background: #dccbff; animation: aurora-c 38s ease-in-out infinite alternate; }
+:root[data-theme="dark"] .aurora span { opacity: .22; }
+:root[data-theme="dark"] .aurora span:nth-child(1) { background: #2863e8; }
+:root[data-theme="dark"] .aurora span:nth-child(2) { background: #0d9488; }
+:root[data-theme="dark"] .aurora span:nth-child(3) { background: #7c3aed; }
+@keyframes aurora-a { to { transform: translate(16vmax, 12vmax) scale(1.15); } }
+@keyframes aurora-b { to { transform: translate(-18vmax, 10vmax) scale(.9); } }
+@keyframes aurora-c { to { transform: translate(-10vmax, -16vmax) scale(1.2); } }
+@media (prefers-reduced-motion: reduce) { .aurora span { animation: none; } }
+html, body { background: transparent; }
+html { background: var(--canvas); }
+.landing { background: transparent; }
+
+/* Share receipt */
+.share-receipt { margin: 6px 0 0 49px; font-size: 13px; }
+.share-receipt summary { width: fit-content; min-height: 32px; display: flex; align-items: center; gap: 6px; color: var(--link); cursor: pointer; }
+.share-receipt-body { display: grid; gap: 10px; margin-top: 6px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+.share-receipt-preview { margin: 0; color: var(--ink); }
+.share-receipt-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.share-receipt .micro { margin: 0; }
+.move-result .share-receipt, .move-done .share-receipt { margin-left: 0; }
+@media (max-width: 600px) { .share-receipt { margin-left: 0; } }

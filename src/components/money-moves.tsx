@@ -17,6 +17,7 @@ type Props = { state: AccountState; labels: boolean; onChanged: () => void };
 const exact = (value: string | bigint, decimals = 6) => amount(value, decimals, decimals).replace(/(\.\d{2}\d*?)0+$/, '$1');
 const short = (address: string) => `${address.slice(0, 6)}…${address.slice(-4)}`;
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import { ShareReceipt } from './share-receipt';
 const suiscan = (digest: string) => `https://suiscan.xyz/mainnet/tx/${digest}`;
 
 export default function MoneyMoves({ screen, ...props }: Props & { screen: 'send' | 'receive' }) {
@@ -133,6 +134,7 @@ function Send({ state, labels, onChanged }: Props) {
         <p className="move-result-amount"><Check size={20} aria-hidden="true"/>{prepared && exact(prepared.amount, DECIMALS[prepared.coin])} <small>{prepared?.coin}</small> to {sendingTo}</p>
         {outcome ? <p>{outcome}</p> : <p>Confirmed on Sui Mainnet and added to your Activity{note.trim() && labels ? ', with your label' : ''}.</p>}
         <div className="move-actions">{digest && <a className="button" href={suiscan(digest)} target="_blank" rel="noreferrer">View on Suiscan <ArrowUpRight size={15} aria-hidden="true"/><span className="sr-only"> (opens in a new tab)</span></a>}<Link className="button" href="/activity">See Activity</Link><button className="button primary" onClick={reset}>Send again</button></div>
+        {digest && prepared && !outcome && <ShareReceipt receipt={{ digest, direction: 'sent', amount: exact(prepared.amount, DECIMALS[prepared.coin]), unit: prepared.coin, date: new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date()).replace('Sept', 'Sep') }}/>}
       </div>
       : <div className="move-review">
         <dl className="move-summary">
