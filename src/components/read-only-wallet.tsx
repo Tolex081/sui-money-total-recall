@@ -9,6 +9,7 @@ import type { planning } from '@/domain/planning';
 import { READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
 import { amount, integer, SUI_TYPE, USDC_TYPE } from '@/domain/money';
 import { TatumProof } from './tatum-proof';
+import { ShareReceipt } from './share-receipt';
 
 type SyncKind = 'balances' | 'history';
 type Props = {
@@ -207,6 +208,7 @@ function Movement({ movement, state, labels, onLabeled, stalled, onRetry }: { mo
     </div> : canLabel && <button ref={opener} className="pay-prompt" aria-expanded={open} onClick={() => setOpen(!open)}><Tag size={14} aria-hidden="true"/>What was this for?<span className="sr-only"> {incoming ? 'Received' : 'Sent'} {shownAmount} {unit}{party ? ` ${incoming ? 'from' : 'to'} ${party}` : ''}</span></button>}
     {open && (status === null || status === 'failed') && (memoryAgreed ? <LabelForm movement={movement} state={state} onSaved={() => { setOpen(false); focusChip.current = true; onLabeled(); }} onCancel={close}/> : <MemoryConsent movement={movement} summary={summary} onAccepted={onLabeled} onCancel={close}/>)}
     <TatumProof movement={movement} timezone={timezone}/>
+    {movement.digest && movement.status === 'success' && <ShareReceipt receipt={{ digest: movement.digest, direction: incoming ? 'received' : 'sent', amount: shownAmount, unit, date: new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: timezone }).format(new Date(movement.timestamp)).replace('Sept', 'Sep') }}/>}
   </li>;
 }
 
