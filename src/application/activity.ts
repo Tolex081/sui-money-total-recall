@@ -5,6 +5,7 @@ import { AppError, destinationId } from '@/lib/security';
 import { safeText } from '@/domain/learning';
 import { units, SUI_TYPE, USDC_TYPE } from '@/domain/money';
 import { weeklySuggestions } from '@/domain/recurrence';
+import { insights } from '@/domain/insights';
 import { assertAllocationPayment } from './eligibility';
 import { accountState } from './state';
 import { newEvent,queueEvent } from './commands';
@@ -76,6 +77,23 @@ export async function decideSuggestion(profile:Profile,suggestionId:string,raw:u
       return queueEvent(db,profile,event,0);
     }
     return queueEvent(db,profile,newEvent(profile,{kind:'suggestion_decision',logicalKey,sourceRecordIds:suggestion.sourceIds,expectedRevision:0,payload:{suggestionId,decision:'rejected'}}),0);
+  });
+}
+
+// Dismissing a learned insight is remembered on Walrus like any other decision, so the same advice stays hidden
+// on every device. The insight must still be one the current account state produces; its id is a content hash, so
+// changed numbers produce a new insight the user sees fresh.
+export async function decideInsight(profile:Profile,raw:unknown) {
+  const data=z.object({insightId:z.string().regex(/^insight_[0-9a-f]{32}$/),decision:z.literal('rejected')}).strict().parse(raw);
+  const state=await accountState(profile);
+  const current=insights(state);
+  const item=current.ready?current.items.find(i=>i.id===data.insightId):undefined;
+  if(!item)throw new AppError('INSIGHT_CHANGED',409,'Your numbers changed. Review the current advice.');
+  return transaction(async db=>{
+    const logicalKey='insight:'+data.insightId;
+    const prior=(await db.query('SELECT id FROM learned_events WHERE profile_id=$1 AND logical_key=$2',[profile.id,logicalKey])).rows[0];
+    if(prior)throw new AppError('INSIGHT_REVIEWED',409,'This advice was already dismissed.');
+    return queueEvent(db,profile,newEvent(profile,{kind:'suggestion_decision',logicalKey,sourceRecordIds:item.memoryIds.slice(0,20),expectedRevision:0,payload:{suggestionId:data.insightId,decision:'rejected'}}),0);
   });
 }
 

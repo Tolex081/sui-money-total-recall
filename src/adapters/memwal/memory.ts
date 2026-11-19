@@ -1,16 +1,26 @@
 import { MemWal, type MemorySummary } from '@mysten-incubation/memwal';
 import { required } from '@/lib/config';
 import { validateRecall, type LearnedEvent } from '@/domain/learning';
-export function memoryClient(namespace: string) {
+// Walrus writes are ON by default. MEMWAL_WRITES_PAUSED=true is the operator's kill switch; the older
+// MEMWAL_FREE_WRITES_CONFIRMED=false still pauses them so existing deployments keep the setting they chose.
+export function memoryWritesPaused() {
+  return process.env.MEMWAL_WRITES_PAUSED === 'true' || process.env.MEMWAL_FREE_WRITES_CONFIRMED === 'false';
+}
+// Which Walrus Memory account to use. Without credentials it is Sui Money's operator account; with them it is an
+// account the user owns, reached through the delegate key they added to it.
+export type MemoryCredentials = { accountId: string; delegateKey: string };
+export function memoryClient(namespace: string, credentials?: MemoryCredentials) {
   const serverUrl = process.env.MEMWAL_SERVER_URL ?? 'https://relayer.memory.walrus.xyz';
   if (serverUrl !== 'https://relayer.memory.walrus.xyz') throw new Error('Only the verified Mainnet managed relayer is enabled.');
-  return MemWal.create({ key: required('MEMWAL_PRIVATE_KEY'), accountId: required('MEMWAL_ACCOUNT_ID'), serverUrl, namespace, requestTimeoutMs: 12000, recallTimeoutMs: 12000, preflightTimeoutMs: 4000 });
+  const key = credentials?.delegateKey ?? required('MEMWAL_PRIVATE_KEY'), accountId = credentials?.accountId ?? required('MEMWAL_ACCOUNT_ID');
+  return MemWal.create({ key, accountId, serverUrl, namespace, requestTimeoutMs: 12000, recallTimeoutMs: 12000, preflightTimeoutMs: 4000 });
 }
 export class WalrusMemory {
   readonly client: MemWal;
-  constructor(readonly namespace: string) { this.client = memoryClient(namespace); }
+  readonly accountId: string | null;
+  constructor(readonly namespace: string, credentials?: MemoryCredentials) { this.client = memoryClient(namespace, credentials); this.accountId = credentials?.accountId ?? null; }
   async submit(event: LearnedEvent) {
-    if (process.env.MEMWAL_FREE_WRITES_CONFIRMED !== 'true') throw new Error('FREE_WRITE_ENTITLEMENT_UNCONFIRMED');
+    if (memoryWritesPaused()) throw new Error('FREE_WRITE_ENTITLEMENT_UNCONFIRMED');
     return this.client.remember(JSON.stringify(event), this.namespace, { idempotencyKey: event.eventId, dedupe: true });
   }
   status(jobId: string) { return this.client.getRememberStatus(jobId); }

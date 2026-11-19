@@ -14,10 +14,12 @@ const movements:Movement[]=[
   movement('internet','2026-10-03','-38','internet'),movement('income','2026-10-01','1600','sender'),
   movement('groceries-2','2026-10-19','-45','market'),movement('groceries-3','2026-10-12','-45','market'),movement('groceries-4','2026-10-05','-45','market'),
   movement('unknown','2026-10-28','-9.25','unknown'),
+  // Eating out most weeks: no bill covers it, so only the remembered labels reveal it as routine spending.
+  movement('food-1','2026-10-22','-24','cafe'),movement('food-2','2026-10-16','-31','cafe'),movement('food-3','2026-10-09','-27.50','cafe'),movement('food-4','2026-10-02','-22','cafe'),
 ];
 const aliases:Record<string,[string,string]>={lunch:['Food','Lunch with a friend'],groceries:['Groceries','Shared grocery shop'],refund:['Reimbursement','Part of the shared grocery shop'],own:['Own transfer','Moved to my other wallet'],book:['Learning','A new book'],internet:['Internet','Home internet'],income:['Incoming','Unassigned incoming transfer'],unknown:['Unclassified','Add an explanation to this payment']};
 const annotations:Annotation[]=movements.filter(m=>m.id!=='synthetic-unknown').map(m=>{
-  const key=m.id.replace('synthetic-',''), a=aliases[key]??(key.startsWith('transport')?['Transport','Weekly transport']:['Groceries','Weekly grocery shop']);
+  const key=m.id.replace('synthetic-',''), a=aliases[key]??(key.startsWith('transport')?['Transport','Weekly transport']:key.startsWith('food')?['Food','Eating out']:['Groceries','Weekly grocery shop']);
   return {movementId:m.id,category:a[0],note:a[1],ownTransfer:key==='own',eventId:key==='own'?'synthetic-learning-own':'synthetic-explanation-'+key};
 });
 const rules:CommitmentRule[]=[

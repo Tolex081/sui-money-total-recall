@@ -18,6 +18,8 @@ const exact = (value: string | bigint, decimals = 6) => amount(value, decimals, 
 const short = (address: string) => `${address.slice(0, 6)}…${address.slice(-4)}`;
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 import { ShareReceipt } from './share-receipt';
+import { PaymentVerdict } from './learned-insights';
+import { checkPayment } from '@/domain/insights';
 const suiscan = (digest: string) => `https://suiscan.xyz/mainnet/tx/${digest}`;
 
 export default function MoneyMoves({ screen, ...props }: Props & { screen: 'send' | 'receive' }) {
@@ -143,6 +145,7 @@ function Send({ state, labels, onChanged }: Props) {
           <div><dt>Network fee</dt><dd>{fee ? `Up to ${fee} SUI` : 'Paid in SUI'}</dd></div>
           {labels && note.trim() && <div><dt>Label</dt><dd>{note.trim()} · {category}{!memoryAgreed && !memoryOk ? ' (not saved)' : ''}</dd></div>}
         </dl>
+        {phase === 'review' && prepared?.coin === 'USDC' && <PaymentVerdict check={checkPayment(state, BigInt(prepared.amount), labels && note.trim() ? category : null)}/>}
         {phase === 'review' || phase === 'failed' ? <>
           {failure && <p className="read-inline-error" role="alert"><AlertCircle size={15} aria-hidden="true"/> {failure}{digest && <> <a className="text-link" href={suiscan(digest)} target="_blank" rel="noreferrer">Check on Suiscan</a></>}</p>}
           <div className="move-actions">

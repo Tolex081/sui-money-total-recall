@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Check, Copy, Download, LogOut } from 'lucide-react';
 import { api } from './http';
+import dynamic from 'next/dynamic';
+// The wallet kit touches `window` when it loads, so it is only loaded in the browser.
+const MemoryOwnership = dynamic(() => import('./memory-ownership').then(m => m.MemoryOwnership), { ssr: false });
 import type { AccountState } from '@/domain/state';
 import { READ_ONLY_WALLET_CONSENT_VERSION, OPERATOR_MANAGED_CONSENT_VERSION } from '@/domain/consent';
 
@@ -81,6 +84,11 @@ export function Settings({ state, features, onSignOut, onSignOutEverywhere }: Pr
         </div>
       </div>
     </section>
+
+    {memory && <section className="settings-row" aria-labelledby="settings-memory">
+      <div className="settings-label"><h2 id="settings-memory">Who owns your memory</h2><p>Your labels, bills and goals are remembered on Walrus. Keep them in an account your wallet owns, so they go with you to any app.</p></div>
+      <div className="card settings-panel"><MemoryOwnership/></div>
+    </section>}
 
     <section className="settings-row" aria-labelledby="settings-appearance">
       <div className="settings-label"><h2 id="settings-appearance">Appearance</h2><p>Saved on this device.</p></div>
