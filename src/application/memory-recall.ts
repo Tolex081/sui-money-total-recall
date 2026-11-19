@@ -23,8 +23,12 @@ export async function verifyMemoriesFromWalrus(profile: Profile, sourceFor: (nam
   const active = activeEvents(memories, profile.id).sort((a, b) => b.envelope.recordedAt.localeCompare(a.envelope.recordedAt));
   // Each memory is read back from the account it was written to: the shared operator account or the user's own.
   const accountOf = new Map<string, string | null>(rows.map(r => [r.envelope.eventId as string, (r.account_id ?? null) as string | null]));
-  const sources = new Map<string | null, Promise<RecallSource>>();
-  const sourceForEvent = (eventId: string) => { const account = accountOf.get(eventId) ?? null; if (!sources.has(account)) sources.set(account, Promise.resolve(sourceFor(profile.namespace, account))); return sources.get(account)!; };
+  // Every account is connected before any memory is checked, outside the per-memory error handling, so missing
+  // Walrus configuration or a disconnected own account fails the whole request instead of looking like an outage.
+  // The shared operator account is always connected, as it was before own accounts existed.
+  const sources = new Map<string | null, RecallSource>();
+  for (const account of new Set<string | null>([null, ...active.slice(0, MAX_CHECKED).map(m => accountOf.get(m.envelope.eventId) ?? null)])) sources.set(account, await sourceFor(profile.namespace, account));
+  const sourceForEvent = (eventId: string) => sources.get(accountOf.get(eventId) ?? null)!;
   const checked = [];
   for (const memory of active.slice(0, MAX_CHECKED)) {
     const event = memory.envelope;
@@ -34,7 +38,7 @@ export async function verifyMemoriesFromWalrus(profile: Profile, sourceFor: (nam
     const base = { eventId: event.eventId, logicalKey: event.logicalKey, revision: event.revision, kind: event.kind, recordedAt: event.recordedAt, supersedes: previous ? { eventId: previous.eventId, revision: previous.revision } : null, supersessionConsistent };
     if (Date.now() >= deadline) { checked.push({ ...base, verdict: 'not_checked' as const, reason: 'Not checked this time, to keep the request short. Verify again to check it.', recalledAt: new Date().toISOString() }); continue; }
     try {
-      const verdict = verifyRecall(event, profile.id, await (await sourceForEvent(event.eventId)).recallCandidates(event.eventId), memory.blobId);
+      const verdict = verifyRecall(event, profile.id, await sourceForEvent(event.eventId).recallCandidates(event.eventId), memory.blobId);
       checked.push(verdict.verdict === 'matched'
         ? { ...base, verdict: 'matched' as const, blobId: verdict.blobId, sameBlob: verdict.sameBlob, remembered: rememberedSummary(verdict.recalled), recalledAt: new Date().toISOString() }
         : { ...base, verdict: verdict.verdict, reason: verdict.reason, recalledAt: new Date().toISOString() });
