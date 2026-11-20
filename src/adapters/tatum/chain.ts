@@ -109,6 +109,24 @@ export class TatumChain implements ChainPort {
   }
   // Submits bytes the user's wallet already signed. Never retried here: a lost response is reconciled
   // by reading the digest later, never by sending again.
+  // Builds any transaction for the user's wallet to sign (used for the Walrus Memory account calls).
+  async buildCall(sender: string, compose: (tx: Transaction) => void) {
+    const tx = new Transaction();
+    tx.setSender(canonicalAddress(sender));
+    compose(tx);
+    await this.beforeRead();
+    const bytes = await tx.build({ client: this.client });
+    return { bytes, json: await Transaction.from(bytes).toJSON() };
+  }
+  // Executes signed bytes and returns the IDs of objects created whose type contains `typeFragment`.
+  async executeCreating(bytes: Uint8Array, signature: string, typeFragment: string) {
+    const result = await this.client.core.executeTransaction({ transaction: bytes, signatures: [signature], include: { effects: true, objectTypes: true } });
+    const executed = result.Transaction ?? result.FailedTransaction;
+    const types = (executed as { objectTypes?: Record<string, string> }).objectTypes ?? {};
+    const changed = (executed.effects?.changedObjects ?? []) as { objectId: string; idOperation: string }[];
+    const created = changed.filter(c => c.idOperation === 'Created' && types[c.objectId]?.includes(typeFragment)).map(c => c.objectId);
+    return { digest: executed.digest, success: result.$kind === 'Transaction' && executed.status.success, created };
+  }
   async execute(bytes: Uint8Array, signature: string) {
     const result = await this.client.core.executeTransaction({ transaction: bytes, signatures: [signature], include: { effects: true } });
     const executed = result.Transaction ?? result.FailedTransaction;

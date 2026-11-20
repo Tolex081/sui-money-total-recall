@@ -1,5 +1,5 @@
 import { database } from '@/adapters/postgres/client';
-import { WalrusMemory } from '@/adapters/memwal/memory';
+import { walrusForAccount } from './memory-account';
 import { activeEvents, learnedEventSchema, type ConfirmedEvent } from '@/domain/learning';
 import { rememberedSummary, verifyRecall, type RecallHit } from '@/domain/memory-verification';
 import { consumeLimits } from '@/lib/rate-limit';
@@ -15,13 +15,20 @@ const MAX_CHECKED = 10;
 // so a single request stays well inside Vercel's function limit (300 s with Fluid compute, 60 s maximum without).
 export const RECALL_BUDGET_MS = 25000;
 
-export async function verifyMemoriesFromWalrus(profile: Profile, sourceFor: (namespace: string) => RecallSource = namespace => new WalrusMemory(namespace), budgetMs = RECALL_BUDGET_MS) {
+export async function verifyMemoriesFromWalrus(profile: Profile, sourceFor: (namespace: string, accountId: string | null) => RecallSource | Promise<RecallSource> = (_namespace, accountId) => walrusForAccount(profile, accountId), budgetMs = RECALL_BUDGET_MS) {
   const deadline = Date.now() + budgetMs;
   await consumeLimits([{ key: 'memory:recall:global', max: 12, seconds: 60 }, { key: `memory:recall:${profile.id}`, max: 3, seconds: 60 }]);
-  const rows = (await database().query('SELECT e.envelope,e.available,j.state,j.blob_id,j.recalled_at,j.expires_at FROM learned_events e JOIN memory_jobs j ON j.profile_id=e.profile_id AND j.event_id=e.id WHERE e.profile_id=$1 ORDER BY e.created_at', [profile.id])).rows;
+  const rows = (await database().query('SELECT e.envelope,e.available,j.state,j.blob_id,j.recalled_at,j.expires_at,j.account_id FROM learned_events e JOIN memory_jobs j ON j.profile_id=e.profile_id AND j.event_id=e.id WHERE e.profile_id=$1 ORDER BY e.created_at', [profile.id])).rows;
   const memories: ConfirmedEvent[] = rows.map(r => ({ envelope: learnedEventSchema.parse(r.envelope), available: r.available && (!r.expires_at || new Date(r.expires_at).getTime() > Date.now()), state: r.state, blobId: r.blob_id, recalledAt: r.recalled_at ? new Date(r.recalled_at).toISOString() : null }));
   const active = activeEvents(memories, profile.id).sort((a, b) => b.envelope.recordedAt.localeCompare(a.envelope.recordedAt));
-  const source = sourceFor(profile.namespace);
+  // Each memory is read back from the account it was written to: the shared operator account or the user's own.
+  const accountOf = new Map<string, string | null>(rows.map(r => [r.envelope.eventId as string, (r.account_id ?? null) as string | null]));
+  // Every account is connected before any memory is checked, outside the per-memory error handling, so missing
+  // Walrus configuration or a disconnected own account fails the whole request instead of looking like an outage.
+  // The shared operator account is always connected, as it was before own accounts existed.
+  const sources = new Map<string | null, RecallSource>();
+  for (const account of new Set<string | null>([null, ...active.slice(0, MAX_CHECKED).map(m => accountOf.get(m.envelope.eventId) ?? null)])) sources.set(account, await sourceFor(profile.namespace, account));
+  const sourceForEvent = (eventId: string) => sources.get(accountOf.get(eventId) ?? null)!;
   const checked = [];
   for (const memory of active.slice(0, MAX_CHECKED)) {
     const event = memory.envelope;
@@ -31,7 +38,7 @@ export async function verifyMemoriesFromWalrus(profile: Profile, sourceFor: (nam
     const base = { eventId: event.eventId, logicalKey: event.logicalKey, revision: event.revision, kind: event.kind, recordedAt: event.recordedAt, supersedes: previous ? { eventId: previous.eventId, revision: previous.revision } : null, supersessionConsistent };
     if (Date.now() >= deadline) { checked.push({ ...base, verdict: 'not_checked' as const, reason: 'Not checked this time, to keep the request short. Verify again to check it.', recalledAt: new Date().toISOString() }); continue; }
     try {
-      const verdict = verifyRecall(event, profile.id, await source.recallCandidates(event.eventId), memory.blobId);
+      const verdict = verifyRecall(event, profile.id, await sourceForEvent(event.eventId).recallCandidates(event.eventId), memory.blobId);
       checked.push(verdict.verdict === 'matched'
         ? { ...base, verdict: 'matched' as const, blobId: verdict.blobId, sameBlob: verdict.sameBlob, remembered: rememberedSummary(verdict.recalled), recalledAt: new Date().toISOString() }
         : { ...base, verdict: verdict.verdict, reason: verdict.reason, recalledAt: new Date().toISOString() });

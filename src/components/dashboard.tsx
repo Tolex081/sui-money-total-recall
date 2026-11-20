@@ -21,6 +21,7 @@ import { GoalCard } from './goal-card';
 import { LiveMemories } from './memories-live';
 import { MemoryRecords } from './memory-records';
 import { MoneyTimeline } from './money-timeline';
+import { LearnedInsights } from './learned-insights';
 import { NumberTrailButton } from './number-trail';
 import { TourButton, TourGuide } from './judge-tour';
 import { Assistant } from './assistant';
@@ -133,6 +134,7 @@ function Today({state,summary,base,onCompare}:{state:AccountState;summary:Summar
         {!synthetic&&<div className="lead-wallet-note"><dt className="sr-only">Address</dt><dd><details className="wallet-address-details"><summary>View wallet address</summary><code>{state.profile.wallet}</code></details></dd></div>}
       </dl>
     </section>
+    <LearnedInsights state={state}/>
     <section className="card timeline-card" aria-labelledby="timeline-title">
       <div className="section-title"><div><h2 id="timeline-title">What’s left as bills come due</h2><p className="muted small-text">{ready?<>Starts at your balance less your {money(state.plan.reserve)} USDC reserve and steps down on each due date.</>:'Shows once your plan has an end date and a verified balance.'}</p></div><Link href={base+'/plan'} className="text-link">Edit plan <ChevronRight size={15} aria-hidden="true"/></Link></div>
       {ready&&balance?<MoneyTimeline today={state.today} endDate={state.plan.endDate!} start={integer(balance.usdc)-integer(state.plan.reserve)} rows={rows}/>:<p className="empty-inline">No plan to draw yet.</p>}

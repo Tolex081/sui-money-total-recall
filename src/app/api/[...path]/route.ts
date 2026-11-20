@@ -6,9 +6,11 @@ import { authenticate,issueChallenge,verifyChallenge,revoke,revokeAll,sessionCoo
 import { acceptReadOnlyWalletConsent,acceptMemoryConsent } from '@/application/consent';
 import { accountState,summarize } from '@/application/state';
 import { savePlan,saveCommitment,newEvent,queueEvent,rememberReserve,saveGoal,rememberManualRecurrence,reverseCommitmentAllocation } from '@/application/commands';
-import { annotate,reimbursement,allocateCommitment,decideSuggestion,destinationRule,correctMemory } from '@/application/activity';
+import { annotate,reimbursement,allocateCommitment,decideSuggestion,decideInsight,destinationRule,correctMemory } from '@/application/activity';
 import { advanceMemoryJob,refreshRecall } from '@/application/memory-jobs';
 import { verifyMemoriesFromWalrus } from '@/application/memory-recall';
+import { memoryWritesPaused } from '@/adapters/memwal/memory';
+import { memoryOwnership,startOwnership,confirmOwnership,leaveOwnership,prepareAccountTransaction,submitAccountTransaction } from '@/application/memory-account';
 import { askAssistant } from '@/application/assistant';
 import { syncWallet } from '@/application/sync';
 import { suiBudget,saveSuiReserve,addSuiBill,removeSuiBill,markSuiBillPaid } from '@/application/sui-budget';
@@ -41,7 +43,7 @@ async function proof() {
 async function handle(request:Request) {
   const path=new URL(request.url).pathname.replace(/^\/api\//,'');const method=request.method;
   appMode();
-  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED==='true',personalReadEnabled:process.env.PERSONAL_READ_ENABLED==='true',personalAccessEnabled:process.env.PERSONAL_ACCESS_ENABLED==='true',personalLabelsEnabled:process.env.PERSONAL_LABELS_ENABLED==='true',personalSendEnabled:process.env.PERSONAL_SEND_ENABLED==='true',personalPlanEnabled:process.env.PERSONAL_PLAN_ENABLED==='true',liveIntegrationVerified:false});
+  if(method==='GET'&&path==='health')return json({mode:appMode(),status:'application_reachable',dependencies:configurationStatus(),walletSignInEnabled:process.env.WALLET_SIGNIN_ENABLED==='true',personalReadEnabled:process.env.PERSONAL_READ_ENABLED==='true',personalAccessEnabled:process.env.PERSONAL_ACCESS_ENABLED==='true',personalLabelsEnabled:process.env.PERSONAL_LABELS_ENABLED==='true',personalSendEnabled:process.env.PERSONAL_SEND_ENABLED==='true',personalPlanEnabled:process.env.PERSONAL_PLAN_ENABLED==='true',memoryWrites:memoryWritesPaused()?'paused':'enabled',liveIntegrationVerified:false});
   if(method==='GET'&&path==='proof')return json(await proof());
   if(path==='demo'||path.startsWith('demo/')){
     if(method!=='GET')throw new AppError('READ_ONLY',405,'The public demo is read-only.');
@@ -59,11 +61,12 @@ async function handle(request:Request) {
   const identityOnly=['auth/challenge','auth/verify','auth/logout','auth/logout-all','account'].includes(path);
   const personalReadEnabled=process.env.PERSONAL_READ_ENABLED==='true';
   // Export returns only the signed-in wallet's own records, for the Settings download.
-  const personalReadGet=new Set(['state','export']);
+  const personalReadGet=new Set(['state','export','memory-account']);
   // Labels are the one write allowed in the read-only pilot: payment explanations and their memory jobs.
   const labelsEnabled=personalReadEnabled&&process.env.PERSONAL_LABELS_ENABLED==='true';
   // memories/recall is a read-only check against Walrus for the signed-in profile's own memories.
-  const labelRequest=labelsEnabled&&method==='POST'&&(['consent/memory','memory-jobs/advance','memories/recall'].includes(path)||/^activity\/[^/]+\/annotation$/.test(path)||/^memories\/[^/]+\/deactivate$/.test(path));
+  // Dismissing learned advice is a memory write of the same kind as a label.
+  const labelRequest=labelsEnabled&&method==='POST'&&(['consent/memory','memory-jobs/advance','memories/recall','insights/decision','memory-account/start','memory-account/transaction','memory-account/submit','memory-account/confirm','memory-account/leave'].includes(path)||/^activity\/[^/]+\/annotation$/.test(path)||/^memories\/[^/]+\/deactivate$/.test(path));
   // Sending signs with the user's own wallet; the server only builds and relays. Planning adds the budget writes on top of labels.
   const sendEnabled=personalReadEnabled&&process.env.PERSONAL_SEND_ENABLED==='true';
   const sendRequest=sendEnabled&&((method==='GET'&&path==='transfers')||(method==='POST'&&(path==='transfers'||/^transfers\/[^/]+\/(submit|confirm)$/.test(path))));
@@ -141,6 +144,7 @@ async function handle(request:Request) {
   if(method==='POST'&&path==='destination-rules')return json(await destinationRule(profile,await body(request)));
   if(method==='POST'&&path==='reimbursements')return json(await reimbursement(profile,await body(request)));
   if(method==='POST'&&/^commitments\/[^/]+\/allocate$/.test(path))return json(await allocateCommitment(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
+  if(method==='POST'&&path==='insights/decision')return json(await decideInsight(profile,await body(request)));
   if(method==='POST'&&/^suggestions\/[^/]+\/decision$/.test(path))return json(await decideSuggestion(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&/^memories\/[^/]+\/correct$/.test(path))return json(await correctMemory(profile,decodeURIComponent(path.split('/')[1]),await body(request)));
   if(method==='POST'&&path==='memory-jobs/advance')return json(await advanceMemoryJob(profile));
@@ -150,6 +154,13 @@ async function handle(request:Request) {
     const id=decodeURIComponent(path.split('/')[1]);const data=z.object({reason:safeText,expectedRevision:z.number().int().positive()}).strict().parse(await body(request));
     return json(await transaction(async db=>{const prior=(await db.query('SELECT envelope FROM learned_events WHERE profile_id=$1 AND id=$2',[profile.id,id])).rows[0];if(!prior)throw new AppError('NOT_FOUND',404,'Memory not found.');return queueEvent(db,profile,newEvent(profile,{kind:'deactivation',logicalKey:prior.envelope.logicalKey,sourceRecordIds:prior.envelope.sourceRecordIds,expectedRevision:data.expectedRevision,supersedesEventId:id,payload:{reason:data.reason}}),data.expectedRevision);}));
   }
+  // Bring your own memory account: status, a fresh delegate key, proof it was added, or going back to the shared account.
+  if(method==='GET'&&path==='memory-account')return json(await memoryOwnership(profile));
+  if(method==='POST'&&path==='memory-account/start')return json(await startOwnership(profile));
+  if(method==='POST'&&path==='memory-account/transaction')return json(await prepareAccountTransaction(profile,await body(request)));
+  if(method==='POST'&&path==='memory-account/submit')return json(await submitAccountTransaction(profile,await body(request)));
+  if(method==='POST'&&path==='memory-account/confirm')return json(await confirmOwnership(profile,await body(request)));
+  if(method==='POST'&&path==='memory-account/leave')return json(await leaveOwnership(profile));
   if(method==='GET'&&/^memory-jobs\/[^/]+$/.test(path)){const job=(await database().query('SELECT id,event_id,state,blob_id,error_code,recalled_at,expires_at FROM memory_jobs WHERE profile_id=$1 AND id::text=$2',[profile.id,path.split('/')[1]])).rows[0];if(!job)throw new AppError('NOT_FOUND',404,'Memory job not found.');return json(job);}
   if(method==='GET'&&['state','today','balances','activity','plan','memories','learning-comparison','export','suggestions'].includes(path)) {
     const state=await accountState(profile);

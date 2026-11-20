@@ -1005,3 +1005,54 @@ html { background: var(--canvas); }
 .share-receipt .micro { margin: 0; }
 .move-result .share-receipt, .move-done .share-receipt { margin-left: 0; }
 @media (max-width: 600px) { .share-receipt { margin-left: 0; } }
+
+/* What memory changed: the plan with and without memory, and advice learned from labelled spending. */
+.insights-card { display: grid; gap: 16px; }
+.insights-card .section-title { margin-bottom: 0; }
+.insights-card .integration-identity { display: inline-flex; vertical-align: middle; margin-left: 4px; padding: 3px 8px; }
+.insights-card .integration-identity img { height: 13px; width: auto; }
+.insights-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.insights-figure { display: grid; gap: 2px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.insights-figure.learned { background: var(--memory); border-color: var(--memory-border); }
+.insights-figure-label { font-size: 13px; color: var(--muted); }
+.insights-figure strong { font-size: 26px; font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -0.02em; }
+.insights-figure small { font-size: 13px; color: var(--muted); }
+.insights-verdict { margin: 0; font-size: 15px; }
+.insights-why, .insights-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.insights-why li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; font-size: 14px; color: var(--ink); }
+.insights-why li svg { margin-top: 3px; color: var(--muted); }
+.insight { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 6px 10px 14px; border-radius: 12px; background: var(--canvas); }
+.insight p { margin: 0; font-size: 14px; }
+.insight .icon-button { width: 36px; min-width: 36px; min-height: 36px; padding: 8px; }
+.insight-goal_at_risk { background: var(--warning-soft); }
+.insight-goal_at_risk > svg { color: var(--warning); }
+.insight-goal_on_track > svg, .insight-save_suggestion > svg { color: var(--positive); }
+.payment-check { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.payment-check h3 { margin: 0; font-size: 15px; }
+.payment-check-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.payment-check label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.payment-check input, .payment-check select { min-height: 44px; padding: 0 12px; border: 1px solid var(--control-border); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; font-size: 15px; }
+.payment-verdict { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; padding: 12px 14px; border-radius: 12px; }
+.payment-verdict p { margin: 0 0 4px; font-size: 14px; }
+.payment-verdict ul { margin: 4px 0; padding-left: 18px; font-size: 14px; }
+.verdict-ok { background: var(--positive-soft); } .verdict-ok > svg { color: var(--positive); }
+.verdict-caution { background: var(--warning-soft); } .verdict-caution > svg { color: var(--warning); }
+.verdict-stop { background: var(--negative-soft); } .verdict-stop > svg { color: var(--negative); }
+@media (max-width: 640px) {
+  .payment-check-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .payment-check-row .button { grid-column: 1 / -1; }
+  .insights-figure strong { font-size: 22px; }
+}
+
+/* Who owns your memory (Settings). */
+.ownership { display: grid; gap: 12px; }
+.ownership-now { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 12px; padding: 14px 16px; border-radius: 12px; background: var(--canvas); }
+.ownership-now.owned { background: var(--positive-soft); }
+.ownership-now > svg { margin-top: 2px; color: var(--muted); }
+.ownership-now.owned > svg { color: var(--positive); }
+.ownership-now p { margin: 0 0 4px; }
+.ownership-choice { display: grid; gap: 12px; }
+.ownership-existing { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.ownership-existing label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.ownership-existing input { min-height: 44px; padding: 0 12px; border: 1px solid var(--control-border); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; font-size: 14px; }
+@media (max-width: 640px) { .ownership-existing { grid-template-columns: 1fr; } }

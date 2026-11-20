@@ -1,5 +1,6 @@
 import { database, transaction } from '@/adapters/postgres/client';
 import { WalrusMemory,enumerateMetadata } from '@/adapters/memwal/memory';
+import { walrusForAccount,walrusForWrite } from './memory-account';
 import { learnedEventSchema, type LearnedEvent } from '@/domain/learning';
 import { assertAllocationPayment } from './eligibility';
 import { persistOccurrences } from './commands';
@@ -71,10 +72,13 @@ export async function advanceMemoryJob(profile:Profile,providedMemory?:Pick<Walr
     return row;
   });
   if(!job)return {state:'idle'};
-  const memory=providedMemory??new WalrusMemory(profile.namespace),event=learnedEventSchema.parse(job.envelope);
+  const event=learnedEventSchema.parse(job.envelope);
+  // A new write goes to the account the user chose now; anything already written is followed up in the account it went to.
+  const memory=providedMemory??(job.state==='queued'?await walrusForWrite(profile):await walrusForAccount(profile,job.account_id??null));
+  const accountId=(memory as {accountId?:string|null}).accountId??null;
   if(job.state==='queued') {
     await consumeLimits([{key:'memory:write:global',max:4,seconds:60},{key:`memory:write:${profile.id}`,max:3,seconds:60}]);
-    const claimed=await database().query("UPDATE memory_jobs SET state='submitting',attempts=attempts+1,updated_at=now() WHERE profile_id=$1 AND id=$2 AND state='queued' RETURNING id",[profile.id,job.id]);
+    const claimed=await database().query("UPDATE memory_jobs SET state='submitting',attempts=attempts+1,account_id=$3,updated_at=now() WHERE profile_id=$1 AND id=$2 AND state='queued' RETURNING id",[profile.id,job.id,accountId]);
     if(!claimed.rowCount)return {state:'pending'};
     try { const accepted=await memory.submit(event); await database().query("UPDATE memory_jobs SET state='accepted',remote_job_id=$3,error_code=NULL,updated_at=now() WHERE profile_id=$1 AND id=$2",[profile.id,job.id,accepted.job_id]);return {state:'accepted',jobId:job.id}; }
     catch(error) {
@@ -104,12 +108,12 @@ export async function advanceMemoryJob(profile:Profile,providedMemory?:Pick<Walr
 }
 export async function refreshRecall(profile:Profile) {
   await consumeLimits([{key:'memory:recall:global',max:12,seconds:60},{key:`memory:recall:${profile.id}`,max:3,seconds:60}]);
-  const memory=new WalrusMemory(profile.namespace);
+  const memory=await walrusForWrite(profile);
   // Enumeration, unlike semantic recall, establishes storage availability for all known blobs.
   const metadata=await enumerateMetadata(cursor=>memory.metadataPage(cursor));
   await transaction(async db=>{
     await db.query('SELECT id FROM profiles WHERE id=$1 FOR UPDATE',[profile.id]);
-    const jobs=(await db.query("SELECT id,event_id,blob_id FROM memory_jobs WHERE profile_id=$1 AND state='recall_confirmed'",[profile.id])).rows;
+    const jobs=(await db.query("SELECT id,event_id,blob_id FROM memory_jobs WHERE profile_id=$1 AND state='recall_confirmed' AND account_id IS NOT DISTINCT FROM $2",[profile.id,memory.accountId])).rows;
     for(const job of jobs){
       const meta=metadata.find(m=>m.blob_id===job.blob_id);
       const available=!!meta&&meta.status==='active'&&(!meta.expires_at||new Date(meta.expires_at)>new Date());
